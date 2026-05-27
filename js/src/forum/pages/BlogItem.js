@@ -117,7 +117,7 @@ export default class BlogItem extends Page {
           'FlarumBlog-Article-GhostTitle': this.loading,
         })}
       >
-        {this?.article?.title?.() || 'Ghost title'}
+        {this.articleTitle(this.article) || 'Ghost title'}
         {this.article?.isHidden?.() && `(${app.translator.trans('v17development-flarum-blog.forum.hidden')})`}
       </h1>,
       100
@@ -298,5 +298,11 @@ export default class BlogItem extends Page {
       article.save({ lastReadPostNumber: endNumber });
       m.redraw();
     }
+  }
+
+  articleTitle(article) {
+    if (!article) return;
+
+    return article.title();
   }
 }

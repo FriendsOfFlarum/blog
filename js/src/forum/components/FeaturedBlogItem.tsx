@@ -107,11 +107,17 @@ export default class FeaturedBlogItem extends Component<Attrs> {
         <div class="BlogFeatured-list-item-top">{this.topItems().toArray()}</div>
 
         <div className={'BlogFeatured-list-item-details'}>
-          <h4>{article.title()}</h4>
+          <h4>{this.articleTitle(this.attrs.article)}</h4>
 
           <div className={'data'}>{this.dataItems().toArray()}</div>
         </div>
       </Link>
     );
+  }
+
+  articleTitle(article: Discussion): string | undefined {
+    if (!article) return;
+
+    return article.title();
   }
 }
