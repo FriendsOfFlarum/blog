@@ -62,7 +62,7 @@ export default class BlogItem extends Page {
     this.article = article;
 
     // Update title
-    app.setTitle(`${article.title()} - ${app.translator.trans('v17development-flarum-blog.forum.blog')}`);
+    app.setTitle(`${this.articleTitle(this.article)} - ${app.translator.trans('v17development-flarum-blog.forum.blog')}`);
 
     this.loading = false;
 
