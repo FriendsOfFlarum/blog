@@ -8,6 +8,14 @@ use Flarum\Discussion\Discussion;
 use Flarum\Foundation\EventGeneratorTrait;
 use V17Development\FlarumBlog\Event\BlogMetaCreated;
 
+/**
+ * @property string|null $summary
+ * @property string|null $featured_image
+ * @property bool $is_featured
+ * @property bool $is_sized
+ * @property bool $is_pending_review
+ * @property int $discussion_id
+ */
 class BlogMeta extends AbstractModel
 {
     use EventGeneratorTrait;
