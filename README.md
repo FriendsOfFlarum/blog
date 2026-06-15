@@ -4,6 +4,12 @@
 
 A [Flarum](https://flarum.org) extension that adds a blog section to your forum — a dedicated blog overview, article pages, and an article composer, built on top of your existing discussions and tags.
 
+## Requirements
+
+- PHP 8.2 or above
+- Flarum 1.8 or above
+- [`flarum/tags`](https://github.com/flarum/tags)
+
 ## Installation
 
 ```sh
@@ -26,7 +32,9 @@ For forum admins, migration is a one-line change — swap the package, keep your
 ```sh
 composer remove v17development/flarum-blog
 composer require fof/blog
+php flarum migrate
 php flarum cache:clear
+php flarum assets:publish
 ```
 
 `fof/blog` declares `replace: { "v17development/flarum-blog": "*" }`, so anything that depended on the old package is satisfied by the new one, and the two can never be installed at once.
