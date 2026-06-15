@@ -4,6 +4,15 @@
 
 A [Flarum](https://flarum.org) extension that adds a blog section to your forum — a dedicated blog overview, article pages, and an article composer, built on top of your existing discussions and tags.
 
+## Documentation
+
+Full documentation lives in the [`docs/`](https://github.com/FriendsOfFlarum/blog/blob/1.x/docs/README.md) folder:
+
+- [Installation](https://github.com/FriendsOfFlarum/blog/blob/1.x/docs/installation.md)
+- [Features & configuration](https://github.com/FriendsOfFlarum/blog/blob/1.x/docs/features.md)
+- [Permissions & the review workflow](https://github.com/FriendsOfFlarum/blog/blob/1.x/docs/permissions.md)
+- [Developer reference](https://github.com/FriendsOfFlarum/blog/blob/1.x/docs/developers.md)
+
 ## Requirements
 
 - PHP 8.2 or above
@@ -73,11 +82,11 @@ Compatible — but not required — alongside:
 
 ### Blog overview page
 
-[![Blog overview](https://i.gyazo.com/dfbba7a46aa153d8c6905733bd9b58c0.gif)](https://gyazo.com/dfbba7a46aa153d8c6905733bd9b58c0)
+![Blog overview](https://raw.githubusercontent.com/FriendsOfFlarum/blog/1.x/docs/images/blog-overview.gif)
 
 ### Blog article
 
-[![Blog article](https://i.gyazo.com/32e901c6aa4cc85144777d16756ec7b0.gif)](https://gyazo.com/32e901c6aa4cc85144777d16756ec7b0)
+![Blog article](https://raw.githubusercontent.com/FriendsOfFlarum/blog/1.x/docs/images/blog-article.gif)
 
 ### Blog tools
 
