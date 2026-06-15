@@ -90,15 +90,15 @@ Compatible — but not required — alongside:
 
 ### Blog tools
 
-[![Blog tools](https://i.imgur.com/xa8izBD.png)](https://imgur.com/a/zwClPHd)
+![Blog tools](https://raw.githubusercontent.com/FriendsOfFlarum/blog/1.x/docs/images/blog-tools.png)
 
 ### Blog settings
 
-[![Blog settings](https://i.imgur.com/Iyca8AJ.png)](https://imgur.com/a/mnxRtBh)
+![Blog settings](https://raw.githubusercontent.com/FriendsOfFlarum/blog/1.x/docs/images/blog-settings.png)
 
 ### Admin settings
 
-[![Admin settings](https://i.imgur.com/0F0XvYk.png)](https://imgur.com/a/QMTn3Ud)
+![Admin settings](https://raw.githubusercontent.com/FriendsOfFlarum/blog/1.x/docs/images/admin-settings.png)
 
 ## Credits
 
