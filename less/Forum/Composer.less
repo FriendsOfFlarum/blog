@@ -67,8 +67,18 @@
   }
 
   &-HideEditor {
+    // Hide the editor while the preview tab is active WITHOUT `display: none`.
+    // ProseMirror (fof/rich-text) nulls its internal `docView` when its DOM node
+    // is removed from layout via `display: none`, which then crashes on the next
+    // toolbar command (`this.docView is null`). Keeping the node laid out but
+    // visually hidden and non-interactive avoids that while still hiding it.
     .TextEditor {
-      display: none;
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      opacity: 0;
+      pointer-events: none;
     }
   }
 

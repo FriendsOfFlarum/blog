@@ -36,6 +36,7 @@
     "flarum/phpstan": "^1.0",
     "flarum/testing": "^1.0.0",
     "fof/discussion-language": "*",
+    "fof/rich-text": "^1.0",
     "fof/seo": "^3"
   },
   "replace": {
