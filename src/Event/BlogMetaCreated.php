@@ -1,8 +1,17 @@
 <?php
 
-namespace V17Development\FlarumBlog\Event;
+/*
+ * This file is part of fof/seo.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
 
-use V17Development\FlarumBlog\BlogMeta\BlogMeta;
+namespace FoF\Blog\Event;
+
+use FoF\Blog\BlogMeta\BlogMeta;
 
 class BlogMetaCreated
 {

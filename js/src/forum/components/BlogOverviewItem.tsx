@@ -17,19 +17,20 @@ interface Attrs {
 export default class BlogOverviewItem extends Component<Attrs> {
   titleItems(): ItemList<Mithril.Children> {
     const { article } = this.attrs;
+    const blogMeta = article.blogMeta();
 
     const items = new ItemList<Mithril.Children>();
 
     items.add('title', <>{article.title()}</>, 100);
 
-    if (article.blogMeta()?.isPendingReview?.() || article.isHidden()) {
+    if ((blogMeta && blogMeta.isPendingReview()) || article.isHidden()) {
       items.add('hidden', icon('fas fa-eye-slash', { class: 'BlogList-item-hidden' }), 80);
     }
 
-    if (article.blogMeta()?.isPendingReview?.()) {
+    if (blogMeta && blogMeta.isPendingReview()) {
       items.add(
         'pendingReview',
-        <Tooltip text={app.translator.trans('v17development-flarum-blog.forum.review_article.pending_review')}>
+        <Tooltip text={app.translator.trans('fof-blog.forum.review_article.pending_review')}>
           {icon('far fa-clock', { class: 'BlogList-item-pendingReview' })}
         </Tooltip>,
         40
@@ -41,13 +42,15 @@ export default class BlogOverviewItem extends Component<Attrs> {
 
   dataItems(): ItemList<Mithril.Children> {
     const { article } = this.attrs;
+    const createdAt = article.createdAt();
+    const user = article.user();
 
     const items = new ItemList<Mithril.Children>();
 
     items.add(
       'createdAt',
       <span class="BlogList-item-details-createdAt">
-        {icon('far fa-clock')} {humanTime(article.createdAt())}
+        {icon('far fa-clock')} {createdAt ? humanTime(createdAt) : ''}
       </span>,
       100
     );
@@ -55,7 +58,7 @@ export default class BlogOverviewItem extends Component<Attrs> {
     items.add(
       'author',
       <span class="BlogList-item-details-author">
-        {icon('far fa-user')} {article.user()?.displayName?.() || app.translator.trans('core.lib.username.deleted_text')}
+        {icon('far fa-user')} {(user && user.displayName()) || app.translator.trans('core.lib.username.deleted_text')}
       </span>,
       80
     );
@@ -73,7 +76,8 @@ export default class BlogOverviewItem extends Component<Attrs> {
 
   contentItems(): ItemList<Mithril.Children> {
     const { article } = this.attrs;
-    const summary = article.blogMeta()?.summary?.() || '';
+    const blogMeta = article.blogMeta();
+    const summary = (blogMeta && blogMeta.summary()) || '';
 
     const items = new ItemList<Mithril.Children>();
 
@@ -88,16 +92,21 @@ export default class BlogOverviewItem extends Component<Attrs> {
 
   getImage(): string {
     const { article, defaultImage } = this.attrs;
+    const blogMeta = article.blogMeta();
 
-    return article.blogMeta()?.featuredImage?.() ? `url(${article.blogMeta().featuredImage()})` : defaultImage;
+    const featuredImage = blogMeta ? blogMeta.featuredImage() : null;
+
+    return featuredImage ? `url(${featuredImage})` : defaultImage;
   }
 
   view(vnode: Mithril.Vnode<Attrs, this>) {
     const { article, defaultImage } = this.attrs;
+    const blogMeta = article.blogMeta();
+    const tags = article.tags() || [];
 
     const blogImage = this.getImage();
 
-    const isSized = article.blogMeta()?.isSized?.();
+    const isSized = blogMeta ? blogMeta.isSized() : false;
 
     return (
       <Link
@@ -110,7 +119,7 @@ export default class BlogOverviewItem extends Component<Attrs> {
             'BlogList-item-sized': isSized,
             'BlogList-item-default': !isSized,
           },
-          article.tags().map((tag) => `BlogList-item-category-${tag.id()}`)
+          tags.map((tag) => `BlogList-item-category-${tag?.id()}`)
         )}
       >
         <div

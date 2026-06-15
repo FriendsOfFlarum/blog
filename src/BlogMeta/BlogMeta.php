@@ -1,13 +1,32 @@
 <?php
 
-namespace V17Development\FlarumBlog\BlogMeta;
+/*
+ * This file is part of fof/seo.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
+namespace FoF\Blog\BlogMeta;
 
 use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Discussion\Discussion;
 use Flarum\Foundation\EventGeneratorTrait;
-use V17Development\FlarumBlog\Event\BlogMetaCreated;
+use FoF\Blog\Event\BlogMetaCreated;
 
+/**
+ * @property int                                $id
+ * @property int                                $discussion_id
+ * @property string|null                        $featured_image
+ * @property string|null                        $summary
+ * @property bool|null                          $is_featured
+ * @property bool|null                          $is_sized
+ * @property bool|null                          $is_pending_review
+ * @property \Flarum\Discussion\Discussion|null $discussion
+ */
 class BlogMeta extends AbstractModel
 {
     use EventGeneratorTrait;
@@ -16,13 +35,13 @@ class BlogMeta extends AbstractModel
     protected $table = 'blog_meta';
 
     /**
-     * Guard discussion
+     * Guard discussion.
      */
     protected $guarded = [
-        'discussion_id'
+        'discussion_id',
     ];
 
-    public static function build($discussionId, $featuredImage, $summary, $isFeatured, $isSized, $isPendingReview)
+    public static function build(int $discussionId, ?string $featuredImage, ?string $summary, ?bool $isFeatured, ?bool $isSized, bool $isPendingReview): self
     {
         $blogMeta = new static();
         $blogMeta->discussion_id = $discussionId;

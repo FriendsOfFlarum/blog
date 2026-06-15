@@ -17,14 +17,16 @@ interface Attrs {
 export default class FeaturedBlogItem extends Component<Attrs> {
   topItems(): ItemList<Mithril.Children> {
     const { article } = this.attrs;
+    const blogMeta = article.blogMeta();
+    const tags = article.tags() || [];
 
     const items = new ItemList<Mithril.Children>();
 
     items.add(
       'tags',
       <span class="BlogFeatured-list-item-tags">
-        {article.tags()?.map((tag) => (
-          <span class="dataItem">{tag.name()}</span>
+        {tags.map((tag) => (
+          <span class="dataItem">{tag?.name()}</span>
         ))}
       </span>,
       100
@@ -36,16 +38,16 @@ export default class FeaturedBlogItem extends Component<Attrs> {
       items.add('sticky', <span class="BlogFeatured-list-item-isSticky dataItem">{icon('fas fa-thumbtack')}</span>, 80);
     }
 
-    if (article.blogMeta()?.isPendingReview?.() || article.isHidden()) {
+    if ((blogMeta && blogMeta.isPendingReview()) || article.isHidden()) {
       items.add('hidden', <span class="BlogFeatured-list-item-isHidden dataItem">{icon('fas fa-eye-slash')}</span>, 60);
     }
 
-    if (article.blogMeta()?.isPendingReview?.()) {
+    if (blogMeta && blogMeta.isPendingReview()) {
       items.add(
         'pendingReview',
-        <Tooltip text={app.translator.trans('v17development-flarum-blog.forum.review_article.pending_review')} position="bottom">
+        <Tooltip text={app.translator.trans('fof-blog.forum.review_article.pending_review')} position="bottom">
           <span class="BlogFeatured-list-item-pendingReview dataItem">
-            {icon('far fa-clock')} {app.translator.trans('v17development-flarum-blog.forum.review_article.pending_review_title')}
+            {icon('far fa-clock')} {app.translator.trans('fof-blog.forum.review_article.pending_review_title')}
           </span>
         </Tooltip>,
         40
@@ -60,10 +62,13 @@ export default class FeaturedBlogItem extends Component<Attrs> {
 
     const items = new ItemList<Mithril.Children>();
 
+    const createdAt = article.createdAt();
+    const user = article.user();
+
     items.add(
       'createdAt',
       <span class="BlogFeatured-list-item-details-createdAt">
-        {icon('far fa-clock')} {humanTime(article.createdAt())}
+        {icon('far fa-clock')} {createdAt ? humanTime(createdAt) : ''}
       </span>,
       100
     );
@@ -71,7 +76,7 @@ export default class FeaturedBlogItem extends Component<Attrs> {
     items.add(
       'author',
       <span class="BlogFeatured-list-item-details-author">
-        {icon('far fa-user')} {article.user()?.displayName() || app.translator.trans('core.lib.username.deleted_text')}
+        {icon('far fa-user')} {(user && user.displayName()) || app.translator.trans('core.lib.username.deleted_text')}
       </span>,
       80
     );
@@ -79,7 +84,7 @@ export default class FeaturedBlogItem extends Component<Attrs> {
     items.add(
       'replies',
       <span class="BlogFeatured-list-item-details-replies">
-        {icon('far fa-comment')} {article.commentCount() - 1}
+        {icon('far fa-comment')} {(article.commentCount() || 0) - 1}
       </span>,
       60
     );
@@ -89,8 +94,11 @@ export default class FeaturedBlogItem extends Component<Attrs> {
 
   view(vnode: Mithril.Vnode<Attrs, this>) {
     const { article, defaultImage } = this.attrs;
+    const blogMeta = article.blogMeta();
+    const tags = article.tags() || [];
 
-    const blogImage = article.blogMeta()?.featuredImage?.() ? `url(${article.blogMeta().featuredImage()})` : defaultImage;
+    const featuredImage = blogMeta ? blogMeta.featuredImage() : null;
+    const blogImage = featuredImage ? `url(${featuredImage})` : defaultImage;
 
     return (
       <Link
@@ -99,7 +107,7 @@ export default class FeaturedBlogItem extends Component<Attrs> {
         })}
         className={classList(
           'BlogFeatured-list-item',
-          article.tags().map((tag) => `BlogFeatured-list-item-category-${tag.id()}`),
+          tags.map((tag) => `BlogFeatured-list-item-category-${tag?.id()}`),
           'FlarumBlog-default-image'
         )}
         style={{ backgroundImage: blogImage }}

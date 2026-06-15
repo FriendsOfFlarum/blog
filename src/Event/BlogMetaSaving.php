@@ -1,9 +1,18 @@
 <?php
 
-namespace V17Development\FlarumBlog\Event;
+/*
+ * This file is part of fof/seo.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
+namespace FoF\Blog\Event;
 
 use Flarum\User\User;
-use V17Development\FlarumBlog\BlogMeta\BlogMeta;
+use FoF\Blog\BlogMeta\BlogMeta;
 
 class BlogMetaSaving
 {

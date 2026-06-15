@@ -1,14 +1,24 @@
 <?php
-namespace V17Development\FlarumBlog\Api\Controller;
 
-use Flarum\Settings\SettingsRepositoryInterface;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\Filesystem;
-use Psr\Http\Message\ServerRequestInterface;
-use Laminas\Diactoros\Response\EmptyResponse;
+/*
+ * This file is part of fof/seo.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
+namespace FoF\Blog\Api\Controller;
+
 use Flarum\Api\Controller\AbstractDeleteController;
-use Flarum\Foundation\Paths;
 use Flarum\Http\RequestUtil;
+use Flarum\Settings\SettingsRepositoryInterface;
+use Illuminate\Contracts\Filesystem\Factory;
+use Illuminate\Contracts\Filesystem\Filesystem;
+use Laminas\Diactoros\Response\EmptyResponse;
+use Psr\Http\Message\ResponseInterface;
+use Psr\Http\Message\ServerRequestInterface;
 
 class DeleteDefaultBlogImageController extends AbstractDeleteController
 {
@@ -18,31 +28,30 @@ class DeleteDefaultBlogImageController extends AbstractDeleteController
     protected $settings;
 
     /**
-     * @var Paths
+     * @var Filesystem
      */
-    protected $paths;
+    protected $uploadDir;
 
-    /**
-     * @param SettingsRepositoryInterface $settings
-     */
-    public function __construct(SettingsRepositoryInterface $settings, Paths $paths)
+    public function __construct(SettingsRepositoryInterface $settings, Factory $filesystemFactory)
     {
         $this->settings = $settings;
-        $this->paths = $paths;
+        $this->uploadDir = $filesystemFactory->disk('flarum-assets');
     }
+
     /**
      * {@inheritdoc}
      */
-    protected function delete(ServerRequestInterface $request)
+    protected function delete(ServerRequestInterface $request): ResponseInterface
     {
         RequestUtil::getActor($request)->assertAdmin();
 
         $path = $this->settings->get('blog_default_image_path');
         $this->settings->set('blog_default_image_path', null);
-        $uploadDir = new Filesystem(new Local($this->paths->public.'/assets'));
-        if ($uploadDir->has($path)) {
-            $uploadDir->delete($path);
+
+        if ($path && $this->uploadDir->exists($path)) {
+            $this->uploadDir->delete($path);
         }
+
         return new EmptyResponse(204);
     }
 }

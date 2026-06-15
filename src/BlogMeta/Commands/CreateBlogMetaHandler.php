@@ -1,16 +1,25 @@
 <?php
 
-namespace V17Development\FlarumBlog\BlogMeta\Commands;
+/*
+ * This file is part of fof/seo.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
 
-use Illuminate\Contracts\Events\Dispatcher;
+namespace FoF\Blog\BlogMeta\Commands;
+
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use V17Development\FlarumBlog\BlogMeta\BlogMeta;
-use V17Development\FlarumBlog\BlogMeta\BlogMetaValidator;
+use FoF\Blog\BlogMeta\BlogMeta;
+use FoF\Blog\BlogMeta\BlogMetaValidator;
+use FoF\Blog\Event\BlogMetaSaving;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
-use V17Development\FlarumBlog\Event\BlogMetaSaving;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class CreateBlogMetaHandler
 {
@@ -56,9 +65,9 @@ class CreateBlogMetaHandler
     }
 
     /**
-     * Handle new support blog meta
+     * Handle new support blog meta.
      */
-    public function handle(CreateBlogMeta $command)
+    public function handle(CreateBlogMeta $command): BlogMeta
     {
         $actor = $command->actor;
 
@@ -74,7 +83,7 @@ class CreateBlogMetaHandler
 
         // Create new blog meta
         $blogMeta = BlogMeta::firstOrNew([
-            'discussion_id' => $discussion->id
+            'discussion_id' => $discussion->id,
         ]);
 
         $blogMeta->discussion_id = $discussion->id;

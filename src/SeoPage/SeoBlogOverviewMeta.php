@@ -1,18 +1,26 @@
 <?php
 
-namespace V17Development\FlarumBlog\SeoPage;
+/*
+ * This file is part of fof/seo.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
+namespace FoF\Blog\SeoPage;
 
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Tags\Tag;
 use Flarum\Tags\TagRepository;
-use Illuminate\Support\Arr;
+use FoF\Seo\Page\PageDriverInterface;
+use FoF\Seo\SeoMeta\SeoMeta;
+use FoF\Seo\SeoProperties;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Translation\Translator;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use V17Development\FlarumSeo\Page\PageDriverInterface;
-use V17Development\FlarumSeo\SeoMeta\SeoMeta;
-use V17Development\FlarumSeo\SeoProperties;
 
 class SeoBlogOverviewMeta implements PageDriverInterface
 {
@@ -24,13 +32,13 @@ class SeoBlogOverviewMeta implements PageDriverInterface
     protected $tagRepository;
 
     /**
-     * @var Translator
+     * @var TranslatorInterface
      */
     protected $translator;
 
     /**
      * @param TagRepository $tagRepository
-     * @param Dispatcher $events
+     * @param Dispatcher    $events
      */
     public function __construct(
         TagRepository $tagRepository,
@@ -54,12 +62,12 @@ class SeoBlogOverviewMeta implements PageDriverInterface
 
     /**
      * @param ServerRequestInterface $request
-     * @param SeoProperties $properties
+     * @param SeoProperties          $properties
      */
     public function handle(
         ServerRequestInterface $request,
         SeoProperties $properties
-    ) {
+    ): void {
         // Get tag slug from params
         $category = Arr::get($request->getQueryParams(), 'category');
 
@@ -86,6 +94,6 @@ class SeoBlogOverviewMeta implements PageDriverInterface
         $properties->generateTagsFromMetaData($seoMeta);
 
         // Set blog title
-        $properties->setTitle($seoMeta->title . " - " . $this->translator->trans('v17development-flarum-blog.forum.blog'));
+        $properties->setTitle($seoMeta->title.' - '.$this->translator->trans('v17development-flarum-blog.forum.blog'));
     }
 }

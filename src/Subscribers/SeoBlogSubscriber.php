@@ -1,28 +1,41 @@
 <?php
 
-namespace V17Development\FlarumBlog\Subscribers;
+/*
+ * This file is part of fof/seo.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
+namespace FoF\Blog\Subscribers;
 
 use Flarum\Discussion\Event as DiscussionEvent;
-use V17Development\FlarumBlog\BlogMeta\BlogMeta;
-use V17Development\FlarumBlog\Event\BlogMetaCreated;
-use V17Development\FlarumBlog\Event\BlogMetaSaving;
-use V17Development\FlarumSeo\SeoMeta\SeoMeta;
-use V17Development\FlarumSeo\SeoProperties;
-use V17Development\FlarumSeo\SeoMeta\Event\Created;
+use Flarum\Post\CommentPost;
+use FoF\Blog\BlogMeta\BlogMeta;
+use FoF\Blog\Event\BlogMetaCreated;
+use FoF\Blog\Event\BlogMetaSaving;
+use FoF\Seo\SeoMeta\Event\Created;
+use FoF\Seo\SeoMeta\SeoMeta;
+use FoF\Seo\SeoProperties;
+use Illuminate\Contracts\Events\Dispatcher;
 
 /**
- * Subscribe to discussion creation, update or deleted
+ * Subscribe to discussion creation, update or deleted.
  */
 class SeoBlogSubscriber
 {
-    public function __construct(private SeoProperties $seoProperties) {}
+    public function __construct(private SeoProperties $seoProperties)
+    {
+    }
 
     /**
-     * Subscribe to events
-     * 
-     * @param $events
+     * Subscribe to events.
+     *
+     * @param Dispatcher $events
      */
-    public function subscribe($events)
+    public function subscribe(Dispatcher $events): void
     {
         $events->listen(DiscussionEvent\Deleting::class, [$this, 'onDiscussionUpdate']);
         $events->listen(DiscussionEvent\Renamed::class, [$this, 'onDiscussionUpdate']);
@@ -32,33 +45,30 @@ class SeoBlogSubscriber
     }
 
     /**
-     * Handle model event
+     * Handle model event.
      *
-     * @param $event
+     * @param DiscussionEvent\Deleting|DiscussionEvent\Renamed $event
      */
-    public function onDiscussionUpdate($event)
+    public function onDiscussionUpdate($event): void
     {
+        // blogMeta is a relationship added to the core Discussion model via
+        // Extend\Model in extend.php, so it is not declared on the core class.
+        /** @var BlogMeta|null $blogMeta */
+        $blogMeta = $event->discussion->blogMeta;
+
         // Only do something with discussions that have a blog_meta relationship
-        if (!isset($event->discussion->blogMeta->id)) {
+        if (!isset($blogMeta->id)) {
             return;
         }
 
-        // Find relevant meta
-        $meta = SeoMeta::findByObjectType('blogs', $event->discussion->blogMeta->id);
+        // Find relevant meta (findByObjectType creates the record if absent)
+        $meta = SeoMeta::findByObjectType('blogs', $blogMeta->id);
 
         // Find and delete meta-data
         if ($event::class === DiscussionEvent\Deleting::class) {
-            // Meta existed, delete
-            if ($meta) {
-                $meta->delete();
-            }
+            $meta->delete();
 
             return;
-        }
-
-        // Create new meta by model
-        if (!$meta) {
-            $meta = SeoMeta::build('blogs', $event->discussion->blogMeta->id);
         }
 
         // Do not auto update
@@ -66,19 +76,23 @@ class SeoBlogSubscriber
             return;
         }
 
-        $this->updateMeta($meta, $event->discussion->blogMeta);
+        $this->updateMeta($meta, $blogMeta);
 
         // Update
         $meta->save();
     }
 
     /**
-     * Handle Blog meta update
+     * Handle Blog meta update.
+     *
+     * @param BlogMetaSaving|BlogMetaCreated $event
      */
-    public function onBlogMetaUpdate($event)
+    public function onBlogMetaUpdate($event): void
     {
         // Make sure to only process meta's that have an ID
-        if (!isset($event->blogMeta->id)) return;
+        if (!isset($event->blogMeta->id)) {
+            return;
+        }
 
         // Find meta
         $meta = SeoMeta::findByObjectType('blogs', $event->blogMeta->id);
@@ -90,14 +104,16 @@ class SeoBlogSubscriber
     }
 
     /**
-     * Handle SEO-meta created event for blogs
-     * 
+     * Handle SEO-meta created event for blogs.
+     *
      * @param Created $event
      */
-    public function onMetaCreated(Created $event)
+    public function onMetaCreated(Created $event): void
     {
         // Only update meta data if object type matches
-        if ($event->objectType !== 'blogs') return;
+        if ($event->objectType !== 'blogs') {
+            return;
+        }
 
         // Find blogMeta
         $blogMeta = BlogMeta::find($event->objectId);
@@ -108,9 +124,9 @@ class SeoBlogSubscriber
     }
 
     /**
-     * Public function to update seoMeta
+     * Public function to update seoMeta.
      */
-    public function updateMeta($seoMeta, $blogMeta)
+    public function updateMeta(SeoMeta $seoMeta, BlogMeta $blogMeta): void
     {
         $seoMeta->title = $blogMeta->discussion->title;
 
@@ -118,8 +134,8 @@ class SeoBlogSubscriber
 
         $firstPost = $blogMeta->discussion->firstPost;
 
-        // If a discussion has a first post, use edited_at time if intial post was more recent edited than the last post was posted 
-        if ($firstPost) {
+        // If a discussion has a first post, use edited_at time if intial post was more recent edited than the last post was posted
+        if ($firstPost instanceof CommentPost) {
             $seoMeta->updated_at = $firstPost->edited_at > $blogMeta->discussion->last_posted_at ? $firstPost->edited_at : $blogMeta->discussion->last_posted_at;
 
             $content = $firstPost->formatContent();
@@ -144,7 +160,7 @@ class SeoBlogSubscriber
         // Only update image if source was set to auto and is not managed by a different extension
         if (!$seoMeta->open_graph_image_source || $seoMeta->open_graph_image_source === 'auto' || $seoMeta->open_graph_image_source === 'v17development-flarum-blog') {
             $seoMeta->open_graph_image = $blogMeta->featured_image;
-            $seoMeta->open_graph_image_source = "v17development-flarum-blog";
+            $seoMeta->open_graph_image_source = 'v17development-flarum-blog';
         }
     }
 }

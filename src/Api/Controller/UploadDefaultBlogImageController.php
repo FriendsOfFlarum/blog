@@ -1,61 +1,73 @@
 <?php
-namespace V17Development\FlarumBlog\Api\Controller;
 
+/*
+ * This file is part of fof/seo.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
+namespace FoF\Blog\Api\Controller;
+
+use Flarum\Api\Controller\UploadImageController;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Support\Str;
-use Illuminate\Support\Arr;
-use League\Flysystem\Adapter\Local;
-use League\Flysystem\Filesystem;
-use League\Flysystem\MountManager;
-use Psr\Http\Message\ServerRequestInterface;
-use Tobscure\JsonApi\Document;
-use Flarum\Api\Controller\ShowForumController;
-use Flarum\Foundation\Paths;
-use Flarum\Http\RequestUtil;
+use Illuminate\Contracts\Filesystem\Factory;
+use Intervention\Image\Image;
+use Intervention\Image\ImageManager;
+use Psr\Http\Message\UploadedFileInterface;
 
-class UploadDefaultBlogImageController extends ShowForumController
+class UploadDefaultBlogImageController extends UploadImageController
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var Paths
-     */
-    protected $paths;
-
-    /**
-     * @param SettingsRepositoryInterface $settings
-     */
-    public function __construct(SettingsRepositoryInterface $settings, Paths $paths)
-    {
-        $this->settings = $settings;
-        $this->paths = $paths;
-    }
     /**
      * {@inheritdoc}
      */
-    public function data(ServerRequestInterface $request, Document $document)
+    protected $filePathSettingKey = 'blog_default_image_path';
+
+    /**
+     * {@inheritdoc}
+     */
+    protected $filenamePrefix = 'blog_default_image';
+
+    /**
+     * @var ImageManager
+     */
+    protected $imageManager;
+
+    public function __construct(SettingsRepositoryInterface $settings, Factory $filesystemFactory, ImageManager $imageManager)
     {
-        RequestUtil::getActor($request)->assertAdmin();
+        parent::__construct($settings, $filesystemFactory);
 
-        $file = Arr::get($request->getUploadedFiles(), 'blog_default_image');
-        $tmpFile = tempnam($this->paths->storage.'/tmp', 'blog-default');
-        $file->moveTo($tmpFile);
+        $this->imageManager = $imageManager;
+    }
 
-        $mount = new MountManager([
-            'source' => new Filesystem(new Local(pathinfo($tmpFile, PATHINFO_DIRNAME))),
-            'target' => new Filesystem(new Local($this->paths->public.'/assets')),
-        ]);
+    /**
+     * Maximum stored width, in pixels. The default image is used as a full-width
+     * "cover" hero background (see less/Forum/Item.less), so it needs to stay
+     * crisp on large and hi-DPI/retina displays — hence a generous cap rather
+     * than a thumbnail size. Taller-than-wide images are bounded by height too.
+     */
+    const MAX_WIDTH = 2000;
 
-        if (($path = $this->settings->get('blog_default_image_path')) && $mount->has($file = "target://$path")) {
-            $mount->delete($file);
+    const MAX_HEIGHT = 1200;
+
+    /**
+     * {@inheritdoc}
+     */
+    protected function makeImage(UploadedFileInterface $file): Image
+    {
+        $image = $this->imageManager->make($file->getStream()->getMetadata('uri'));
+
+        // Downscale oversized uploads to keep stored assets reasonable, while
+        // preserving aspect ratio and never upscaling smaller images.
+        if ($image->width() > self::MAX_WIDTH || $image->height() > self::MAX_HEIGHT) {
+            $image->resize(self::MAX_WIDTH, self::MAX_HEIGHT, function ($constraint) {
+                $constraint->aspectRatio();
+                $constraint->upsize();
+            });
         }
 
-        $uploadName = 'blog-default-'.Str::lower(Str::random(8)).'.png';
-        $mount->move('source://'.pathinfo($tmpFile, PATHINFO_BASENAME), "target://$uploadName");
-        $this->settings->set('blog_default_image_path', $uploadName);
-        return parent::data($request, $document);
+        return $image->encode('png');
     }
 }

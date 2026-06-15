@@ -10,8 +10,16 @@
     "declarationDir": "./dist-typings",
     "baseUrl": ".",
     "paths": {
+      // Flarum's webpack externals expose the tags forum components at
+      // `flarum/tags/components/*` at runtime, but the dist-typings ship them
+      // under `forum/components/*`. Map the runtime path to the real typings.
+      "flarum/tags/components/*": ["../vendor/flarum/tags/js/dist-typings/forum/components/*"],
       "flarum/tags/*": ["../vendor/flarum/tags/js/dist-typings/*"],
-      "flarum/*": ["../vendor/flarum/core/js/dist-typings/*"]
+      "flarum/*": ["../vendor/flarum/core/js/dist-typings/*"],
+      // `@flarum/core/forum` is the runtime webpack external; point its types at
+      // core's forum dist-typings (which export `compat`).
+      "@flarum/core/forum": ["../vendor/flarum/core/js/dist-typings/forum/index"],
+      "@fof/discussion-language/*": ["../vendor/fof/discussion-language/js/dist-typings/*"]
     }
   }
 }

@@ -1,16 +1,25 @@
 <?php
 
-namespace V17Development\FlarumBlog\BlogMeta\Commands;
+/*
+ * This file is part of fof/seo.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
 
-use Illuminate\Contracts\Events\Dispatcher;
-use Flarum\Foundation\ValidationException;
+namespace FoF\Blog\BlogMeta\Commands;
+
 use Flarum\Discussion\DiscussionRepository;
+use Flarum\Foundation\ValidationException;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
-use V17Development\FlarumBlog\BlogMeta\BlogMeta;
-use V17Development\FlarumBlog\BlogMeta\BlogMetaValidator;
+use FoF\Blog\BlogMeta\BlogMeta;
+use FoF\Blog\BlogMeta\BlogMetaValidator;
+use FoF\Blog\Event\BlogMetaSaving;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
-use V17Development\FlarumBlog\Event\BlogMetaSaving;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UpdateBlogMetaHandler
 {
@@ -49,9 +58,9 @@ class UpdateBlogMetaHandler
     }
 
     /**
-     * Handle new support blog meta
+     * Handle new support blog meta.
      */
-    public function handle(UpdateBlogMeta $command)
+    public function handle(UpdateBlogMeta $command): BlogMeta
     {
         $actor = $command->actor;
 
@@ -67,11 +76,12 @@ class UpdateBlogMetaHandler
             throw new ValidationException([
                 'message' => $this->translator->trans(
                     'v17development-flarum-blog.forum.validation.missing_id'
-                )
+                ),
             ]);
         }
 
         // Update new blog meta
+        /** @var BlogMeta $blogMeta */
         $blogMeta = BlogMeta::findOrFail($command->id);
 
         // Featured image

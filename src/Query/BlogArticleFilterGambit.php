@@ -1,6 +1,15 @@
 <?php
 
-namespace V17Development\FlarumBlog\Query;
+/*
+ * This file is part of fof/seo.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
+namespace FoF\Blog\Query;
 
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\SearchState;
@@ -23,22 +32,28 @@ class BlogArticleFilterGambit extends AbstractRegexGambit
         $this->settings = $settings;
     }
 
-    protected function getGambitPattern()
+    protected function getGambitPattern(): string
     {
         return 'is:blog';
     }
 
     protected function conditions(SearchState $search, array $matches, $negate)
     {
-        $tagsArray = explode("|", $this->settings->get('blog_tags', ''));
+        $tagsArray = explode('|', $this->settings->get('blog_tags', ''));
 
         $search->getQuery()->where(function (Builder $query) use ($tagsArray, $negate) {
             foreach ($tagsArray as $tagId) {
-                $query->orWhereIn('discussions.id', function (Builder $query) use ($tagId) {
+                $subquery = function (Builder $query) use ($tagId) {
                     $query->select('discussion_id')
                         ->from('discussion_tag')
                         ->where('tag_id', $tagId);
-                }, $negate);
+                };
+
+                if ($negate) {
+                    $query->orWhereNotIn('discussions.id', $subquery);
+                } else {
+                    $query->orWhereIn('discussions.id', $subquery);
+                }
             }
         });
     }
