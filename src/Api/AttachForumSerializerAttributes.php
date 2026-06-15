@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of fof/seo.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\Blog\Api;
 
 use Flarum\Api\Serializer\ForumSerializer;
@@ -38,7 +47,7 @@ class AttachForumSerializerAttributes
     public function __invoke(ForumSerializer $serializer, $model, array $attributes): array
     {
         // Populate forum settings
-        $attributes['blogTags'] = explode("|", $this->settings->get('blog_tags', ''));
+        $attributes['blogTags'] = explode('|', $this->settings->get('blog_tags', ''));
         $attributes['blogRedirectsEnabled'] = $this->settings->get('blog_redirects_enabled', 'both');
         $attributes['blogCommentsEnabled'] = $this->settings->get('blog_allow_comments', true);
         $attributes['blogHideTags'] = $this->settings->get('blog_hide_tags', true);
@@ -53,6 +62,7 @@ class AttachForumSerializerAttributes
         $attributes['canApproveBlogPosts'] = $serializer->getActor()->can('blog.canApprovePosts');
         $attributes['blogFeaturedCount'] = $this->settings->get('blog_featured_count', 3);
         $attributes['blogAddHero'] = $this->settings->get('blog_add_hero', true);
+
         return $attributes;
     }
 }

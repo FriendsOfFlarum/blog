@@ -1,13 +1,22 @@
 <?php
 
+/*
+ * This file is part of fof/seo.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\Blog\Listeners;
 
-use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Contracts\Events\Dispatcher;
-use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\Discussion\Event\Saving;
 use Flarum\Foundation\DispatchEventsTrait;
+use Flarum\Settings\SettingsRepositoryInterface;
+use Flarum\User\Exception\PermissionDeniedException;
 use FoF\Blog\BlogMeta\BlogMeta;
+use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 
 class CreateBlogMetaOnDiscussionCreate
@@ -36,7 +45,7 @@ class CreateBlogMetaOnDiscussionCreate
         // Get Flarum settings
         $this->settings = $settings;
         $this->events = $events;
-        $this->blogTags = explode("|", $this->settings->get('blog_tags', ''));
+        $this->blogTags = explode('|', $this->settings->get('blog_tags', ''));
     }
 
     /**
@@ -53,7 +62,6 @@ class CreateBlogMetaOnDiscussionCreate
 
         // After the tags are synced, check if it's a blog article
         $discussion->afterSave(function ($discussion) use ($event) {
-
             // Here it may happen that `$discussion->tags` gives an empty array because of a strange bug.
             // This can be reproduced when using the fof/discussion-language extension (v1.2.1)
             // For this reason we need to explictly reloag the tags relationship before using it here.
@@ -62,7 +70,7 @@ class CreateBlogMetaOnDiscussionCreate
             // Make sure it's a blog base discussion!
             if ($discussion->tags && $discussion->tags->whereIn('id', $this->blogTags)->count() > 0) {
                 if (!$event->actor->can('blog.writeArticles')) {
-                    throw new PermissionDeniedException;
+                    throw new PermissionDeniedException();
                 }
 
                 // Auto approve if it does not require a review

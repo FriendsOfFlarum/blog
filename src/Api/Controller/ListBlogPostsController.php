@@ -1,15 +1,23 @@
 <?php
 
+/*
+ * This file is part of fof/seo.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\Blog\Api\Controller;
 
 use Flarum\Api\Controller\AbstractListController;
 use Flarum\Api\Serializer\DiscussionSerializer;
 use Flarum\Discussion\Discussion;
+use Flarum\Http\RequestUtil;
 use Flarum\Http\UrlGenerator;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
-use Flarum\Http\RequestUtil;
-use Illuminate\Support\Arr;
 
 class ListBlogPostsController extends AbstractListController
 {
@@ -62,7 +70,7 @@ class ListBlogPostsController extends AbstractListController
         $hasMoreResults = $limit > 0 && $results->count() > $limit;
 
         // Pop
-        if($hasMoreResults) {
+        if ($hasMoreResults) {
             $results->pop();
         }
 

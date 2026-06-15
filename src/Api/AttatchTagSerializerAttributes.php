@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of fof/seo.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\Blog\Api;
 
 use Flarum\Settings\SettingsRepositoryInterface;
@@ -32,8 +41,8 @@ class AttatchTagSerializerAttributes
     public function __invoke(TagSerializer $serializer, Tag $model, array $attributes): array
     {
         // Get blog tags
-        $blogTags = explode("|", $this->settings->get('blog_tags', ''));
-        
+        $blogTags = explode('|', $this->settings->get('blog_tags', ''));
+
         // Add isBlog attribute
         $attributes['isBlog'] = (bool) in_array($model->id, $blogTags) || ($model->parent_id && in_array($model->parent->id, $blogTags));
 

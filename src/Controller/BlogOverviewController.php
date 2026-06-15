@@ -1,14 +1,22 @@
 <?php
 
+/*
+ * This file is part of fof/seo.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\Blog\Controller;
 
-use Flarum\Frontend\Document;
 use Flarum\Api\Client;
 use Flarum\Extension\ExtensionManager;
+use Flarum\Frontend\Document;
+use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use Flarum\Tags\Tag;
-use Illuminate\Support\Arr;
 
 class BlogOverviewController
 {
@@ -38,21 +46,21 @@ class BlogOverviewController
     {
         $queryParams = $request->getQueryParams();
 
-        $q = "";
+        $q = '';
 
         // Add language support
-        if ($this->extensionManager->isEnabled("fof-discussion-language")) {
+        if ($this->extensionManager->isEnabled('fof-discussion-language')) {
             $q = "language:{$document->language} ";
         }
 
-        $q .= "is:blog" . (Arr::get($queryParams, 'category') ? " tag:" . Arr::get($queryParams, 'category') : "");
+        $q .= 'is:blog'.(Arr::get($queryParams, 'category') ? ' tag:'.Arr::get($queryParams, 'category') : '');
 
         // Preload blog posts
         $apiDocument = $this->getApiDocument($request, [
-            "filter" => [
-                "q" => $q
+            'filter' => [
+                'q' => $q,
             ],
-            "sort" => "-createdAt"
+            'sort' => '-createdAt',
         ]);
 
         // Set payload
@@ -62,10 +70,10 @@ class BlogOverviewController
     }
 
     /**
-     * Preload blog posts
+     * Preload blog posts.
      *
      * @param ServerRequestInterface $request
-     * @param array $params
+     * @param array                  $params
      *
      * @return object
      */

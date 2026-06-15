@@ -1,27 +1,38 @@
 <?php
 
+/*
+ * This file is part of fof/seo.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\Blog\Subscribers;
 
 use Flarum\Discussion\Event as DiscussionEvent;
 use Flarum\Post\CommentPost;
-use Illuminate\Contracts\Events\Dispatcher;
 use FoF\Blog\BlogMeta\BlogMeta;
 use FoF\Blog\Event\BlogMetaCreated;
 use FoF\Blog\Event\BlogMetaSaving;
+use FoF\Seo\SeoMeta\Event\Created;
 use FoF\Seo\SeoMeta\SeoMeta;
 use FoF\Seo\SeoProperties;
-use FoF\Seo\SeoMeta\Event\Created;
+use Illuminate\Contracts\Events\Dispatcher;
 
 /**
- * Subscribe to discussion creation, update or deleted
+ * Subscribe to discussion creation, update or deleted.
  */
 class SeoBlogSubscriber
 {
-    public function __construct(private SeoProperties $seoProperties) {}
+    public function __construct(private SeoProperties $seoProperties)
+    {
+    }
 
     /**
-     * Subscribe to events
-     * 
+     * Subscribe to events.
+     *
      * @param Dispatcher $events
      */
     public function subscribe(Dispatcher $events): void
@@ -34,7 +45,7 @@ class SeoBlogSubscriber
     }
 
     /**
-     * Handle model event
+     * Handle model event.
      *
      * @param DiscussionEvent\Deleting|DiscussionEvent\Renamed $event
      */
@@ -72,14 +83,16 @@ class SeoBlogSubscriber
     }
 
     /**
-     * Handle Blog meta update
+     * Handle Blog meta update.
      *
      * @param BlogMetaSaving|BlogMetaCreated $event
      */
     public function onBlogMetaUpdate($event): void
     {
         // Make sure to only process meta's that have an ID
-        if (!isset($event->blogMeta->id)) return;
+        if (!isset($event->blogMeta->id)) {
+            return;
+        }
 
         // Find meta
         $meta = SeoMeta::findByObjectType('blogs', $event->blogMeta->id);
@@ -91,14 +104,16 @@ class SeoBlogSubscriber
     }
 
     /**
-     * Handle SEO-meta created event for blogs
-     * 
+     * Handle SEO-meta created event for blogs.
+     *
      * @param Created $event
      */
     public function onMetaCreated(Created $event): void
     {
         // Only update meta data if object type matches
-        if ($event->objectType !== 'blogs') return;
+        if ($event->objectType !== 'blogs') {
+            return;
+        }
 
         // Find blogMeta
         $blogMeta = BlogMeta::find($event->objectId);
@@ -109,7 +124,7 @@ class SeoBlogSubscriber
     }
 
     /**
-     * Public function to update seoMeta
+     * Public function to update seoMeta.
      */
     public function updateMeta(SeoMeta $seoMeta, BlogMeta $blogMeta): void
     {
@@ -145,7 +160,7 @@ class SeoBlogSubscriber
         // Only update image if source was set to auto and is not managed by a different extension
         if (!$seoMeta->open_graph_image_source || $seoMeta->open_graph_image_source === 'auto' || $seoMeta->open_graph_image_source === 'v17development-flarum-blog') {
             $seoMeta->open_graph_image = $blogMeta->featured_image;
-            $seoMeta->open_graph_image_source = "v17development-flarum-blog";
+            $seoMeta->open_graph_image_source = 'v17development-flarum-blog';
         }
     }
 }

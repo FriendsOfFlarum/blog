@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of fof/blog.
+ * This file is part of fof/seo.
  *
  * Copyright (c) FriendsOfFlarum.
  *
@@ -11,7 +11,6 @@
 
 namespace FoF\Blog\Tests\integration\api;
 
-use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 

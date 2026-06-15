@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of fof/seo.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\Blog\Api\Serializer;
 
 use Flarum\Api\Serializer\AbstractSerializer;
@@ -18,6 +27,7 @@ class BlogMetaSerializer extends AbstractSerializer
      * {@inheritdoc}
      *
      * @param BlogMeta $meta
+     *
      * @return array<string, mixed>
      */
     protected function getDefaultAttributes($meta): array
@@ -27,7 +37,7 @@ class BlogMetaSerializer extends AbstractSerializer
             'summary'           => $meta->summary,
             'isFeatured'        => (bool) $meta->is_featured,
             'isSized'           => (bool) $meta->is_sized,
-            'isPendingReview'   => (bool) $meta->is_pending_review
+            'isPendingReview'   => (bool) $meta->is_pending_review,
         ];
     }
 

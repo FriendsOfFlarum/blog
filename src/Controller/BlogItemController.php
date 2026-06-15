@@ -1,17 +1,25 @@
 <?php
 
+/*
+ * This file is part of fof/seo.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\Blog\Controller;
 
-use Flarum\Frontend\Document;
 use Flarum\Api\Client;
-use Flarum\Http\UrlGenerator;
+use Flarum\Frontend\Document;
 use Flarum\Http\Exception\RouteNotFoundException;
+use Flarum\Http\UrlGenerator;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Psr\Http\Message\ServerRequestInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 use Flarum\Tags\TagRepository;
 use Illuminate\Support\Arr;
-use FoF\Blog\BlogMeta\BlogMeta;
+use Psr\Http\Message\ServerRequestInterface;
+use Symfony\Contracts\Translation\TranslatorInterface;
 
 class BlogItemController
 {
@@ -68,10 +76,10 @@ class BlogItemController
     }
 
     /**
-     * Preload blog posts
+     * Preload blog posts.
      *
      * @param ServerRequestInterface $request
-     * @param int $id
+     * @param int                    $id
      *
      * @return mixed
      */

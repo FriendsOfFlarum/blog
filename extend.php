@@ -1,5 +1,14 @@
 <?php
 
+/*
+ * This file is part of fof/seo.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\Blog;
 
 use Flarum\Api\Controller as FlarumController;
@@ -32,8 +41,8 @@ use FoF\Blog\Subscribers\SeoBlogSubscriber;
 
 return [
     (new Extend\Frontend('forum'))
-        ->js(__DIR__ . '/js/dist/forum.js')
-        ->css(__DIR__ . '/less/Forum.less')
+        ->js(__DIR__.'/js/dist/forum.js')
+        ->css(__DIR__.'/less/Forum.less')
         ->route('/blog', 'blog.overview', BlogOverviewController::class)
         ->route('/blog/compose', 'blog.compose', BlogComposerController::class)
         ->route('/blog/category/{category}', 'blog.category', BlogOverviewController::class)
@@ -42,8 +51,8 @@ return [
     // ->get('/blog/rss.xml', 'blog.rss.xml', RSS::class)
     ,
     (new Extend\Frontend('admin'))
-        ->js(__DIR__ . '/js/dist/admin.js')
-        ->css(__DIR__ . '/less/Admin.less'),
+        ->js(__DIR__.'/js/dist/admin.js')
+        ->css(__DIR__.'/less/Admin.less'),
 
     (new Extend\Routes('api'))
         ->post('/blogMeta', 'blog.meta', CreateBlogMetaController::class)
@@ -51,7 +60,7 @@ return [
         ->post('/blog_default_image', 'blog.default_image.upload', UploadDefaultBlogImageController::class)
         ->delete('/blog_default_image', 'blog.default_image.delete', DeleteDefaultBlogImageController::class),
 
-    new Extend\Locales(__DIR__ . '/locale'),
+    new Extend\Locales(__DIR__.'/locale'),
 
     (new Extend\Model(Discussion::class))
         ->hasOne('blogMeta', BlogMeta::class, 'discussion_id'),

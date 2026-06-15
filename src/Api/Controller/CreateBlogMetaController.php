@@ -1,15 +1,24 @@
 <?php
 
+/*
+ * This file is part of fof/seo.
+ *
+ * Copyright (c) FriendsOfFlarum.
+ *
+ * For the full copyright and license information, please view the LICENSE.md
+ * file that was distributed with this source code.
+ */
+
 namespace FoF\Blog\Api\Controller;
 
 use Flarum\Api\Controller\AbstractCreateController;
+use Flarum\Http\RequestUtil;
+use FoF\Blog\Api\Serializer\BlogMetaSerializer;
+use FoF\Blog\BlogMeta\Commands\CreateBlogMeta;
 use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
-use FoF\Blog\Api\Serializer\BlogMetaSerializer;
-use FoF\Blog\BlogMeta\Commands\CreateBlogMeta;
-use Flarum\Http\RequestUtil;
 
 class CreateBlogMetaController extends AbstractCreateController
 {

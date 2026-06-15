@@ -1,7 +1,7 @@
 <?php
 
 /*
- * This file is part of fof/blog.
+ * This file is part of fof/seo.
  *
  * Copyright (c) FriendsOfFlarum.
  *
