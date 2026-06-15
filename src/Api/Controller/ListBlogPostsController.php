@@ -1,6 +1,6 @@
 <?php
 
-namespace V17Development\FlarumBlog\Api\Controller;
+namespace FoF\Blog\Api\Controller;
 
 use Flarum\Api\Controller\AbstractListController;
 use Flarum\Api\Serializer\DiscussionSerializer;

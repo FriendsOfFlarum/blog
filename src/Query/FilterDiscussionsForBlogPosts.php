@@ -1,6 +1,6 @@
 <?php
 
-namespace V17Development\FlarumBlog\Query;
+namespace FoF\Blog\Query;
 
 use Flarum\Filter\FilterState;
 use Flarum\Query\QueryCriteria;
@@ -29,7 +29,7 @@ class FilterDiscussionsForBlogPosts
 	 * @param FilterState $filter
 	 * @param QueryCriteria $queryCriteria
 	 */
-	public function __invoke(FilterState $filter, QueryCriteria $queryCriteria)
+	public function __invoke(FilterState $filter, QueryCriteria $queryCriteria): void
 	{
 		// Do we need to filter?
 		if(filter_var($this->settings->get('blog_filter_discussion_list'), FILTER_VALIDATE_BOOLEAN) === false) {
@@ -41,7 +41,7 @@ class FilterDiscussionsForBlogPosts
 
 		// Loop through the active gambits
 		foreach ($activeGambits as $gambit) {
-			if(get_class($gambit) === BlogGambit::class) {
+			if(get_class($gambit) === BlogArticleFilterGambit::class) {
 				$hideBlogPosts = false;
 			}
 			if(get_class($gambit) === FulltextGambit::class) {

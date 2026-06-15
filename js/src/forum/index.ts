@@ -1,46 +1,16 @@
 import app from 'flarum/forum/app';
-import Model from 'flarum/common/Model';
-import Tag from 'flarum/tags/common/models/Tag';
-import Discussion from 'flarum/common/models/Discussion';
-import BlogOverview from './pages/BlogOverview';
 import redirector from './utils/redirector';
-import BlogMeta from '../common/Models/BlogMeta';
 import extendTagOverview from './utils/extendTagOverview';
 import discussionRouting from './utils/discussionRouting';
-import BlogComposer from './pages/BlogComposer';
 import compat from './compat';
 import addSidebarNav from './utils/addSidebarNav';
 
-import BlogItem from './pages/BlogItem';
+export { default as extend } from './extend';
 
 // Register Flarum Blog
 app.initializers.add(
-  'v17development-flarum-blog',
-  (app) => {
-    app.routes.blog = { path: '/blog', component: BlogOverview };
-
-    app.routes.blogCategory = {
-      path: '/blog/category/:slug',
-      component: BlogOverview,
-    };
-
-    app.routes.blogComposer = {
-      path: '/blog/compose',
-      component: BlogComposer,
-    };
-
-    app.routes.blogArticle = { path: '/blog/:id', component: BlogItem };
-
-    app.routes['blogArticle.near'] = {
-      path: '/blog/:id/:near',
-      component: BlogItem,
-    };
-
-    app.store.models.blogMeta = BlogMeta;
-
-    Discussion.prototype.blogMeta = Model.hasOne<BlogMeta>('blogMeta');
-    Tag.prototype.isBlog = Model.attribute<boolean>('isBlog');
-
+  'fof-blog',
+  () => {
     // Redirect discussions/tags to their blog post/overview
     redirector();
 

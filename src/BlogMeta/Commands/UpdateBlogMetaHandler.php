@@ -1,16 +1,16 @@
 <?php
 
-namespace V17Development\FlarumBlog\BlogMeta\Commands;
+namespace FoF\Blog\BlogMeta\Commands;
 
 use Illuminate\Contracts\Events\Dispatcher;
 use Flarum\Foundation\ValidationException;
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use V17Development\FlarumBlog\BlogMeta\BlogMeta;
-use V17Development\FlarumBlog\BlogMeta\BlogMetaValidator;
+use FoF\Blog\BlogMeta\BlogMeta;
+use FoF\Blog\BlogMeta\BlogMetaValidator;
 use Illuminate\Support\Arr;
-use V17Development\FlarumBlog\Event\BlogMetaSaving;
+use FoF\Blog\Event\BlogMetaSaving;
 
 class UpdateBlogMetaHandler
 {
@@ -51,7 +51,7 @@ class UpdateBlogMetaHandler
     /**
      * Handle new support blog meta
      */
-    public function handle(UpdateBlogMeta $command)
+    public function handle(UpdateBlogMeta $command): BlogMeta
     {
         $actor = $command->actor;
 
@@ -72,6 +72,7 @@ class UpdateBlogMetaHandler
         }
 
         // Update new blog meta
+        /** @var BlogMeta $blogMeta */
         $blogMeta = BlogMeta::findOrFail($command->id);
 
         // Featured image

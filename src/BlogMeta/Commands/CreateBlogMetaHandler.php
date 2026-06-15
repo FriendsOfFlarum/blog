@@ -1,16 +1,16 @@
 <?php
 
-namespace V17Development\FlarumBlog\BlogMeta\Commands;
+namespace FoF\Blog\BlogMeta\Commands;
 
 use Illuminate\Contracts\Events\Dispatcher;
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use V17Development\FlarumBlog\BlogMeta\BlogMeta;
-use V17Development\FlarumBlog\BlogMeta\BlogMetaValidator;
+use FoF\Blog\BlogMeta\BlogMeta;
+use FoF\Blog\BlogMeta\BlogMetaValidator;
 use Illuminate\Support\Arr;
-use V17Development\FlarumBlog\Event\BlogMetaSaving;
+use FoF\Blog\Event\BlogMetaSaving;
 
 class CreateBlogMetaHandler
 {
@@ -58,7 +58,7 @@ class CreateBlogMetaHandler
     /**
      * Handle new support blog meta
      */
-    public function handle(CreateBlogMeta $command)
+    public function handle(CreateBlogMeta $command): BlogMeta
     {
         $actor = $command->actor;
 

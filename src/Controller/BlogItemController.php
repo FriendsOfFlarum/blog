@@ -1,6 +1,6 @@
 <?php
 
-namespace V17Development\FlarumBlog\Controller;
+namespace FoF\Blog\Controller;
 
 use Flarum\Frontend\Document;
 use Flarum\Api\Client;
@@ -11,7 +11,7 @@ use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
 use Flarum\Tags\TagRepository;
 use Illuminate\Support\Arr;
-use V17Development\FlarumBlog\BlogMeta\BlogMeta;
+use FoF\Blog\BlogMeta\BlogMeta;
 
 class BlogItemController
 {
@@ -49,7 +49,7 @@ class BlogItemController
         $this->tagRepository = $tagRepository;
     }
 
-    public function __invoke(Document $document, ServerRequestInterface $request)
+    public function __invoke(Document $document, ServerRequestInterface $request): Document
     {
         $queryParams = $request->getQueryParams();
 
@@ -73,9 +73,9 @@ class BlogItemController
      * @param ServerRequestInterface $request
      * @param int $id
      *
-     * @return object
+     * @return mixed
      */
-    private function getApiDocument(ServerRequestInterface $request, $id)
+    private function getApiDocument(ServerRequestInterface $request, int $id)
     {
         $response = $this->api->withParentRequest($request)->get("/discussions/{$id}");
 

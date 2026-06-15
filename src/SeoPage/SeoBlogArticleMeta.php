@@ -1,6 +1,6 @@
 <?php
 
-namespace V17Development\FlarumBlog\SeoPage;
+namespace FoF\Blog\SeoPage;
 
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Foundation\DispatchEventsTrait;
@@ -10,9 +10,10 @@ use Illuminate\Support\Arr;
 use Illuminate\Contracts\Events\Dispatcher;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use V17Development\FlarumSeo\Page\PageDriverInterface;
-use V17Development\FlarumSeo\SeoMeta\SeoMeta;
-use V17Development\FlarumSeo\SeoProperties;
+use FoF\Blog\BlogMeta\BlogMeta;
+use FoF\Seo\Page\PageDriverInterface;
+use FoF\Seo\SeoMeta\SeoMeta;
+use FoF\Seo\SeoProperties;
 
 class SeoBlogArticleMeta implements PageDriverInterface
 {
@@ -34,7 +35,7 @@ class SeoBlogArticleMeta implements PageDriverInterface
     protected $translator;
 
     /**
-     * @var Settings
+     * @var SettingsRepositoryInterface
      */
     protected $settings;
 
@@ -73,7 +74,7 @@ class SeoBlogArticleMeta implements PageDriverInterface
     public function handle(
         ServerRequestInterface $request,
         SeoProperties $properties
-    ) {
+    ): void {
         // Get discussion ID from params
         $discussionId = Arr::get($request->getQueryParams(), 'id');
 
@@ -86,8 +87,11 @@ class SeoBlogArticleMeta implements PageDriverInterface
             return;
         }
 
+        /** @var BlogMeta|null $blogMeta */
+        $blogMeta = $discussion->blogMeta;
+
         // Backup in case no blog-meta exists
-        if (!isset($discussion->blogMeta->id)) {
+        if (!isset($blogMeta->id)) {
             $properties->setTitle($discussion->title);
             return;
         }
@@ -95,7 +99,7 @@ class SeoBlogArticleMeta implements PageDriverInterface
         // Get seo-meta-date
         $seoMeta = SeoMeta::findByObjectTypeOrCreate(
             'blogs',
-            $discussion->blogMeta->id
+            $blogMeta->id
         );
 
         // Run events in case the model was created

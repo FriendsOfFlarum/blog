@@ -1,9 +1,9 @@
 <?php
 
-namespace V17Development\FlarumBlog\Event;
+namespace FoF\Blog\Event;
 
 use Flarum\User\User;
-use V17Development\FlarumBlog\BlogMeta\BlogMeta;
+use FoF\Blog\BlogMeta\BlogMeta;
 
 class BlogMetaSaving
 {

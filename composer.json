@@ -1,60 +1,86 @@
 {
-  "name": "v17development/flarum-blog",
+  "name": "fof/blog",
   "description": "Adds a blog section to your forum",
   "type": "flarum-extension",
   "license": "MIT",
   "authors": [
     {
-      "name": "V17 Development",
-      "email": "info@v17.dev"
+      "name": "FriendsOfFlarum",
+      "homepage": "https://github.com/FriendsOfFlarum"
     }
   ],
-  "homepage": "https://v17.dev/projects/flarum-blog",
+  "homepage": "https://friendsofflarum.org",
   "support": {
-    "forum": "https://discuss.flarum.org/d/33038",
-    "issues": "https://github.com/v17development/flarum-blog/issues",
-    "source": "https://github.com/v17development/flarum-blog",
-    "docs": "https://community.v17.dev/knowledgebase/category/flarum-blog"
+    "issues": "https://github.com/FriendsOfFlarum/blog/issues",
+    "source": "https://github.com/FriendsOfFlarum/blog",
+    "forum": "https://discuss.flarum.org/d/39435"
   },
   "autoload": {
     "psr-4": {
-      "V17Development\\FlarumBlog\\": "src/"
+      "FoF\\Blog\\": "src/"
+    }
+  },
+  "autoload-dev": {
+    "psr-4": {
+      "FoF\\Blog\\Tests\\": "tests/"
     }
   },
   "require": {
-    "flarum/core": "^1.7.0",
-    "flarum/tags": "^1.0.0",
-    "flarum/lock": "^1.0.0",
+    "php": "^8.1",
+    "flarum/core": "^1.8.0",
+    "flarum/tags": "*",
+    "flarum/lock": "*",
     "ext-json": "*"
   },
-  "suggest": {
-    "v17development/flarum-seo": "Adds Flarum SEO and Social media tags",
-    "fof/upload": "Upload images for blog posts"
+  "require-dev": {
+    "flarum/phpstan": "^1.0",
+    "flarum/testing": "^1.0.0",
+    "fof/discussion-language": "*",
+    "fof/seo": "*"
   },
-  "conflict": {
-    "v17development/flarum-seo": "<=1.8"
+  "replace": {
+    "v17development/flarum-blog": "*"
+  },
+  "suggest": {
+    "fof/seo": "Adds Flarum SEO and social media tags",
+    "fof/upload": "Upload images for blog posts"
   },
   "extra": {
     "flarum-extension": {
-      "title": "Blog",
+      "title": "FoF Blog",
       "category": "feature",
       "icon": {
         "name": "fas fa-blog",
-        "backgroundColor": "#2dc0e6",
-        "color": "#ffffff"
+        "backgroundColor": "#e74c3c",
+        "color": "#fff"
       },
       "optional-dependencies": [
         "flarum/sticky",
         "fof/discussion-language",
-        "askvortsov/flarum-rich-text",
-        "v17development/flarum-seo"
+        "fof/rich-text",
+        "fof/seo"
       ]
     },
     "branch-alias": {
-      "dev-master": "0.6.x-dev"
+      "dev-1.x": "1.x-dev"
     }
   },
-  "require-dev": {
-    "v17development/flarum-seo": "*"
+  "scripts": {
+    "analyse:phpstan": "phpstan analyse",
+    "clear-cache:phpstan": "phpstan clear-result-cache",
+    "test": [
+      "@test:unit",
+      "@test:integration"
+    ],
+    "test:unit": "phpunit -c tests/phpunit.unit.xml",
+    "test:integration": "phpunit -c tests/phpunit.integration.xml",
+    "test:setup": "@php tests/integration/setup.php"
+  },
+  "scripts-descriptions": {
+    "analyse:phpstan": "Run static analysis",
+    "test": "Runs all tests.",
+    "test:unit": "Runs all unit tests.",
+    "test:integration": "Runs all integration tests.",
+    "test:setup": "Sets up a database for use with integration tests. Execute this only once."
   }
 }

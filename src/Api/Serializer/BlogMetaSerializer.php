@@ -1,9 +1,11 @@
 <?php
 
-namespace V17Development\FlarumBlog\Api\Serializer;
+namespace FoF\Blog\Api\Serializer;
 
 use Flarum\Api\Serializer\AbstractSerializer;
 use Flarum\Api\Serializer\DiscussionSerializer;
+use FoF\Blog\BlogMeta\BlogMeta;
+use Tobscure\JsonApi\Relationship;
 
 class BlogMetaSerializer extends AbstractSerializer
 {
@@ -14,8 +16,11 @@ class BlogMetaSerializer extends AbstractSerializer
 
     /**
      * {@inheritdoc}
+     *
+     * @param BlogMeta $meta
+     * @return array<string, mixed>
      */
-    protected function getDefaultAttributes($meta)
+    protected function getDefaultAttributes($meta): array
     {
         return [
             'featuredImage'     => $meta->featured_image,
@@ -26,7 +31,10 @@ class BlogMetaSerializer extends AbstractSerializer
         ];
     }
 
-    protected function discussion($meta)
+    /**
+     * @param BlogMeta $meta
+     */
+    protected function discussion($meta): Relationship
     {
         return $this->hasOne($meta, DiscussionSerializer::class);
     }

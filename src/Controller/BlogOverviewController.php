@@ -1,6 +1,6 @@
 <?php
 
-namespace V17Development\FlarumBlog\Controller;
+namespace FoF\Blog\Controller;
 
 use Flarum\Frontend\Document;
 use Flarum\Api\Client;
@@ -34,7 +34,7 @@ class BlogOverviewController
         $this->extensionManager = $extensionManager;
     }
 
-    public function __invoke(Document $document, ServerRequestInterface $request)
+    public function __invoke(Document $document, ServerRequestInterface $request): Document
     {
         $queryParams = $request->getQueryParams();
 

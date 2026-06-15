@@ -1,10 +1,10 @@
 <?php
 
-namespace V17Development\FlarumBlog\Api;
+namespace FoF\Blog\Api;
 
 use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\Api\Event\Serializing;
 use Flarum\Tags\Api\Serializer\TagSerializer;
+use Flarum\Tags\Tag;
 
 class AttatchTagSerializerAttributes
 {
@@ -23,9 +23,13 @@ class AttatchTagSerializerAttributes
     }
 
     /**
-     * @param Serializing $event
+     * @param TagSerializer        $serializer
+     * @param Tag                  $model
+     * @param array<string, mixed> $attributes
+     *
+     * @return array<string, mixed>
      */
-    public function __invoke(TagSerializer $serializer, $model, $attributes)
+    public function __invoke(TagSerializer $serializer, Tag $model, array $attributes): array
     {
         // Get blog tags
         $blogTags = explode("|", $this->settings->get('blog_tags', ''));

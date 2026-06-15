@@ -1,6 +1,6 @@
 <?php
 
-namespace V17Development\FlarumBlog\BlogMeta;
+namespace FoF\Blog\BlogMeta;
 
 use Flarum\Foundation\AbstractValidator;
 

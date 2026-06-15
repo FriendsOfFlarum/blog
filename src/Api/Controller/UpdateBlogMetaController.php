@@ -1,6 +1,6 @@
 <?php
 
-namespace V17Development\FlarumBlog\Api\Controller;
+namespace FoF\Blog\Api\Controller;
 
 use Flarum\Api\Controller\AbstractShowController;
 use Flarum\Http\RequestUtil;
@@ -8,8 +8,8 @@ use Illuminate\Contracts\Bus\Dispatcher;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Tobscure\JsonApi\Document;
-use V17Development\FlarumBlog\Api\Serializer\BlogMetaSerializer;
-use V17Development\FlarumBlog\BlogMeta\Commands\UpdateBlogMeta;
+use FoF\Blog\Api\Serializer\BlogMetaSerializer;
+use FoF\Blog\BlogMeta\Commands\UpdateBlogMeta;
 
 class UpdateBlogMetaController extends AbstractShowController
 {
@@ -20,6 +20,9 @@ class UpdateBlogMetaController extends AbstractShowController
 
     public $include = ['discussion'];
 
+    /**
+     * @var Dispatcher
+     */
     protected $bus;
 
     /**

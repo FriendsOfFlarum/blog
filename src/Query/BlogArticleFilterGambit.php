@@ -1,6 +1,6 @@
 <?php
 
-namespace V17Development\FlarumBlog\Query;
+namespace FoF\Blog\Query;
 
 use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\SearchState;
@@ -23,7 +23,7 @@ class BlogArticleFilterGambit extends AbstractRegexGambit
         $this->settings = $settings;
     }
 
-    protected function getGambitPattern()
+    protected function getGambitPattern(): string
     {
         return 'is:blog';
     }
@@ -34,11 +34,17 @@ class BlogArticleFilterGambit extends AbstractRegexGambit
 
         $search->getQuery()->where(function (Builder $query) use ($tagsArray, $negate) {
             foreach ($tagsArray as $tagId) {
-                $query->orWhereIn('discussions.id', function (Builder $query) use ($tagId) {
+                $subquery = function (Builder $query) use ($tagId) {
                     $query->select('discussion_id')
                         ->from('discussion_tag')
                         ->where('tag_id', $tagId);
-                }, $negate);
+                };
+
+                if ($negate) {
+                    $query->orWhereNotIn('discussions.id', $subquery);
+                } else {
+                    $query->orWhereIn('discussions.id', $subquery);
+                }
             }
         });
     }

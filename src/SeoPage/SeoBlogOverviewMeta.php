@@ -1,18 +1,17 @@
 <?php
 
-namespace V17Development\FlarumBlog\SeoPage;
+namespace FoF\Blog\SeoPage;
 
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Tags\Tag;
 use Flarum\Tags\TagRepository;
 use Illuminate\Support\Arr;
 use Illuminate\Contracts\Events\Dispatcher;
-use Illuminate\Contracts\Translation\Translator;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
-use V17Development\FlarumSeo\Page\PageDriverInterface;
-use V17Development\FlarumSeo\SeoMeta\SeoMeta;
-use V17Development\FlarumSeo\SeoProperties;
+use FoF\Seo\Page\PageDriverInterface;
+use FoF\Seo\SeoMeta\SeoMeta;
+use FoF\Seo\SeoProperties;
 
 class SeoBlogOverviewMeta implements PageDriverInterface
 {
@@ -24,7 +23,7 @@ class SeoBlogOverviewMeta implements PageDriverInterface
     protected $tagRepository;
 
     /**
-     * @var Translator
+     * @var TranslatorInterface
      */
     protected $translator;
 
@@ -59,7 +58,7 @@ class SeoBlogOverviewMeta implements PageDriverInterface
     public function handle(
         ServerRequestInterface $request,
         SeoProperties $properties
-    ) {
+    ): void {
         // Get tag slug from params
         $category = Arr::get($request->getQueryParams(), 'category');
 

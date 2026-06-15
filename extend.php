@@ -1,49 +1,36 @@
 <?php
 
-namespace V17Development\FlarumBlog;
+namespace FoF\Blog;
 
-// Flarum classes
 use Flarum\Api\Controller as FlarumController;
 use Flarum\Api\Serializer\BasicDiscussionSerializer;
 use Flarum\Api\Serializer\ForumSerializer;
-use Flarum\Extend;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Saving;
 use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
+use Flarum\Extend;
 use Flarum\Tags\Api\Serializer\TagSerializer;
+use FoF\Blog\Access\ScopeDiscussionVisibility;
+use FoF\Blog\Api\AttachForumSerializerAttributes;
+use FoF\Blog\Api\AttatchTagSerializerAttributes;
+use FoF\Blog\Api\Controller\CreateBlogMetaController;
+use FoF\Blog\Api\Controller\DeleteDefaultBlogImageController;
+use FoF\Blog\Api\Controller\UpdateBlogMetaController;
+use FoF\Blog\Api\Controller\UploadDefaultBlogImageController;
+use FoF\Blog\Api\Serializer\BlogMetaSerializer;
+use FoF\Blog\BlogMeta\BlogMeta;
+use FoF\Blog\Controller\BlogComposerController;
+use FoF\Blog\Controller\BlogItemController;
+use FoF\Blog\Controller\BlogOverviewController;
+use FoF\Blog\Listeners\CreateBlogMetaOnDiscussionCreate;
+use FoF\Blog\Query\BlogArticleFilterGambit;
+use FoF\Blog\Query\FilterDiscussionsForBlogPosts;
+use FoF\Blog\SeoPage\SeoBlogArticleMeta;
+use FoF\Blog\SeoPage\SeoBlogOverviewMeta;
+use FoF\Blog\Subscribers\SeoBlogSubscriber;
 
-// Controllers
-use V17Development\FlarumBlog\Controller\BlogOverviewController;
-use V17Development\FlarumBlog\Controller\BlogItemController;
-use V17Development\FlarumBlog\Controller\BlogComposerController;
-
-// Access
-use V17Development\FlarumBlog\Access\ScopeDiscussionVisibility;
-// API controllers
-use V17Development\FlarumBlog\Api\AttachForumSerializerAttributes;
-use V17Development\FlarumBlog\Api\AttatchTagSerializerAttributes;
-use V17Development\FlarumBlog\Api\Controller\CreateBlogMetaController;
-use V17Development\FlarumBlog\Api\Controller\UpdateBlogMetaController;
-use V17Development\FlarumBlog\Api\Controller\UploadDefaultBlogImageController;
-use V17Development\FlarumBlog\Api\Controller\DeleteDefaultBlogImageController;
-use V17Development\FlarumBlog\Api\Serializer\BlogMetaSerializer;
-// Listeners
-use V17Development\FlarumBlog\Listeners\CreateBlogMetaOnDiscussionCreate;
-
-// Models
-use V17Development\FlarumBlog\BlogMeta\BlogMeta;
-
-// Filters
-use V17Development\FlarumBlog\Query\FilterDiscussionsForBlogPosts;
-use V17Development\FlarumBlog\Query\BlogArticleFilterGambit;
-
-// SEO
-use V17Development\FlarumBlog\SeoPage\SeoBlogOverviewMeta;
-use V17Development\FlarumBlog\SeoPage\SeoBlogArticleMeta;
-use V17Development\FlarumBlog\Subscribers\SeoBlogSubscriber;
-
-$extend = [
+return [
     (new Extend\Frontend('forum'))
         ->js(__DIR__ . '/js/dist/forum.js')
         ->css(__DIR__ . '/less/Forum.less')
@@ -98,23 +85,17 @@ $extend = [
 
     (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
         ->addGambit(BlogArticleFilterGambit::class),
+
+    (new Extend\Event())
+        ->listen(Saving::class, CreateBlogMetaOnDiscussionCreate::class),
+
+    (new Extend\Conditional())
+        ->whenExtensionEnabled('fof-seo', fn () => [
+            (new \FoF\Seo\Extend\SEO())
+                ->addExtender('blog_category', SeoBlogOverviewMeta::class)
+                ->addExtender('blog_article', SeoBlogArticleMeta::class),
+
+            (new Extend\Event())
+                ->subscribe(SeoBlogSubscriber::class),
+        ]),
 ];
-
-// Define events
-$events = (new Extend\Event)
-    ->listen(Saving::class, CreateBlogMetaOnDiscussionCreate::class);
-
-// Extend Flarum SEO
-if (class_exists("V17Development\FlarumSeo\Extend\SEO")) {
-    $extend[] = (new \V17Development\FlarumSeo\Extend\SEO())
-        ->addExtender("blog_category", SeoBlogOverviewMeta::class)
-        ->addExtender("blog_article", SeoBlogArticleMeta::class);
-
-    // Add Blog subscriber event
-    $events->subscribe(SeoBlogSubscriber::class);
-}
-
-// Add events
-$extend[] = $events;
-
-return $extend;

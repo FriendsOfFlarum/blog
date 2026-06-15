@@ -1,13 +1,13 @@
 <?php
 
-namespace V17Development\FlarumBlog\Listeners;
+namespace FoF\Blog\Listeners;
 
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Events\Dispatcher;
 use Flarum\User\Exception\PermissionDeniedException;
 use Flarum\Discussion\Event\Saving;
 use Flarum\Foundation\DispatchEventsTrait;
-use V17Development\FlarumBlog\BlogMeta\BlogMeta;
+use FoF\Blog\BlogMeta\BlogMeta;
 use Illuminate\Support\Arr;
 
 class CreateBlogMetaOnDiscussionCreate
@@ -18,6 +18,11 @@ class CreateBlogMetaOnDiscussionCreate
      * @var SettingsRepositoryInterface
      */
     protected $settings;
+
+    /**
+     * @var string[]
+     */
+    protected $blogTags;
 
     /**
      * CreateBlogMetaOnDiscussionCreate constructor.
@@ -37,7 +42,7 @@ class CreateBlogMetaOnDiscussionCreate
     /**
      * @param $event
      */
-    public function handle(Saving $event)
+    public function handle(Saving $event): void
     {
         $discussion = $event->discussion;
 
