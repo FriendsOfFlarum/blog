@@ -20,6 +20,8 @@ use FoF\Seo\Page\PageDriverInterface;
 use FoF\Seo\SeoMeta\SeoMeta;
 use FoF\Seo\SeoProperties;
 use Illuminate\Contracts\Events\Dispatcher;
+use Illuminate\Contracts\Filesystem\Cloud;
+use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
 use Symfony\Contracts\Translation\TranslatorInterface;
@@ -49,6 +51,11 @@ class SeoBlogArticleMeta implements PageDriverInterface
     protected $settings;
 
     /**
+     * @var Cloud
+     */
+    protected $assetsDir;
+
+    /**
      * @param DiscussionRepository $discussionRepository
      * @param TranslatorInterface  $translator
      */
@@ -57,13 +64,18 @@ class SeoBlogArticleMeta implements PageDriverInterface
         UrlGenerator $urlGenerator,
         Dispatcher $events,
         TranslatorInterface $translator,
-        SettingsRepositoryInterface $settings
+        SettingsRepositoryInterface $settings,
+        Factory $filesystemFactory
     ) {
         $this->discussionRepository = $discussionRepository;
         $this->urlGenerator = $urlGenerator;
         $this->events = $events;
         $this->translator = $translator;
         $this->settings = $settings;
+
+        /** @var Cloud $assetsDir */
+        $assetsDir = $filesystemFactory->disk('flarum-assets');
+        $this->assetsDir = $assetsDir;
     }
 
     public function extensionDependencies(): array
@@ -127,9 +139,13 @@ class SeoBlogArticleMeta implements PageDriverInterface
         // Set schema JSON
         $properties->setSchemaJson('@type', 'BlogPosting');
 
-        // Set default featured image
-        if (!$seoMeta->open_graph_image && $this->settings->get('blog_default_image_path', null) !== null) {
-            $properties->setImage($this->urlGenerator->to('forum')->base().'/assets/'.$this->settings->get('blog_default_image_path', null));
+        // Set default featured image. Resolve the URL from the assets disk so a
+        // relocated/cloud disk (e.g. S3) is honoured, rather than assuming a
+        // local `/assets/` path.
+        $defaultImage = $this->settings->get('blog_default_image_path', null);
+
+        if (!$seoMeta->open_graph_image && $defaultImage !== null) {
+            $properties->setImage($this->assetsDir->url($defaultImage));
         }
 
         // Update knowledge base url
