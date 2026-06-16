@@ -12,6 +12,7 @@
 namespace FoF\Blog\SeoPage;
 
 use Flarum\Foundation\DispatchEventsTrait;
+use Flarum\Http\UrlGenerator;
 use Flarum\Tags\Tag;
 use Flarum\Tags\TagRepository;
 use FoF\Seo\Page\PageDriverInterface;
@@ -37,6 +38,11 @@ class SeoBlogOverviewMeta implements PageDriverInterface
     protected $translator;
 
     /**
+     * @var UrlGenerator
+     */
+    protected $urlGenerator;
+
+    /**
      * @param TagRepository $tagRepository
      * @param Dispatcher    $events
      */
@@ -44,10 +50,12 @@ class SeoBlogOverviewMeta implements PageDriverInterface
         TagRepository $tagRepository,
         Dispatcher $events,
         TranslatorInterface $translator,
+        UrlGenerator $urlGenerator,
     ) {
         $this->tagRepository = $tagRepository;
         $this->events = $events;
         $this->translator = $translator;
+        $this->urlGenerator = $urlGenerator;
     }
 
     public function extensionDependencies(): array
@@ -68,17 +76,21 @@ class SeoBlogOverviewMeta implements PageDriverInterface
         ServerRequestInterface $request,
         SeoProperties $properties
     ): void {
+        $properties->setTitle($this->translator->trans('fof-blog.forum.blog'));
+
         // Get tag slug from params
-        $category = Arr::get($request->getQueryParams(), 'category');
+        $categorySlug = Arr::get($request->getQueryParams(), 'category');
 
         try {
-            $category = Tag::where('slug', $category)->firstOrFail();
-
-            $properties->setTitle($this->translator->trans('fof-blog.forum.blog'));
+            $category = Tag::where('slug', $categorySlug)->firstOrFail();
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            $properties->setTitle($this->translator->trans('fof-blog.forum.blog'));
+            // No category: this is the plain blog overview. Canonicalise it to
+            // the blog route so it does not fall back to core's default (e.g.
+            // `/all` when the blog overview is the forum home page).
+            $overviewUrl = $this->urlGenerator->to('forum')->route('blog.overview');
+            $properties->setUrl($overviewUrl, false);
+            $properties->setCanonicalUrl($overviewUrl, false);
 
-            // Do nothing, no model found
             return;
         }
 
@@ -92,6 +104,11 @@ class SeoBlogOverviewMeta implements PageDriverInterface
 
         // Generate data
         $properties->generateTagsFromMetaData($seoMeta);
+
+        // Canonicalise to the category route.
+        $categoryUrl = $this->urlGenerator->to('forum')->route('blog.category', ['category' => $category->slug]);
+        $properties->setUrl($categoryUrl, false);
+        $properties->setCanonicalUrl($categoryUrl, false);
 
         // Set blog title
         $properties->setTitle($seoMeta->title.' - '.$this->translator->trans('fof-blog.forum.blog'));
