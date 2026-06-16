@@ -12,7 +12,6 @@
 namespace FoF\Blog\Tests\integration\api;
 
 use Carbon\Carbon;
-use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 
