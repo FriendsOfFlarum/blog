@@ -91,7 +91,7 @@ class SeoBlogArticleMeta implements PageDriverInterface
             // Find discussion
             $discussion = $this->discussionRepository->findOrFail($discussionId);
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            $properties->setTitle($this->translator->trans('v17development-flarum-blog.forum.blog'));
+            $properties->setTitle($this->translator->trans('fof-blog.forum.blog'));
 
             // Do nothing, no model found
             return;
@@ -138,6 +138,6 @@ class SeoBlogArticleMeta implements PageDriverInterface
         $properties->setCanonicalUrl($fullArticleUrl, false);
 
         // Set blog article title
-        $properties->setTitle($seoMeta->title.' - '.$this->translator->trans('v17development-flarum-blog.forum.blog'));
+        $properties->setTitle($seoMeta->title.' - '.$this->translator->trans('fof-blog.forum.blog'));
     }
 }

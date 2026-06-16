@@ -74,9 +74,9 @@ class SeoBlogOverviewMeta implements PageDriverInterface
         try {
             $category = Tag::where('slug', $category)->firstOrFail();
 
-            $properties->setTitle($this->translator->trans('v17development-flarum-blog.forum.blog'));
+            $properties->setTitle($this->translator->trans('fof-blog.forum.blog'));
         } catch (\Illuminate\Database\Eloquent\ModelNotFoundException $e) {
-            $properties->setTitle($this->translator->trans('v17development-flarum-blog.forum.blog'));
+            $properties->setTitle($this->translator->trans('fof-blog.forum.blog'));
 
             // Do nothing, no model found
             return;
@@ -94,6 +94,6 @@ class SeoBlogOverviewMeta implements PageDriverInterface
         $properties->generateTagsFromMetaData($seoMeta);
 
         // Set blog title
-        $properties->setTitle($seoMeta->title.' - '.$this->translator->trans('v17development-flarum-blog.forum.blog'));
+        $properties->setTitle($seoMeta->title.' - '.$this->translator->trans('fof-blog.forum.blog'));
     }
 }
