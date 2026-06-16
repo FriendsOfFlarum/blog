@@ -45,7 +45,7 @@ class RedirectTrailingSlash implements MiddlewareInterface
      */
     private function shouldRedirect(string $path): bool
     {
-        if ($path === '/' || ! str_ends_with($path, '/')) {
+        if ($path === '/' || !str_ends_with($path, '/')) {
             return false;
         }
 
