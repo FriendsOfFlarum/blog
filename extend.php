@@ -19,6 +19,7 @@ use Flarum\Discussion\Event\Saving;
 use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
+use Flarum\Http\Middleware\ResolveRoute;
 use Flarum\Tags\Api\Serializer\TagSerializer;
 use FoF\Blog\Access\ScopeDiscussionVisibility;
 use FoF\Blog\Api\AttachForumSerializerAttributes;
@@ -33,6 +34,7 @@ use FoF\Blog\Controller\BlogComposerController;
 use FoF\Blog\Controller\BlogItemController;
 use FoF\Blog\Controller\BlogOverviewController;
 use FoF\Blog\Listeners\CreateBlogMetaOnDiscussionCreate;
+use FoF\Blog\Middleware\RedirectTrailingSlash;
 use FoF\Blog\Query\BlogArticleFilterGambit;
 use FoF\Blog\Query\FilterDiscussionsForBlogPosts;
 use FoF\Blog\SeoPage\SeoBlogArticleMeta;
@@ -40,6 +42,10 @@ use FoF\Blog\SeoPage\SeoBlogOverviewMeta;
 use FoF\Blog\Subscribers\SeoBlogSubscriber;
 
 return [
+    // 1.x workaround for trailing slash. Not applicable to 2.x
+    (new Extend\Middleware('forum'))
+        ->insertBefore(ResolveRoute::class, RedirectTrailingSlash::class),
+
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
         ->css(__DIR__.'/less/Forum.less')
