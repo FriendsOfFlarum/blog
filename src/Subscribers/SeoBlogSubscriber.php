@@ -26,6 +26,18 @@ use Illuminate\Contracts\Events\Dispatcher;
  */
 class SeoBlogSubscriber
 {
+    /**
+     * Identifier stamped on SeoMeta records whose Open Graph image this
+     * extension manages.
+     */
+    const OG_IMAGE_SOURCE = 'fof-blog';
+
+    /**
+     * The pre-migration identifier, still recognised for backwards
+     * compatibility with data created by v17development/flarum-blog.
+     */
+    const LEGACY_OG_IMAGE_SOURCE = 'v17development-flarum-blog';
+
     public function __construct(private SeoProperties $seoProperties)
     {
     }
@@ -157,10 +169,15 @@ class SeoBlogSubscriber
         // Set description
         $seoMeta->description = $blogMeta->summary;
 
-        // Only update image if source was set to auto and is not managed by a different extension
-        if (!$seoMeta->open_graph_image_source || $seoMeta->open_graph_image_source === 'auto' || $seoMeta->open_graph_image_source === 'v17development-flarum-blog') {
+        // Only update image if source was set to auto and is not managed by a
+        // different extension. The legacy `v17development-flarum-blog` source is
+        // still recognised so images stored before the FoF migration stay owned
+        // by this extension; new writes use the `fof-blog` source.
+        $ownedSources = ['auto', self::OG_IMAGE_SOURCE, self::LEGACY_OG_IMAGE_SOURCE];
+
+        if (!$seoMeta->open_graph_image_source || in_array($seoMeta->open_graph_image_source, $ownedSources, true)) {
             $seoMeta->open_graph_image = $blogMeta->featured_image;
-            $seoMeta->open_graph_image_source = 'v17development-flarum-blog';
+            $seoMeta->open_graph_image_source = self::OG_IMAGE_SOURCE;
         }
     }
 }

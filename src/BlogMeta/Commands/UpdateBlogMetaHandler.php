@@ -75,7 +75,7 @@ class UpdateBlogMetaHandler
         if (empty($command->id) || !is_numeric($command->id)) {
             throw new ValidationException([
                 'message' => $this->translator->trans(
-                    'v17development-flarum-blog.forum.validation.missing_id'
+                    'fof-blog.forum.validation.missing_id'
                 ),
             ]);
         }
