@@ -22,15 +22,23 @@ class ScopeDiscussionVisibility
      */
     public function __invoke(User $actor, Builder $query): void
     {
-        // Hide blogposts which arent published or are still pending approval
-        // Writers will have access to the posts if they are still pending for review
-        if (!$actor->hasPermission('blog.canApprovePosts') && !$actor->hasPermission('blog.writeArticles')) {
-            $query->whereNotIn('discussions.id', function ($query) {
-                return $query
-                    ->select('discussion_id')
-                    ->from('blog_meta')
-                    ->where('is_pending_review', 1);
-            });
+        // Users who can approve posts see everything, pending or not.
+        if ($actor->hasPermission('blog.canApprovePosts')) {
+            return;
         }
+
+        // Everyone else: hide articles still pending review — except an author's
+        // own pending articles, so they can still see what they submitted.
+        $query->whereNotIn('discussions.id', function ($query) use ($actor) {
+            $query
+                ->select('bm.discussion_id')
+                ->from('blog_meta as bm')
+                ->join('discussions as bd', 'bd.id', '=', 'bm.discussion_id')
+                ->where('bm.is_pending_review', 1);
+
+            if ($actor->exists) {
+                $query->where('bd.user_id', '!=', $actor->id);
+            }
+        });
     }
 }
