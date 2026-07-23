@@ -54,16 +54,14 @@ class HideBlogPostsFromAllDiscussionsPage
                 return;
             }
 
+            // A single subquery covering every blog tag, rather than one
+            // subquery per tag.
             $filter
                 ->getQuery()
-                ->where(function ($query) use ($tagsArray) {
-                    foreach ($tagsArray as $tagId) {
-                        $query->whereNotIn('discussions.id', function ($query) use ($tagId) {
-                            $query->select('discussion_id')
-                                ->from('discussion_tag')
-                                ->where('tag_id', $tagId);
-                        });
-                    }
+                ->whereNotIn('discussions.id', function ($query) use ($tagsArray) {
+                    $query->select('discussion_id')
+                        ->from('discussion_tag')
+                        ->whereIn('tag_id', $tagsArray);
                 });
         }
     }

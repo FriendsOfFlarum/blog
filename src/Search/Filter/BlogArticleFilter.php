@@ -45,18 +45,18 @@ class BlogArticleFilter implements FilterInterface
                 return;
             }
 
-            foreach ($tagsArray as $tagId) {
-                $subquery = function (QueryBuilder $query) use ($tagId) {
-                    $query->select('discussion_id')
-                        ->from('discussion_tag')
-                        ->where('tag_id', $tagId);
-                };
+            // A single subquery covering every blog tag: an article matches if
+            // it carries ANY blog tag, and the negation only if it carries NONE.
+            $subquery = function (QueryBuilder $query) use ($tagsArray) {
+                $query->select('discussion_id')
+                    ->from('discussion_tag')
+                    ->whereIn('tag_id', $tagsArray);
+            };
 
-                if ($negate) {
-                    $query->orWhereNotIn('discussions.id', $subquery);
-                } else {
-                    $query->orWhereIn('discussions.id', $subquery);
-                }
+            if ($negate) {
+                $query->whereNotIn('discussions.id', $subquery);
+            } else {
+                $query->whereIn('discussions.id', $subquery);
             }
         });
     }
