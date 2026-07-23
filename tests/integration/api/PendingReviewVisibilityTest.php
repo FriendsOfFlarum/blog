@@ -35,9 +35,10 @@ class PendingReviewVisibilityTest extends TestCase
     const PENDING_BY_AUTHOR = 2;
 
     // User ids.
-    const APPROVER = 1;     // admin — has blog.canApprovePosts
-    const AUTHOR = 3;       // wrote the pending article
-    const OTHER_WRITER = 4; // can write articles, but is not the author / approver
+    const APPROVER = 1;      // admin — open-gated, kept for the bypass case
+    const AUTHOR = 3;        // wrote the pending article
+    const OTHER_WRITER = 4;  // can write articles, but is not the author / approver
+    const MODERATOR = 5;     // non-admin with blog.canApprovePosts
 
     public function setUp(): void
     {
@@ -52,17 +53,22 @@ class PendingReviewVisibilityTest extends TestCase
                 $this->normalUser(),
                 ['id' => self::AUTHOR, 'username' => 'author', 'email' => 'author@machine.local', 'is_email_confirmed' => 1],
                 ['id' => self::OTHER_WRITER, 'username' => 'writer', 'email' => 'writer@machine.local', 'is_email_confirmed' => 1],
+                ['id' => self::MODERATOR, 'username' => 'moderator', 'email' => 'moderator@machine.local', 'is_email_confirmed' => 1],
             ],
             Group::class => [
                 ['id' => 100, 'name_singular' => 'Writer', 'name_plural' => 'Writers'],
+                ['id' => 101, 'name_singular' => 'Moderator', 'name_plural' => 'Moderators'],
             ],
             'group_user' => [
                 ['user_id' => self::AUTHOR, 'group_id' => 100],
                 ['user_id' => self::OTHER_WRITER, 'group_id' => 100],
+                ['user_id' => self::MODERATOR, 'group_id' => 101],
             ],
             'group_permission' => [
                 // Writers can write, but cannot approve.
                 ['group_id' => 100, 'permission' => 'blog.writeArticles'],
+                // Moderators can approve.
+                ['group_id' => 101, 'permission' => 'blog.canApprovePosts'],
             ],
             Discussion::class => [
                 ['id' => self::PUBLISHED, 'title' => 'Published', 'slug' => 'published', 'user_id' => self::AUTHOR, 'first_post_id' => 1, 'comment_count' => 1, 'created_at' => $now, 'last_posted_at' => $now, 'is_private' => 0],
@@ -95,9 +101,16 @@ class PendingReviewVisibilityTest extends TestCase
     }
 
     #[Test]
-    public function approver_sees_pending_articles(): void
+    public function admin_sees_pending_articles(): void
     {
+        // Admins are open-gated; the real permission check is the moderator test.
         $this->assertContains(self::PENDING_BY_AUTHOR, $this->visibleIds(self::APPROVER));
+    }
+
+    #[Test]
+    public function non_admin_with_approve_permission_sees_pending_articles(): void
+    {
+        $this->assertContains(self::PENDING_BY_AUTHOR, $this->visibleIds(self::MODERATOR));
     }
 
     #[Test]

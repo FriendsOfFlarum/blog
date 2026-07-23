@@ -11,6 +11,7 @@
 
 namespace FoF\Blog\Tests\integration\api;
 
+use Flarum\Group\Group;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -35,6 +36,20 @@ class ForumAttributesTest extends TestCase
         $this->prepareDatabase([
             User::class => [
                 $this->normalUser(),
+                ['id' => 3, 'username' => 'writer', 'email' => 'writer@machine.local', 'is_email_confirmed' => 1],
+                ['id' => 4, 'username' => 'approver', 'email' => 'approver@machine.local', 'is_email_confirmed' => 1],
+            ],
+            Group::class => [
+                ['id' => 100, 'name_singular' => 'Writer', 'name_plural' => 'Writers'],
+                ['id' => 101, 'name_singular' => 'Approver', 'name_plural' => 'Approvers'],
+            ],
+            'group_user' => [
+                ['user_id' => 3, 'group_id' => 100],
+                ['user_id' => 4, 'group_id' => 101],
+            ],
+            'group_permission' => [
+                ['group_id' => 100, 'permission' => 'blog.writeArticles'],
+                ['group_id' => 101, 'permission' => 'blog.canApprovePosts'],
             ],
         ]);
     }
@@ -94,9 +109,38 @@ class ForumAttributesTest extends TestCase
     #[Test]
     public function admin_can_write_and_approve_blog_posts(): void
     {
+        // Admins are open-gated; the real permission checks are covered by the
+        // writer/approver tests below.
         $attributes = $this->forumAttributes(1);
 
         $this->assertTrue($attributes['canWriteBlogPosts']);
         $this->assertTrue($attributes['canApproveBlogPosts']);
+    }
+
+    #[Test]
+    public function writer_permission_grants_writing_but_not_approving(): void
+    {
+        $attributes = $this->forumAttributes(3);
+
+        $this->assertTrue($attributes['canWriteBlogPosts']);
+        $this->assertFalse($attributes['canApproveBlogPosts']);
+    }
+
+    #[Test]
+    public function approve_permission_grants_approving_but_not_writing(): void
+    {
+        $attributes = $this->forumAttributes(4);
+
+        $this->assertFalse($attributes['canWriteBlogPosts']);
+        $this->assertTrue($attributes['canApproveBlogPosts']);
+    }
+
+    #[Test]
+    public function plain_member_can_neither_write_nor_approve(): void
+    {
+        $attributes = $this->forumAttributes(2);
+
+        $this->assertFalse($attributes['canWriteBlogPosts']);
+        $this->assertFalse($attributes['canApproveBlogPosts']);
     }
 }

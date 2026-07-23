@@ -11,6 +11,7 @@
 
 namespace FoF\Blog\Tests\integration\api;
 
+use Flarum\Group\Group;
 use Flarum\Tags\Tag;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
@@ -31,11 +32,30 @@ class CreateBlogMetaOnDiscussionTest extends TestCase
     {
         parent::setUp();
 
-        $this->extension('flarum-tags', 'fof-blog');
+        // flarum-lock is a hard dependency of fof-blog and provides the
+        // `is_locked` column the auto-lock behaviour writes to.
+        $this->extension('flarum-tags', 'flarum-lock', 'fof-blog');
 
         $this->prepareDatabase([
             User::class => [
                 $this->normalUser(),
+                ['id' => 3, 'username' => 'writer', 'email' => 'writer@machine.local', 'is_email_confirmed' => 1],
+                ['id' => 4, 'username' => 'trusted', 'email' => 'trusted@machine.local', 'is_email_confirmed' => 1],
+            ],
+            Group::class => [
+                ['id' => 100, 'name_singular' => 'Writer', 'name_plural' => 'Writers'],
+                ['id' => 101, 'name_singular' => 'Trusted writer', 'name_plural' => 'Trusted writers'],
+            ],
+            'group_user' => [
+                ['user_id' => 3, 'group_id' => 100],
+                ['user_id' => 4, 'group_id' => 101],
+            ],
+            'group_permission' => [
+                // Writers can write, but their articles may require review.
+                ['group_id' => 100, 'permission' => 'blog.writeArticles'],
+                // Trusted writers bypass the review queue.
+                ['group_id' => 101, 'permission' => 'blog.writeArticles'],
+                ['group_id' => 101, 'permission' => 'blog.autoApprovePosts'],
             ],
             Tag::class => [
                 ['id' => 1, 'name' => 'Blog', 'slug' => 'blog', 'position' => 0, 'is_restricted' => false, 'is_hidden' => false],
@@ -134,5 +154,63 @@ class CreateBlogMetaOnDiscussionTest extends TestCase
         $response = $this->createDiscussion(2, [1]);
 
         $this->assertEquals(403, $response->getStatusCode());
+    }
+
+    #[Test]
+    public function non_admin_writer_with_permission_can_create_a_blog_article(): void
+    {
+        $response = $this->createDiscussion(3, [1]);
+
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $id = json_decode($response->getBody()->getContents(), true)['data']['id'];
+
+        $meta = $this->database()->table('blog_meta')->where('discussion_id', (int) $id)->first();
+
+        $this->assertNotNull($meta, 'Expected a blog_meta row to be created');
+        // Review is not required by default, so the article is published immediately.
+        $this->assertEquals(0, $meta->is_pending_review);
+    }
+
+    #[Test]
+    public function article_is_pending_when_review_is_required_and_writer_cannot_auto_approve(): void
+    {
+        $this->setting('blog_requires_review', '1');
+
+        $response = $this->createDiscussion(3, [1]);
+
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $id = json_decode($response->getBody()->getContents(), true)['data']['id'];
+
+        $this->assertEquals(1, $this->database()->table('blog_meta')->where('discussion_id', (int) $id)->value('is_pending_review'));
+    }
+
+    #[Test]
+    public function auto_approve_permission_bypasses_the_review_queue(): void
+    {
+        $this->setting('blog_requires_review', '1');
+
+        $response = $this->createDiscussion(4, [1]);
+
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $id = json_decode($response->getBody()->getContents(), true)['data']['id'];
+
+        $this->assertEquals(0, $this->database()->table('blog_meta')->where('discussion_id', (int) $id)->value('is_pending_review'));
+    }
+
+    #[Test]
+    public function articles_are_locked_when_comments_are_disabled(): void
+    {
+        $this->setting('blog_allow_comments', '0');
+
+        $response = $this->createDiscussion(3, [1]);
+
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $id = json_decode($response->getBody()->getContents(), true)['data']['id'];
+
+        $this->assertEquals(1, $this->database()->table('discussions')->where('id', (int) $id)->value('is_locked'));
     }
 }

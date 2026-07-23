@@ -72,24 +72,29 @@ class BlogMetaResource extends Resource\AbstractDatabaseResource
                 ->defaultInclude(['discussion']),
             Endpoint\Update::make()
                 ->authenticated()
-                ->can('blog.writeArticles')
+                // Writers edit content, approvers publish — the fields govern
+                // what each may actually write.
+                ->can('update')
                 ->defaultInclude(['discussion']),
         ];
     }
 
     public function fields(): array
     {
+        // Meta content is writer-only; approvers may only publish (see below).
+        $writerOnly = fn (BlogMeta $meta, Context $context) => $context->getActor()->can('edit', $meta);
+
         return [
             Schema\Str::make('featuredImage')
                 ->nullable()
-                ->writable(),
+                ->writable($writerOnly),
             Schema\Str::make('summary')
                 ->nullable()
-                ->writable(),
+                ->writable($writerOnly),
             Schema\Boolean::make('isFeatured')
-                ->writable(),
+                ->writable($writerOnly),
             Schema\Boolean::make('isSized')
-                ->writable(),
+                ->writable($writerOnly),
             Schema\Boolean::make('isPendingReview')
                 // The field stays writable so clients may always send it, but
                 // the value only takes effect when an approver publishes a
