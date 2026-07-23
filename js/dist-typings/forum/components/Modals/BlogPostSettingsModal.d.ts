@@ -6,7 +6,7 @@ import Model, { type SaveAttributes } from 'flarum/common/Model';
 import type Mithril from 'mithril';
 import type Discussion from 'flarum/common/models/Discussion';
 /**
- * The `blogMeta` resource. The runtime model (`common/Models/BlogMeta`) is built
+ * The `blogMeta` resource. The runtime model (`common/models/BlogMeta`) is built
  * with `mixin()`, which is typed as returning a plain `object`, so its
  * attribute getters are not visible to TypeScript. This interface mirrors those
  * getters on top of the base `Model` so this component is fully typed.

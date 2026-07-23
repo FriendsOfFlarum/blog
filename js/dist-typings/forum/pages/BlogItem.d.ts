@@ -23,7 +23,11 @@ export default class BlogItem extends Page {
     postItems(): ItemList<Mithril.Children>;
     contentItems(): ItemList<Mithril.Children>;
     articleItems(): ItemList<Mithril.Children>;
-    view(): (false | JSX.Element)[];
+    /**
+     * The blog reuses the forum's welcome hero, when enabled.
+     */
+    hero(): Mithril.Children;
+    view(): (JSX.Element | Mithril.Children)[];
     positionChanged(startNumber: number, endNumber: number): void;
 }
 export {};

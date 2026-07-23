@@ -8,7 +8,6 @@ export interface BlogPostControllerAttrs extends ComponentAttrs {
 export default class BlogPostController extends Component<BlogPostControllerAttrs> {
     loadedPost: boolean;
     loading: boolean;
-    init(): void;
     manageArticleButtons(): ItemList<Mithril.Children>;
     view(vnode: Mithril.Vnode<BlogPostControllerAttrs, this>): JSX.Element;
 }

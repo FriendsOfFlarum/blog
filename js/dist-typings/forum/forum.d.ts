@@ -1,4 +1,4 @@
-import '../common/Models/BlogMeta';
+import '../common/models/BlogMeta';
 import './components/ArticleSubscription';
 import './components/BlogCategories';
 import './components/BlogItemSidebar/BlogAuthor';

@@ -1,4 +1,4 @@
-import type BlogMeta from '../common/Models/BlogMeta';
+import type BlogMeta from '../common/models/BlogMeta';
 
 declare global {
   /**

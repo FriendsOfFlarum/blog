@@ -5,7 +5,7 @@ import Model from 'flarum/common/Model';
 import ItemList from 'flarum/common/utils/ItemList';
 import Stream from 'flarum/common/utils/Stream';
 import type Mithril from 'mithril';
-import BlogMeta from '../../common/Models/BlogMeta';
+import BlogMeta from '../../common/models/BlogMeta';
 /**
  * A `discussion-languages` record provided by the optional
  * `fof/discussion-language` extension.
