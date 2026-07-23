@@ -48,9 +48,13 @@ class CreateBlogMetaOnDiscussionTest extends TestCase
     }
 
     /**
-     * @param array<int> $tagIds
+     * Mirrors the payload the blog composer sends: the blog meta travels as a
+     * `newBlogMeta` object (or null) inside the discussion attributes.
+     *
+     * @param array<int>                $tagIds
+     * @param array<string, mixed>|null $blogMeta
      */
-    protected function createDiscussion(int $authenticatedAs, array $tagIds): \Psr\Http\Message\ResponseInterface
+    protected function createDiscussion(int $authenticatedAs, array $tagIds, ?array $blogMeta = null): \Psr\Http\Message\ResponseInterface
     {
         return $this->send(
             $this->request('POST', '/api/discussions', [
@@ -58,8 +62,9 @@ class CreateBlogMetaOnDiscussionTest extends TestCase
                 'json'            => [
                     'data' => [
                         'attributes'    => [
-                            'title'   => 'A new article that is long enough',
-                            'content' => 'This is the body of the article, long enough to pass validation.',
+                            'title'       => 'A new article that is long enough',
+                            'content'     => 'This is the body of the article, long enough to pass validation.',
+                            'newBlogMeta' => $blogMeta,
                         ],
                         'relationships' => [
                             'tags' => [
@@ -87,6 +92,27 @@ class CreateBlogMetaOnDiscussionTest extends TestCase
         $id = json_decode($response->getBody()->getContents(), true)['data']['id'];
 
         $this->assertSame(1, $this->blogMetaCount((int) $id));
+    }
+
+    #[Test]
+    public function blog_meta_attributes_from_the_composer_payload_are_persisted(): void
+    {
+        $response = $this->createDiscussion(1, [1], [
+            'featuredImage' => 'https://example.com/cover.jpg',
+            'summary'       => 'A short summary.',
+            'isSized'       => true,
+        ]);
+
+        $this->assertEquals(201, $response->getStatusCode());
+
+        $id = json_decode($response->getBody()->getContents(), true)['data']['id'];
+
+        $meta = $this->database()->table('blog_meta')->where('discussion_id', (int) $id)->first();
+
+        $this->assertNotNull($meta, 'Expected a blog_meta row to be created');
+        $this->assertSame('https://example.com/cover.jpg', $meta->featured_image);
+        $this->assertSame('A short summary.', $meta->summary);
+        $this->assertEquals(1, $meta->is_sized);
     }
 
     #[Test]

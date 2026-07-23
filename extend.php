@@ -76,6 +76,17 @@ return [
 
     (new Extend\ApiResource(Resource\DiscussionResource::class))
         ->fields(fn () => [
+            // Write-only input sent by the blog composer when creating an
+            // article. The value is consumed from the discussion `Saving`
+            // event's raw data by `CreateBlogMetaOnDiscussionCreate` — this
+            // field only exists so the payload passes field validation. It is
+            // never serialized; responses carry the `blogMeta` relationship
+            // below (fields are keyed by name, so the attribute cannot share it).
+            Schema\Arr::make('newBlogMeta')
+                ->writableOnCreate()
+                ->nullable()
+                ->visible(false)
+                ->set(fn () => null),
             Schema\Relationship\ToOne::make('blogMeta')
                 ->type('blogMeta')
                 ->includable(),

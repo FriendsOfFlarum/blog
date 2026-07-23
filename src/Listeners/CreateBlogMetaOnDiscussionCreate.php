@@ -68,10 +68,10 @@ class CreateBlogMetaOnDiscussionCreate
 
                 $blogMeta = BlogMeta::build(
                     $discussion->id,
-                    Arr::get($event->data, 'attributes.blogMeta.featuredImage', null),
-                    Arr::get($event->data, 'attributes.blogMeta.summary', null),
-                    Arr::get($event->data, 'attributes.blogMeta.isFeatured', null),
-                    Arr::get($event->data, 'attributes.blogMeta.isSized', null),
+                    Arr::get($event->data, 'attributes.newBlogMeta.featuredImage', null),
+                    Arr::get($event->data, 'attributes.newBlogMeta.summary', null),
+                    Arr::get($event->data, 'attributes.newBlogMeta.isFeatured', null),
+                    Arr::get($event->data, 'attributes.newBlogMeta.isSized', null),
                     $isPendingReview
                 );
 
