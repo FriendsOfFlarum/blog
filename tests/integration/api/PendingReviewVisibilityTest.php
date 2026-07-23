@@ -12,13 +12,13 @@
 namespace FoF\Blog\Tests\integration\api;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
+use Flarum\Group\Group;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use Flarum\User\User;
-use Flarum\Group\Group;
-use Flarum\Discussion\Discussion;
-use Flarum\Post\Post;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Blog articles pending review must only be visible to a user who can approve

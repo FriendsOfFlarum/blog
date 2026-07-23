@@ -50,7 +50,6 @@ class SeoBlogTitleTest extends TestCase
      * Translations are not loaded in the test environment, so the raw key is
      * rendered verbatim. We assert the title references the migrated `fof-blog`
      * key rather than the dead `v17development-flarum-blog` one.
-     *
      */
     #[Test]
     public function blog_overview_title_uses_the_migrated_translation_key(): void

@@ -11,11 +11,11 @@
 
 namespace FoF\Blog\Tests\integration\api;
 
+use Flarum\Tags\Tag;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
-use PHPUnit\Framework\Attributes\Test;
 use Flarum\User\User;
-use Flarum\Tags\Tag;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Characterizes {@see \FoF\Blog\Listeners\CreateBlogMetaOnDiscussionCreate}:

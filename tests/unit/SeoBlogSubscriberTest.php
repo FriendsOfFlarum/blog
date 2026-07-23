@@ -19,7 +19,6 @@ class SeoBlogSubscriberTest extends TestCase
 {
     /**
      * New writes must stamp the migrated `fof-blog` Open Graph image source.
-     *
      */
     #[Test]
     public function og_image_source_is_the_migrated_identifier(): void
@@ -30,7 +29,6 @@ class SeoBlogSubscriberTest extends TestCase
     /**
      * The pre-migration identifier must stay recognised so images stored by
      * v17development/flarum-blog remain owned by this extension.
-     *
      */
     #[Test]
     public function legacy_og_image_source_is_preserved_for_back_compat(): void

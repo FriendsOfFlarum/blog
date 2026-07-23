@@ -47,6 +47,7 @@ class BlogArticleFilter implements FilterInterface
             }
         });
     }
+
     public function getFilterKey(): string
     {
         return 'blog';

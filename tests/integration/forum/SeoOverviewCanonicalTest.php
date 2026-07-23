@@ -12,9 +12,9 @@
 namespace FoF\Blog\Tests\integration\forum;
 
 use Carbon\Carbon;
+use Flarum\Tags\Tag;
 use Flarum\Testing\integration\TestCase;
 use PHPUnit\Framework\Attributes\Test;
-use Flarum\Tags\Tag;
 
 /**
  * The blog overview SEO driver must set a canonical URL pointing at the blog,

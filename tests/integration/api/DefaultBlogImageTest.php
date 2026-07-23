@@ -14,12 +14,12 @@ namespace FoF\Blog\Tests\integration\api;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
 use Intervention\Image\ImageManager;
 use Laminas\Diactoros\UploadedFile;
 use PHPUnit\Framework\Attributes\Test;
-use Flarum\User\User;
 
 /**
  * Characterizes the admin default blog image upload/delete

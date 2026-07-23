@@ -12,14 +12,14 @@
 namespace FoF\Blog\Tests\integration\forum;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Foundation\Paths;
 use Flarum\Http\UrlGenerator;
-use Flarum\Testing\integration\TestCase;
-use PHPUnit\Framework\Attributes\Test;
-use Flarum\User\User;
-use Flarum\Discussion\Discussion;
 use Flarum\Post\Post;
+use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * The blog article SEO driver falls back to the configured default image when

@@ -12,12 +12,12 @@
 namespace FoF\Blog\Tests\integration\api;
 
 use Carbon\Carbon;
-use Flarum\Testing\integration\RetrievesAuthorizedUsers;
-use Flarum\Testing\integration\TestCase;
-use PHPUnit\Framework\Attributes\Test;
-use Flarum\User\User;
 use Flarum\Discussion\Discussion;
 use Flarum\Post\Post;
+use Flarum\Testing\integration\RetrievesAuthorizedUsers;
+use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Characterizes {@see \FoF\Blog\Api\Resource\BlogMetaResource}: the shape of
