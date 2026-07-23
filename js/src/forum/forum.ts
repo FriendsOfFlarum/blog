@@ -1,19 +1,19 @@
 import { compat } from '@flarum/core/forum';
-import BlogMeta from '../common/Models/BlogMeta';
-import ArticleSubscription from './components/ArticleSubscription';
-import BlogCategories from './components/BlogCategories';
-import BlogAuthor from './components/BlogItemSidebar/BlogAuthor';
-import BlogItemSidebar from './components/BlogItemSidebar/BlogItemSidebar';
-import BlogOverviewItem from './components/BlogOverviewItem';
-import BlogPostController from './components/BlogPostController';
-import Composer from './components/Composer/Composer';
-import ComposerPreview from './components/Composer/ComposerPreview';
-import FeaturedBlogItem from './components/FeaturedBlogItem';
-import ForumNav from './components/ForumNav';
-import BlogPostSettingsModal from './components/Modals/BlogPostSettingsModal';
-import RenameArticleModal from './components/Modals/RenameArticleModal';
-import BlogItem from './pages/BlogItem';
-import BlogOverview from './pages/BlogOverview';
+import '../common/Models/BlogMeta';
+import './components/ArticleSubscription';
+import './components/BlogCategories';
+import './components/BlogItemSidebar/BlogAuthor';
+import './components/BlogItemSidebar/BlogItemSidebar';
+import './components/BlogOverviewItem';
+import './components/BlogPostController';
+import './components/Composer/Composer';
+import './components/Composer/ComposerPreview';
+import './components/FeaturedBlogItem';
+import './components/ForumNav';
+import './components/Modals/BlogPostSettingsModal';
+import './components/Modals/RenameArticleModal';
+import './pages/BlogItem';
+import './pages/BlogOverview';
 
 export default () => {
   Object.assign(compat, {
