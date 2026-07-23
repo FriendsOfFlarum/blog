@@ -36,7 +36,8 @@
         "flarum/testing": "^2.0.0",
         "fof/rich-text": "^2.0",
         "fof/seo": "^4",
-        "fof/upload": "*"
+        "fof/upload": "*",
+        "flarum/audit": "^2.0"
     },
     "replace": {
         "v17development/flarum-blog": "*"
@@ -58,7 +59,8 @@
                 "flarum/sticky",
                 "fof/discussion-language",
                 "fof/rich-text",
-                "fof/seo"
+                "fof/seo",
+                "flarum/audit"
             ]
         },
         "branch-alias": {

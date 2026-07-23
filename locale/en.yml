@@ -128,3 +128,16 @@ fof-blog:
     gambits:
       blog:
         key: blog
+
+# Labels for the audit log entries this extension produces, rendered by the (optional)
+# flarum/audit browser. Defined under the flarum-audit namespace so the audit frontend
+# resolves them, but shipped here so they travel with the extension that owns the actions.
+flarum-audit:
+  lib:
+    browser:
+      article:
+        created: Created blog article {discussion}
+        approved: Approved blog article {discussion}
+        updated: Updated blog article {discussion} meta
+        featured: Featured blog article {discussion}
+        unfeatured: Unfeatured blog article {discussion}

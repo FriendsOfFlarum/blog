@@ -15,8 +15,13 @@ use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Discussion\Discussion;
 use Flarum\Foundation\EventGeneratorTrait;
+use FoF\Blog\Event\ArticleApproved;
+use FoF\Blog\Event\ArticleFeatured;
+use FoF\Blog\Event\ArticleUnfeatured;
 use FoF\Blog\Event\BlogMetaCreated;
+use FoF\Blog\Event\BlogMetaUpdated;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Support\Arr;
 
 /**
  * @property int             $id
@@ -60,6 +65,25 @@ class BlogMeta extends AbstractModel
 
         static::created(function (self $blogMeta) {
             $blogMeta->raise(new BlogMetaCreated($blogMeta));
+        });
+
+        static::updated(function (self $blogMeta) {
+            // Publishing a pending article is its own domain event...
+            if ($blogMeta->wasChanged('is_pending_review') && !$blogMeta->is_pending_review) {
+                $blogMeta->raise(new ArticleApproved($blogMeta));
+            }
+
+            // ...as is (un)featuring an article...
+            if ($blogMeta->wasChanged('is_featured')) {
+                $blogMeta->raise($blogMeta->is_featured ? new ArticleFeatured($blogMeta) : new ArticleUnfeatured($blogMeta));
+            }
+
+            // ...while any other change is a meta content update.
+            $changed = array_keys(Arr::except($blogMeta->getChanges(), ['is_pending_review', 'is_featured']));
+
+            if ($changed !== []) {
+                $blogMeta->raise(new BlogMetaUpdated($blogMeta, $changed));
+            }
         });
     }
 
