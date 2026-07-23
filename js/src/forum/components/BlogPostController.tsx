@@ -1,5 +1,5 @@
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
-import TagDiscussionModal from 'flarum/tags/components/TagDiscussionModal';
+import TagDiscussionModal from 'ext:flarum/tags/components/TagDiscussionModal';
 import DiscussionControls from 'flarum/forum/utils/DiscussionControls';
 import Alert from 'flarum/common/components/Alert';
 import Button from 'flarum/common/components/Button';
@@ -131,7 +131,7 @@ export default class BlogPostController extends Component<BlogPostControllerAttr
     if (blogMeta && 'fof-seo' in flarum.extensions && app.forum.attribute('canConfigureSeo')) {
       const {
         components: { MetaSeoModal },
-      } = require('@fof-seo') as SeoModule;
+      } = require('@fof-seo') as SeoModule; // @TODO: import from `ext:vendor/extension/module-path` format.
 
       items.add(
         'seo',

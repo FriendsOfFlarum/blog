@@ -111,7 +111,7 @@ export default class BlogPostSettingsModal extends Modal<BlogPostSettingsModalAt
     if ('fof-upload' in flarum.extensions && app.forum.attribute('fof-upload.canUpload')) {
       const {
         components: { Uploader, FileManagerModal },
-      } = require('@fof-upload');
+      } = require('@fof-upload'); // @TODO: import from `ext:vendor/extension/module-path` format.
 
       const uploader = new Uploader();
 

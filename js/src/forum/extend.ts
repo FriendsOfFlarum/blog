@@ -4,7 +4,7 @@ import BlogItem from './pages/BlogItem';
 import BlogComposer from './pages/BlogComposer';
 import BlogMeta from '../common/Models/BlogMeta';
 import Discussion from 'flarum/common/models/Discussion';
-import Tag from 'flarum/tags/common/models/Tag';
+import Tag from 'ext:flarum/tags/common/models/Tag';
 
 export default [
   new Extend.Routes() //

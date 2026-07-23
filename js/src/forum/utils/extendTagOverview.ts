@@ -2,9 +2,9 @@ import Mithril from 'mithril';
 import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
 import IndexPage from 'flarum/forum/components/IndexPage';
-import TagsPage from 'flarum/tags/components/TagsPage';
+import TagsPage from 'ext:flarum/tags/components/TagsPage';
 import ItemList from 'flarum/common/utils/ItemList';
-import Tag from 'flarum/tags/common/models/Tag';
+import Tag from 'ext:flarum/tags/common/models/Tag';
 
 /**
  * A vnode whose `attrs` may carry a `className`, as produced by Flarum's

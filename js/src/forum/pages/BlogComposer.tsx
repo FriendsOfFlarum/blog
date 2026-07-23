@@ -3,7 +3,7 @@ import Page, { IPageAttrs } from 'flarum/common/components/Page';
 import Button from 'flarum/common/components/Button';
 import Link from 'flarum/common/components/Link';
 import Discussion from 'flarum/common/models/Discussion';
-import Tag from 'flarum/tags/common/models/Tag';
+import Tag from 'ext:flarum/tags/common/models/Tag';
 import Model from 'flarum/common/Model';
 import ItemList from 'flarum/common/utils/ItemList';
 import Stream from 'flarum/common/utils/Stream';
@@ -13,7 +13,7 @@ import type Mithril from 'mithril';
 
 import BlogAuthor from '../components/BlogItemSidebar/BlogAuthor';
 import RenameArticleModal from '../components/Modals/RenameArticleModal';
-import TagDiscussionModal from 'flarum/tags/components/TagDiscussionModal';
+import TagDiscussionModal from 'ext:flarum/tags/components/TagDiscussionModal';
 import BlogPostSettingsModal from '../components/Modals/BlogPostSettingsModal';
 import Composer from '../components/Composer/Composer';
 import BlogMeta from '../../common/Models/BlogMeta';

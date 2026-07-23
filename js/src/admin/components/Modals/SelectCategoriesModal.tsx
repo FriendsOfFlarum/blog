@@ -4,7 +4,7 @@ import Button from 'flarum/common/components/Button';
 import Alert from 'flarum/common/components/Alert';
 import saveSettings from 'flarum/admin/utils/saveSettings';
 import Switch from 'flarum/common/components/Switch';
-import Tag from 'flarum/tags/common/models/Tag';
+import Tag from 'ext:flarum/tags/common/models/Tag';
 import type Mithril from 'mithril';
 
 export default class SelectCategoriesModal extends Modal<IInternalModalAttrs> {
