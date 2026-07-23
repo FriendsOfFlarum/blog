@@ -318,7 +318,9 @@ export default class BlogComposer extends Page<IPageAttrs> {
       title: this.article.title(),
       content: app.composer.fields?.content(),
       relationships,
-      blogMeta:
+      // Write-only attribute consumed server-side on discussion create; the
+      // saved article carries a regular `blogMeta` relationship instead.
+      newBlogMeta:
         this.blogMeta !== null
           ? {
               featuredImage: this.blogMeta.featuredImage(),
