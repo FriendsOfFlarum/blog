@@ -50,6 +50,10 @@ class UploadDefaultBlogImageController extends UploadImageController
      */
     protected function makeImage(UploadedFileInterface $file): Image
     {
+        /**
+         * @TODO: confirm if this still works with intervention/image v3
+         *        see: https://image.intervention.io/v3/introduction/upgrade
+         */
         $image = $this->imageManager->make($file->getStream()->getMetadata('uri'));
 
         // Downscale oversized uploads to keep stored assets reasonable, while
