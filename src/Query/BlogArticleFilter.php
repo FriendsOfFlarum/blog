@@ -29,9 +29,22 @@ class BlogArticleFilter implements FilterInterface
 
     public function filter(SearchState $state, array|string $value, bool $negate): void
     {
-        $tagsArray = explode('|', $this->settings->get('blog_tags', ''));
+        // Drop empty/non-numeric entries: an unset `blog_tags` setting explodes
+        // to [''], and binding '' against an integer column is a fatal error on
+        // PostgreSQL (MySQL/SQLite silently coerce it to 0).
+        $tagsArray = array_filter(explode('|', (string) $this->settings->get('blog_tags', '')), 'is_numeric');
 
         $state->getQuery()->where(function (Builder $query) use ($tagsArray, $negate) {
+            // No blog tags configured: the blog filter matches nothing, and
+            // its negation matches everything.
+            if (empty($tagsArray)) {
+                if (!$negate) {
+                    $query->whereRaw('1 = 0');
+                }
+
+                return;
+            }
+
             foreach ($tagsArray as $tagId) {
                 $subquery = function (QueryBuilder $query) use ($tagId) {
                     $query->select('discussion_id')

@@ -47,7 +47,14 @@ class FilterDiscussionsForBlogPosts
 
         // Filter discussions from discussion list
         if ($hideBlogPosts) {
-            $tagsArray = explode('|', $this->settings->get('blog_tags', ''));
+            // Drop empty/non-numeric entries: an unset `blog_tags` setting
+            // explodes to [''], and binding '' against an integer column is a
+            // fatal error on PostgreSQL.
+            $tagsArray = array_filter(explode('|', (string) $this->settings->get('blog_tags', '')), 'is_numeric');
+
+            if (empty($tagsArray)) {
+                return;
+            }
 
             $filter
                 ->getQuery()
