@@ -12,8 +12,8 @@
 namespace FoF\Blog\Query;
 
 use Flarum\Discussion\Search\Gambit\FulltextGambit;
-use Flarum\Filter\FilterState;
-use Flarum\Query\QueryCriteria;
+use Flarum\Search\SearchState;
+use Flarum\Search\SearchCriteria;
 use Flarum\Settings\SettingsRepositoryInterface;
 
 class FilterDiscussionsForBlogPosts
@@ -30,7 +30,7 @@ class FilterDiscussionsForBlogPosts
      * @param FilterState   $filter
      * @param QueryCriteria $queryCriteria
      */
-    public function __invoke(FilterState $filter, QueryCriteria $queryCriteria): void
+    public function __invoke(SearchState $filter, SearchCriteria $queryCriteria): void
     {
         // Do we need to filter?
         if (filter_var($this->settings->get('blog_filter_discussion_list'), FILTER_VALIDATE_BOOLEAN) === false) {

@@ -11,27 +11,22 @@
 
 namespace FoF\Blog\Query;
 
-use Flarum\Search\AbstractRegexGambit;
 use Flarum\Search\SearchState;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Database\Query\Builder;
+use Flarum\Search\Filter\FilterInterface;
 
-class BlogArticleFilterGambit extends AbstractRegexGambit
+class BlogArticleFilter implements FilterInterface
 {
     public function __construct(protected SettingsRepositoryInterface $settings)
     {
     }
 
-    protected function getGambitPattern(): string
-    {
-        return 'is:blog';
-    }
-
-    protected function conditions(SearchState $search, array $matches, $negate)
+    public function filter(SearchState $state, array|string $value, bool $negate): void
     {
         $tagsArray = explode('|', $this->settings->get('blog_tags', ''));
 
-        $search->getQuery()->where(function (Builder $query) use ($tagsArray, $negate) {
+        $state->getQuery()->where(function (Builder $query) use ($tagsArray, $negate) {
             foreach ($tagsArray as $tagId) {
                 $subquery = function (Builder $query) use ($tagId) {
                     $query->select('discussion_id')
@@ -46,5 +41,9 @@ class BlogArticleFilterGambit extends AbstractRegexGambit
                 }
             }
         });
+    }
+    public function getFilterKey(): string
+    {
+        return 'blog';
     }
 }

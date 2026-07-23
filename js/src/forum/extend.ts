@@ -1,3 +1,4 @@
+import commonExtend from '../common/extend';
 import Extend from 'flarum/common/extenders';
 import BlogOverview from './pages/BlogOverview';
 import BlogItem from './pages/BlogItem';

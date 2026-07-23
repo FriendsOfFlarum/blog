@@ -35,7 +35,7 @@ use FoF\Blog\Controller\BlogItemController;
 use FoF\Blog\Controller\BlogOverviewController;
 use FoF\Blog\Listeners\CreateBlogMetaOnDiscussionCreate;
 use FoF\Blog\Middleware\RedirectTrailingSlash;
-use FoF\Blog\Query\BlogArticleFilterGambit;
+use FoF\Blog\Query\BlogArticleFilter;
 use FoF\Blog\Query\FilterDiscussionsForBlogPosts;
 use FoF\Blog\SeoPage\SeoBlogArticleMeta;
 use FoF\Blog\SeoPage\SeoBlogOverviewMeta;
@@ -107,12 +107,6 @@ return [
     (new Extend\ApiSerializer(TagSerializer::class))
         ->attributes(AttatchTagSerializerAttributes::class),
 
-    (new Extend\Filter(DiscussionFilterer::class))
-        ->addFilterMutator(FilterDiscussionsForBlogPosts::class),
-
-    (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
-        ->addGambit(BlogArticleFilterGambit::class),
-
     (new Extend\Event())
         ->listen(Saving::class, CreateBlogMetaOnDiscussionCreate::class),
 
@@ -126,4 +120,7 @@ return [
                 ->subscribe(SeoBlogSubscriber::class),
         ]),
     new Extend\ApiResource(Api\Resource\BlogMetaResource::class),
+    (new Extend\SearchDriver(\Flarum\Search\Database\DatabaseSearchDriver::class))
+        ->addFilter(DiscussionSearcher::class, BlogArticleFilter::class)
+        ->addMutator(DiscussionSearcher::class, FilterDiscussionsForBlogPosts::class),
 ];

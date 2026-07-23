@@ -116,3 +116,7 @@ fof-blog:
         highlight:
           title: Highlighted post
           helper_text: Give this post a big image on the blog overview page.
+  lib:
+    gambits:
+      blog:
+        key: blog
