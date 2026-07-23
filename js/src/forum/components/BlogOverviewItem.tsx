@@ -124,7 +124,7 @@ export default class BlogOverviewItem extends Component<Attrs> {
       >
         <div
           class={classList('BlogList-item-photo', {
-            'FlarumBlog-default-image': blogImage === defaultImage,
+            'FoFBlog-default-image': blogImage === defaultImage,
           })}
           style={{ backgroundImage: blogImage }}
         />

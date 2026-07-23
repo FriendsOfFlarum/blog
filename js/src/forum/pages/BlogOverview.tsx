@@ -1,27 +1,23 @@
 import app from 'flarum/forum/app';
 
-import IndexPage from 'flarum/forum/components/IndexPage';
+import WelcomeHero from 'flarum/forum/components/WelcomeHero';
 import Page, { IPageAttrs } from 'flarum/common/components/Page';
 import Button from 'flarum/common/components/Button';
 import BlogCategories from '../components/BlogCategories';
 import Link from 'flarum/common/components/Link';
 import extractText from 'flarum/common/utils/extractText';
-import type LanguageDropdownType from '@fof/discussion-language/forum/components/LanguageDropdown';
+import getLanguageDropdown from '../utils/getLanguageDropdown';
 import ForumNav from '../components/ForumNav';
 import BlogOverviewItem from '../components/BlogOverviewItem';
 import FeaturedBlogItem from '../components/FeaturedBlogItem';
+import BlogListState, { BlogListParams } from '../states/BlogListState';
 import type Mithril from 'mithril';
 import type Discussion from 'flarum/common/models/Discussion';
 import type Tag from 'flarum/tags/common/models/Tag';
 import type Model from 'flarum/common/Model';
-import type { ApiResponsePlural } from 'flarum/common/Store';
 
 export default class BlogOverview extends Page {
-  protected isLoading!: boolean;
-  protected isLoadingMore!: boolean;
-  protected featuredPosts!: Discussion[];
-  protected posts!: Discussion[];
-  protected hasMore!: string | null;
+  protected list!: BlogListState;
   protected languages!: Model[];
   protected currentSelectedLanguage!: string;
   protected featuredCount!: number;
@@ -31,15 +27,9 @@ export default class BlogOverview extends Page {
   oninit(vnode: Mithril.Vnode<IPageAttrs, this>) {
     super.oninit(vnode);
 
-    app.setTitle(app.translator.trans('fof-blog.forum.blog') as string);
+    app.setTitle(extractText(app.translator.trans('fof-blog.forum.blog')));
 
     this.bodyClass = 'BlogOverviewPage';
-
-    this.isLoading = true;
-    this.featuredPosts = [];
-    this.posts = [];
-    this.hasMore = null;
-    this.isLoadingMore = false;
 
     this.languages = app.store.all<Model>('discussion-languages');
 
@@ -48,88 +38,28 @@ export default class BlogOverview extends Page {
     // Send history push
     app.history.push('blog', extractText(app.translator.trans('fof-blog.forum.blog')));
 
-    this.loadBlogOverview();
-
     this.featuredCount = parseInt(app.forum.attribute('blogFeaturedCount'));
 
     this.showCategories = true;
     this.showForumNav = true;
+
+    // The state consumes the preloaded API document, when one is available.
+    this.list = new BlogListState(this.listParams());
+    this.list.refresh();
   }
 
-  // Load blog overview
-  loadBlogOverview() {
-    const preloadBlogOverview = app.preloadedApiDocument<Discussion[]>();
-
-    if (preloadBlogOverview) {
-      // We must wrap this in a setTimeout because if we are mounting this
-      // component for the first time on page load, then any calls to m.redraw
-      // will be ineffective and thus any configs (scroll code) will be run
-      // before stuff is drawn to the page.
-      setTimeout(this.show.bind(this, preloadBlogOverview), 0);
-    } else {
-      this.reloadData();
-    }
-
-    m.redraw();
+  protected listParams(): BlogListParams {
+    return {
+      category: m.route.param('slug') || undefined,
+      language: this.languages.length > 0 ? this.currentSelectedLanguage : undefined,
+    };
   }
 
-  reloadData() {
-    let q = `is:blog${m.route.param('slug') ? ` tag:${m.route.param('slug')}` : ''}`;
-
-    if (this.languages !== null && this.languages.length >= 1) {
-      q += ` language:${this.currentSelectedLanguage}`;
-    }
-
-    app.store
-      .find<Discussion[]>('discussions', {
-        filter: {
-          q,
-        },
-        sort: '-createdAt',
-      })
-      .then(this.show.bind(this))
-      .catch(() => {
-        m.redraw();
-      });
-  }
-
-  // Show blog posts
-  show(articles: ApiResponsePlural<Discussion>) {
-    if (articles.length === 0) {
-      this.isLoading = false;
-      m.redraw();
-
-      return;
-    }
-
-    // Set pagination
-    this.hasMore = articles.payload.links && articles.payload.links.next ? articles.payload.links.next : null;
-
-    this.featuredPosts = articles.slice(0, this.featuredCount);
-    this.posts = articles.length > this.featuredCount ? articles.slice(this.featuredCount, articles.length) : [];
-
-    this.isLoading = false;
-
-    m.redraw();
-  }
-
-  // Load more blog posts
-  loadMore() {
-    this.isLoadingMore = true;
-
-    app.store
-      .find<Discussion[]>(this.hasMore!.replace(app.forum.attribute('apiUrl'), ''))
-      .then((data) => {
-        data.map((article) => this.posts.push(article));
-
-        // Update hasmore button
-        this.hasMore = data.payload.links && data.payload.links.next ? data.payload.links.next : null;
-      })
-      .catch(() => {})
-      .then(() => {
-        this.isLoadingMore = false;
-        m.redraw();
-      });
+  /**
+   * All loaded articles; the first `featuredCount` are displayed as featured.
+   */
+  protected articles(): Discussion[] {
+    return this.list.getPages().flatMap((page) => page.items);
   }
 
   title(): Mithril.Children {
@@ -150,18 +80,28 @@ export default class BlogOverview extends Page {
     );
   }
 
+  /**
+   * The blog reuses the forum's welcome hero, when enabled.
+   */
+  hero(): Mithril.Children {
+    if (!app.forum.attribute<boolean>('blogAddHero')) return null;
+
+    return <WelcomeHero />;
+  }
+
   view() {
     const defaultImage = app.forum.attribute('blogDefaultImageUrl') ? `url(${app.forum.attribute('blogDefaultImageUrl')})` : null;
 
-    let LanguageDropdown: typeof LanguageDropdownType | undefined;
-    if ('fof-discussion-language' in flarum.extensions) {
-      const dl = flarum.extensions['fof-discussion-language'] as { components?: { LanguageDropdown: typeof LanguageDropdownType } };
-      LanguageDropdown = dl.components?.LanguageDropdown;
-    }
+    const LanguageDropdown = getLanguageDropdown();
+
+    const loading = this.list.isInitialLoading();
+    const articles = this.articles();
+    const featuredPosts = articles.slice(0, this.featuredCount);
+    const posts = articles.slice(this.featuredCount);
 
     return [
-      app.forum.attribute('blogAddHero') == true && IndexPage.prototype.hero(),
-      <div className={'FlarumBlogOverview'}>
+      this.hero(),
+      <div className={'FoFBlogOverview'}>
         <div className={'container'}>
           <div className={'BlogFeatured'}>
             <div className={'BlogOverviewButtons'}>
@@ -183,7 +123,7 @@ export default class BlogOverview extends Page {
                       lang: language,
                     });
 
-                    this.reloadData();
+                    this.list.refreshParams(this.listParams(), 1);
                   }}
                 />
               )}
@@ -195,7 +135,7 @@ export default class BlogOverview extends Page {
 
             <div class="BlogFeatured-list">
               {/* Ghost data */}
-              {this.isLoading &&
+              {loading &&
                 [...new Array(this.featuredCount).fill(undefined)].map(() => (
                   <div class="BlogFeatured-list-item BlogFeatured-list-item-ghost">
                     <div class="BlogFeatured-list-item-details">
@@ -210,19 +150,18 @@ export default class BlogOverview extends Page {
                   </div>
                 ))}
 
-              {!this.isLoading &&
-                this.featuredPosts.length >= 0 &&
-                this.featuredPosts.map((article) => <FeaturedBlogItem article={article} defaultImage={defaultImage} />)}
+              {!loading && featuredPosts.map((article) => <FeaturedBlogItem article={article} defaultImage={defaultImage} />)}
             </div>
           </div>
 
           <div className={'BlogScrubber'}>
             <div className={'BlogList'}>
-              {this.isLoading &&
-                [false, false, true, false].map((state) => {
+              {/* Ghost layout mirrors the real list: the third item renders in the "sized" (highlighted) variant. */}
+              {loading &&
+                [false, false, true, false].map((sized) => {
                   return (
-                    <div className={`BlogList-item BlogList-item-${state === true ? 'sized' : 'default'} BlogList-item-ghost`}>
-                      <div className={'BlogList-item-photo FlarumBlog-default-image'}></div>
+                    <div className={`BlogList-item BlogList-item-${sized ? 'sized' : 'default'} BlogList-item-ghost`}>
+                      <div className={'BlogList-item-photo FoFBlog-default-image'}></div>
                       <div className={'BlogList-item-content'}>
                         <h4>&nbsp;</h4>
                         <p>&nbsp;</p>
@@ -237,21 +176,17 @@ export default class BlogOverview extends Page {
                   );
                 })}
 
-              {!this.isLoading &&
-                this.posts.length >= 1 &&
-                this.posts.map((article) => <BlogOverviewItem article={article} defaultImage={defaultImage} />)}
+              {!loading && posts.map((article) => <BlogOverviewItem article={article} defaultImage={defaultImage} />)}
 
-              {!this.isLoading && this.featuredPosts.length > 0 && this.hasMore === null && (
-                <p className={'FlarumBlog-reached-end'}>{app.translator.trans('fof-blog.forum.no_more_posts')}</p>
+              {!loading && articles.length > 0 && !this.list.hasNext() && (
+                <p className={'FoFBlog-reached-end'}>{app.translator.trans('fof-blog.forum.no_more_posts')}</p>
               )}
 
-              {!this.isLoading && this.featuredPosts.length === 0 && this.posts.length === 0 && (
-                <p className={'FlarumBlog-reached-end'}>{app.translator.trans('fof-blog.forum.category_empty')}</p>
-              )}
+              {!loading && articles.length === 0 && <p className={'FoFBlog-reached-end'}>{app.translator.trans('fof-blog.forum.category_empty')}</p>}
 
-              {!this.isLoading && this.hasMore !== null && (
-                <div className={'FlarumBlog-reached-load-more'}>
-                  <Button className={'Button'} onclick={() => this.loadMore()} icon={'fas fa-chevron-down'} loading={this.isLoadingMore}>
+              {!loading && this.list.hasNext() && (
+                <div className={'FoFBlog-reached-load-more'}>
+                  <Button className={'Button'} onclick={() => this.list.loadNext()} icon={'fas fa-chevron-down'} loading={this.list.isLoadingNext()}>
                     {app.translator.trans('core.forum.discussion_list.load_more_button')}
                   </Button>
                 </div>

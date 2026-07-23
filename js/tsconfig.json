@@ -23,6 +23,9 @@
       ],
       "ext:fof/seo/*": [
         "../vendor/fof/seo/js/dist-typings/*"
+      ],
+      "ext:fof/upload/*": [
+        "../vendor/fof/upload/js/dist-typings/*"
       ]
     }
   }

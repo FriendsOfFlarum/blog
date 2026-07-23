@@ -24,7 +24,7 @@ export default function extendTagOverview(): void {
       return markup;
     }
 
-    if (app.forum.attribute<boolean>('blogHideTags') == false) return markup;
+    if (!app.forum.attribute<boolean>('blogHideTags')) return markup;
 
     // Get blog tag ID's
     const blogTags = app.forum.attribute<string[]>('blogTags') || [];
@@ -45,7 +45,7 @@ export default function extendTagOverview(): void {
   });
 
   extend(IndexSidebar.prototype, 'navItems', function (this: IndexSidebar, items: ItemList<Mithril.Children>): void {
-    if (app.forum.attribute<boolean>('blogHideTags') == false) return;
+    if (!app.forum.attribute<boolean>('blogHideTags')) return;
 
     const blogTags = app.forum.attribute<string[]>('blogTags') || [];
 

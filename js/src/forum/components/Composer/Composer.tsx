@@ -51,19 +51,19 @@ export default class Composer extends ComposerBody {
     const loading = this.loading || this.attrs.disabled;
 
     return (
-      <div className={`Flarum-Blog-Composer ${loading ? 'Flarum-Blog-Composer-Loading' : ''}`}>
-        <div className={'Flarum-Blog-Composer-tabs'}>
-          <Button className={!this.previewContent ? 'AricleComposerButtonSelected' : undefined} onclick={() => (this.previewContent = false)}>
+      <div className={`FoFBlogComposer ${loading ? 'FoFBlogComposer-Loading' : ''}`}>
+        <div className={'FoFBlogComposer-tabs'}>
+          <Button className={!this.previewContent ? 'FoFBlogComposer-buttonSelected' : undefined} onclick={() => (this.previewContent = false)}>
             {app.translator.trans('fof-blog.forum.composer.write')}
           </Button>
-          <Button className={this.previewContent ? 'AricleComposerButtonSelected' : undefined} onclick={() => (this.previewContent = true)}>
+          <Button className={this.previewContent ? 'FoFBlogComposer-buttonSelected' : undefined} onclick={() => (this.previewContent = true)}>
             {app.translator.trans('fof-blog.forum.composer.view')}
           </Button>
         </div>
 
-        <div className={`Composer Flarum-Blog-Composer-body ${this.previewContent ? 'Flarum-Blog-Composer-HideEditor' : ''}`}>
+        <div className={`Composer FoFBlogComposer-body ${this.previewContent ? 'FoFBlogComposer-HideEditor' : ''}`}>
           {this.previewContent && (
-            <div className={'Flarum-Blog-Composer-preview'}>
+            <div className={'FoFBlogComposer-preview'}>
               {!hasContent && app.translator.trans('fof-blog.forum.composer.nothing_to_preview')}
 
               <ComposerPreview content={content()} />

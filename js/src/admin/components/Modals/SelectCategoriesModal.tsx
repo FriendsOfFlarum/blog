@@ -2,34 +2,43 @@ import app from 'flarum/admin/app';
 import { IFormModalAttrs } from 'flarum/common/components/FormModal';
 import FormModal from 'flarum/common/components/FormModal';
 import Button from 'flarum/common/components/Button';
-import Alert from 'flarum/common/components/Alert';
-import saveSettings from 'flarum/admin/utils/saveSettings';
 import Switch from 'flarum/common/components/Switch';
 import Tag from 'ext:flarum/tags/common/models/Tag';
 import type Mithril from 'mithril';
 
-export default class SelectCategoriesModal extends FormModal<IFormModalAttrs> {
-  blogCategoriesOriginal!: string[];
+export interface SelectCategoriesModalAttrs extends IFormModalAttrs {
+  /**
+   * Currently selected tag ids.
+   */
+  selected: string[];
+
+  /**
+   * Receives the validated tag ids when the selection is submitted.
+   */
+  onsubmit: (ids: string[]) => void;
+}
+
+/**
+ * Lets the admin pick which top-level tags are blog categories. The selection
+ * is handed back through `onsubmit`; persisting it is the caller's concern.
+ */
+export default class SelectCategoriesModal extends FormModal<SelectCategoriesModalAttrs> {
   blogCategories!: string[];
-  isSaving: boolean = false;
   hasChanges: boolean = false;
 
-  oninit(vnode: Mithril.Vnode<IFormModalAttrs, this>) {
+  oninit(vnode: Mithril.Vnode<SelectCategoriesModalAttrs, this>) {
     super.oninit(vnode);
 
-    this.blogCategoriesOriginal = app.data.settings.blog_tags ? app.data.settings.blog_tags.split('|') : [];
-    this.blogCategories = app.data.settings.blog_tags ? app.data.settings.blog_tags.split('|') : [];
-
-    this.isSaving = false;
+    this.blogCategories = [...this.attrs.selected];
     this.hasChanges = false;
   }
 
   title() {
-    return 'Select blog categories';
+    return app.translator.trans('fof-blog.admin.settings.select_categories_button');
   }
 
   className() {
-    return 'Modal modal-dialog FlarumBlog-TagsModal';
+    return 'Modal modal-dialog FoFBlog-TagsModal';
   }
 
   content() {
@@ -37,32 +46,32 @@ export default class SelectCategoriesModal extends FormModal<IFormModalAttrs> {
       <div>
         <div className="Modal-body">
           <p>
-            Please select one or more tags that are considered blog tags.{' '}
-            <a href={app.forum.attribute<string>('baseUrl') + '/blog'} target={'_blank'}>
-              Visit your blog.
+            {app.translator.trans('fof-blog.admin.settings.categories_modal.description')}{' '}
+            <a href={app.forum.attribute<string>('baseUrl') + '/blog'} target="_blank">
+              {app.translator.trans('fof-blog.admin.settings.categories_modal.visit_blog')}
             </a>
           </p>
 
-          <table className={'FlarumBlog-TagsTable'}>
+          <table className={'FoFBlog-TagsTable'}>
             <thead>
               <th width="35"></th>
-              <th>Tag name</th>
+              <th>{app.translator.trans('fof-blog.admin.settings.categories_modal.tag_name_column')}</th>
               <th width="50"></th>
             </thead>
             <tbody>
               {app.store.all('tags').length === 0 && (
                 <tr>
-                  <td colspan="3">You currently have no tags.</td>
+                  <td colspan="3">{app.translator.trans('fof-blog.admin.settings.categories_modal.no_tags')}</td>
                 </tr>
               )}
 
-              {(app.store.all('tags') as Tag[]).map((obj: Tag) => {
-                // Skip all tags who aren't main categories
-                if (obj.parent()) {
+              {(app.store.all('tags') as Tag[]).map((tag: Tag) => {
+                // Skip all tags that aren't main categories
+                if (tag.parent()) {
                   return;
                 }
 
-                const id = obj.id();
+                const id = tag.id();
 
                 // Toggle tag
                 const toggleTag = () => {
@@ -85,9 +94,9 @@ export default class SelectCategoriesModal extends FormModal<IFormModalAttrs> {
                 return (
                   <tr>
                     <td>
-                      <i className={obj.icon() ?? ''} />
+                      <i className={tag.icon() ?? ''} />
                     </td>
-                    <td onclick={toggleTag}>{obj.name()}</td>
+                    <td onclick={toggleTag}>{tag.name()}</td>
                     <td>
                       <Switch state={typeof id !== 'undefined' && this.blogCategories.indexOf(id) >= 0} onchange={toggleTag} />
                     </td>
@@ -98,59 +107,24 @@ export default class SelectCategoriesModal extends FormModal<IFormModalAttrs> {
           </table>
         </div>
         <div style="padding: 25px 30px; text-align: center;">
-          <Button type="submit" className="Button Button--primary" loading={this.loading}>
-            {this.hasChanges ? 'Save changes' : 'Close'}
+          <Button type="submit" className="Button Button--primary">
+            {this.hasChanges
+              ? app.translator.trans('core.admin.settings.submit_button')
+              : app.translator.trans('fof-blog.admin.settings.categories_modal.close')}
           </Button>
         </div>
       </div>
     );
   }
 
-  // Close or save setting
   onsubmit(e: SubmitEvent) {
     e.preventDefault();
 
-    if (!this.hasChanges) {
-      this.hide();
-      return;
+    if (this.hasChanges) {
+      // Filter out ghost tags (deleted tags) before handing the ids back.
+      this.attrs.onsubmit(this.blogCategories.filter((tagId) => app.store.getById('tags', tagId)));
     }
 
-    this.isSaving = true;
-
-    // Validate tags and prevent ghost tags (deleted tags)
-    let validBlogTags: string[] = [];
-
-    this.blogCategories.map((tagId: string) => {
-      if (app.store.getById('tags', tagId)) {
-        validBlogTags.push(tagId);
-      }
-    });
-
-    saveSettings({
-      blog_tags: validBlogTags.join('|'),
-    })
-      .then(() => {
-        app.alerts.show(
-          Alert,
-          {
-            type: 'success',
-          },
-          app.translator.trans('core.admin.settings.saved_message')
-        );
-
-        this.hide();
-      })
-      .catch(() => {
-        app.alerts.show(
-          Alert,
-          {
-            type: 'error',
-          },
-          app.translator.trans('core.lib.error.generic_message')
-        );
-      })
-      .then(() => {
-        this.isSaving = false;
-      });
+    this.hide();
   }
 }

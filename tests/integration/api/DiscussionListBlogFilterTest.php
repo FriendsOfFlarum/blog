@@ -119,4 +119,38 @@ class DiscussionListBlogFilterTest extends TestCase
         $this->assertContains(self::BLOG_ARTICLE, $visible);
         $this->assertNotContains(self::REGULAR_DISCUSSION, $visible);
     }
+
+    /**
+     * @param string $uri
+     *
+     * @return string[] resource types present in the `included` payload
+     */
+    protected function includedTypes(string $uri): array
+    {
+        $response = $this->send($this->request('GET', $uri, ['authenticatedAs' => 1]));
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $body = json_decode($response->getBody()->getContents(), true);
+
+        return array_values(array_unique(array_map(fn ($resource) => $resource['type'], $body['included'] ?? [])));
+    }
+
+    #[Test]
+    public function the_discussion_list_does_not_carry_blog_data_by_default(): void
+    {
+        // Forum-wide discussion lists shouldn't pay for blog includes — the
+        // blog overview requests them explicitly instead.
+        $types = $this->includedTypes('/api/discussions');
+
+        $this->assertNotContains('blogMeta', $types);
+        $this->assertNotContains('posts', $types, 'firstPost should not be included on the index');
+    }
+
+    #[Test]
+    public function a_single_discussion_still_includes_blog_meta_by_default(): void
+    {
+        $types = $this->includedTypes('/api/discussions/'.self::BLOG_ARTICLE);
+
+        $this->assertContains('blogMeta', $types);
+    }
 }

@@ -27,10 +27,6 @@ export default class BlogPostController extends Component<BlogPostControllerAttr
   loadedPost: boolean = false;
   loading: boolean = false;
 
-  init(): void {
-    this.loadedPost = false;
-  }
-
   manageArticleButtons(): ItemList<Mithril.Children> {
     const article = this.attrs.article;
     const items = new ItemList<Mithril.Children>();
@@ -252,8 +248,8 @@ export default class BlogPostController extends Component<BlogPostControllerAttr
     const articlePost = article.firstPost();
 
     return (
-      <div className={'FlarumBlog-Article-Content-Edit-Button'}>
-        <div className={'FlarumBlog-Article-Content-Edit-Dropdown'}>
+      <div className={'FoFBlog-Article-Content-Edit-Button'}>
+        <div className={'FoFBlog-Article-Content-Edit-Dropdown'}>
           <Dropdown
             icon="fas fa-cog"
             label="Manage"

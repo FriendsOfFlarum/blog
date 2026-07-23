@@ -1,0 +1,23 @@
+// Theme-aware derived colors. LESS color functions cannot operate on runtime
+// CSS custom properties, so each variant is precomputed per theme here.
+[data-theme^='light'] {
+  --muted-more-color-fade-11: fade(@muted-more-color-light, 11%);
+  --muted-more-color-fade-30: fade(@muted-more-color-light, 30%);
+  --muted-more-color-darken-10: darken(@muted-more-color-light, 10%);
+  --text-color-fade-60: fade(@text-color-light, 60%);
+}
+
+[data-theme^='dark'] {
+  --muted-more-color-fade-11: fade(@muted-more-color-dark, 11%);
+  --muted-more-color-fade-30: fade(@muted-more-color-dark, 30%);
+  --muted-more-color-darken-10: darken(@muted-more-color-dark, 10%);
+  --text-color-fade-60: fade(@text-color-dark, 60%);
+}
+
+// Featured-card text is rendered over an image with a dark gradient overlay,
+// so it is deliberately theme-independent — but themable via these variables.
+:root {
+  --fof-blog-featured-color: #fff;
+  --fof-blog-featured-text-shadow: 0 0 4px rgba(0, 0, 0, 0.28);
+  --fof-blog-featured-overlay: linear-gradient(0deg, rgba(0, 0, 0, 0.6) 0%, rgba(0, 0, 0, 0) 95%);
+}

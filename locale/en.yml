@@ -11,6 +11,12 @@ fof-blog:
       no_categories_selected: "No categories selected"
       selected_category_count: "{count, plural, one {You have # category selected} other {You have # categories selected}}"
       select_categories_button: "Select blog categories"
+      categories_modal:
+        description: "Please select one or more tags that are considered blog tags."
+        visit_blog: "Visit your blog."
+        tag_name_column: "Tag name"
+        no_tags: "You currently have no tags."
+        close: "Close"
       blog_heading: "Blog"
       featured_count_label: Max Featured Posts
       featured_count_text: How many posts should be displayed in a big grid at the top of a blog page?
@@ -28,10 +34,12 @@ fof-blog:
       show_tag_hierarchy_label: "Show tag hierarchy"
       show_tag_hierarchy_text: "Add spacing to child-categories and give the category-list a hierarchy."
       redirects_heading: "Redirects"
-      redirect_articles_label: "Redirect blog articles"
-      redirect_articles_text: "When enabled, this extension will redirect original discussion URLs to their blog URL."
-      redirect_tags_label: "Redirect blog tags"
-      redirect_tags_text: "When enabled, this extension redirects blog tag URLs to the blog category URL."
+      redirects_text: "Redirect original discussion and tag URLs to their blog counterparts."
+      redirects_options:
+        both: "Redirect articles and tags"
+        discussions_only: "Redirect articles only"
+        tags_only: "Redirect tags only"
+        none: "No redirects"
       default_article_image_label: Default article image
       default_article_image_text: Select a default article image to display when no image is set.
       add_hero_label: Show welcome banner

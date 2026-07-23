@@ -1,5 +1,5 @@
 import Page, { IPageAttrs } from 'flarum/common/components/Page';
-import IndexPage from 'flarum/forum/components/IndexPage';
+import WelcomeHero from 'flarum/forum/components/WelcomeHero';
 import CommentPost from 'flarum/forum/components/CommentPost';
 import type PostStreamType from 'flarum/forum/components/PostStream';
 import PostStreamState from 'flarum/forum/states/PostStreamState';
@@ -140,8 +140,8 @@ export default class BlogItem extends Page {
     items.add(
       'title',
       <h1
-        className={classList('FlarumBlog-Article-Title', {
-          'FlarumBlog-Article-GhostTitle': this.loading,
+        className={classList('FoFBlog-Article-Title', {
+          'FoFBlog-Article-GhostTitle': this.loading,
         })}
       >
         {this?.article?.title?.() || 'Ghost title'}
@@ -153,8 +153,8 @@ export default class BlogItem extends Page {
     items.add(
       'publishDate',
       <div
-        className={classList('FlarumBlog-Article-PublishDate', {
-          'FlarumBlog-Article-GhostPublishDate': this.loading,
+        className={classList('FoFBlog-Article-PublishDate', {
+          'FoFBlog-Article-GhostPublishDate': this.loading,
         })}
       >
         {this.article ? fullTime(this.article.createdAt()!) : <span>&nbsp;</span>}
@@ -167,9 +167,9 @@ export default class BlogItem extends Page {
         'skeleton',
         [0, 1, 2].map(() => (
           <div>
-            <p className={'FlarumBlog-Article-GhostParagraph'}>&nbsp;</p>
-            <p className={'FlarumBlog-Article-GhostParagraph'}>&nbsp;</p>
-            <p className={'FlarumBlog-Article-GhostParagraph'}>&nbsp;</p>
+            <p className={'FoFBlog-Article-GhostParagraph'}>&nbsp;</p>
+            <p className={'FoFBlog-Article-GhostParagraph'}>&nbsp;</p>
+            <p className={'FoFBlog-Article-GhostParagraph'}>&nbsp;</p>
             <p>&nbsp;</p>
           </div>
         )),
@@ -213,7 +213,7 @@ export default class BlogItem extends Page {
     items.add(
       'image',
       <div
-        className={classList('FlarumBlog-Article-Image FlarumBlog-default-image', { 'FlarumBlog-Article-GhostImage': this.loading })}
+        className={classList('FoFBlog-Article-Image FoFBlog-default-image', { 'FoFBlog-Article-GhostImage': this.loading })}
         style={{
           backgroundImage: blogImage,
           opacity: this.article?.isHidden?.() ? 0.4 : null,
@@ -229,16 +229,16 @@ export default class BlogItem extends Page {
     // Article Categories
     items.add(
       'categories',
-      <div className="FlarumBlog-Article-Categories">
+      <div className="FoFBlog-Article-Categories">
         {!this.loading &&
           (this.article?.tags?.() || []).map((tag) => <Link href={app.route('blogCategory', { slug: tag!.slug() })}>{tag!.name()}</Link>)}
 
-        {this.loading && [0, 1].map(() => <span className="FlarumBlog-Article-GhostCategory">Category</span>)}
+        {this.loading && [0, 1].map(() => <span className="FoFBlog-Article-GhostCategory">Category</span>)}
       </div>,
       60
     );
 
-    items.add('post', <div className={'FlarumBlog-Article-Post'}>{this.postItems().toArray()}</div>, 40);
+    items.add('post', <div className={'FoFBlog-Article-Post'}>{this.postItems().toArray()}</div>, 40);
 
     return items;
   }
@@ -246,12 +246,12 @@ export default class BlogItem extends Page {
   articleItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
-    items.add('content', <div className="FlarumBlog-Article-Content">{this.contentItems().toArray()}</div>, 100);
+    items.add('content', <div className="FoFBlog-Article-Content">{this.contentItems().toArray()}</div>, 100);
 
     if (!(this?.article?.isLocked?.() && this?.article?.commentCount?.() === 1)) {
       items.add(
         'comments',
-        <div className={'FlarumBlog-Article-Comments'}>
+        <div className={'FoFBlog-Article-Comments'}>
           {/* Show subscription state */}
           {!this.loading &&
             app.session.user &&
@@ -285,12 +285,21 @@ export default class BlogItem extends Page {
     return items;
   }
 
+  /**
+   * The blog reuses the forum's welcome hero, when enabled.
+   */
+  hero(): Mithril.Children {
+    if (!app.forum.attribute<boolean>('blogAddHero')) return null;
+
+    return <WelcomeHero />;
+  }
+
   view() {
     return [
-      app.forum.attribute('blogAddHero') == true && IndexPage.prototype.hero(),
-      <div className={'FlarumBlogItem'}>
+      this.hero(),
+      <div className={'FoFBlogItem'}>
         <div className={'container'}>
-          <div className={'FlarumBlog-ToolButtons'}>
+          <div className={'FoFBlog-ToolButtons'}>
             <Link
               href={app.route('blog')}
               className={'Button'}
@@ -305,8 +314,8 @@ export default class BlogItem extends Page {
               <span class="Button-label">{app.translator.trans('fof-blog.forum.return_to_overview')}</span>
             </Link>
           </div>
-          <div className={'FlarumBlog-Article'}>
-            <div className={'FlarumBlog-Article-Container'}>{this.articleItems().toArray()}</div>
+          <div className={'FoFBlog-Article'}>
+            <div className={'FoFBlog-Article-Container'}>{this.articleItems().toArray()}</div>
 
             <BlogItemSidebar article={this.article} loading={this.loading} />
           </div>

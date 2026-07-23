@@ -7,9 +7,7 @@ import type ItemList from 'flarum/common/utils/ItemList';
 
 export default function addSidebarNav(): void {
   extend(IndexSidebar.prototype, 'navItems', function (this: IndexSidebar, items: ItemList<Mithril.Children>) {
-    const blogAddSidebarNav = app.forum.attribute<string | boolean>('blogAddSidebarNav');
-
-    if (blogAddSidebarNav && blogAddSidebarNav !== '0') {
+    if (app.forum.attribute<boolean>('blogAddSidebarNav')) {
       items.add(
         'blog',
         <LinkButton icon="fas fa-comment" href={app.route('blog')}>

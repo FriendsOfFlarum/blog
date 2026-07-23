@@ -2,7 +2,7 @@
 // NOT imported here: `Composer` extends core's `ComposerBody`, which lives in
 // a lazy core chunk, so the page is loaded through an async route in
 // `extend.ts` instead.
-import '../common/Models/BlogMeta';
+import '../common/models/BlogMeta';
 import './components/ArticleSubscription';
 import './components/BlogCategories';
 import './components/BlogItemSidebar/BlogAuthor';
