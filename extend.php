@@ -40,6 +40,10 @@ use FoF\Blog\Query\FilterDiscussionsForBlogPosts;
 use FoF\Blog\SeoPage\SeoBlogArticleMeta;
 use FoF\Blog\SeoPage\SeoBlogOverviewMeta;
 use FoF\Blog\Subscribers\SeoBlogSubscriber;
+use Flarum\Api\Context;
+use Flarum\Api\Endpoint;
+use Flarum\Api\Resource;
+use Flarum\Api\Schema;
 
 return [
     // 1.x workaround for trailing slash. Not applicable to 2.x
@@ -75,24 +79,31 @@ return [
     (new Extend\ModelVisibility(Discussion::class))
         ->scope(ScopeDiscussionVisibility::class),
 
+    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
     (new Extend\ApiController(FlarumController\CreateDiscussionController::class))
         ->addInclude(['blogMeta', 'firstPost', 'user']),
 
+    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
     (new Extend\ApiController(FlarumController\ListDiscussionsController::class))
         ->addInclude(['blogMeta', 'firstPost', 'user']),
 
+    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
     (new Extend\ApiController(FlarumController\ShowDiscussionController::class))
         ->addInclude(['blogMeta', 'firstPost', 'user']),
 
+    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
     (new Extend\ApiController(FlarumController\UpdateDiscussionController::class))
         ->addInclude(['blogMeta', 'firstPost', 'user']),
 
+    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
     (new Extend\ApiSerializer(BasicDiscussionSerializer::class))
         ->hasOne('blogMeta', BlogMetaSerializer::class),
 
+    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
     (new Extend\ApiSerializer(ForumSerializer::class))
         ->attributes(AttachForumSerializerAttributes::class),
 
+    // @TODO: Replace with the new implementation https://docs.flarum.org/2.x/extend/api#extending-api-resources
     (new Extend\ApiSerializer(TagSerializer::class))
         ->attributes(AttatchTagSerializerAttributes::class),
 
@@ -114,4 +125,5 @@ return [
             (new Extend\Event())
                 ->subscribe(SeoBlogSubscriber::class),
         ]),
+    new Extend\ApiResource(Api\Resource\BlogMetaResource::class),
 ];
