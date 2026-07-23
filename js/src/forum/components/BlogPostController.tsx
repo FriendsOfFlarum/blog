@@ -1,11 +1,9 @@
 import Component, { type ComponentAttrs } from 'flarum/common/Component';
-import TagDiscussionModal from 'ext:flarum/tags/components/TagDiscussionModal';
 import DiscussionControls from 'flarum/forum/utils/DiscussionControls';
 import Alert from 'flarum/common/components/Alert';
 import Button from 'flarum/common/components/Button';
 import Dropdown from 'flarum/common/components/Dropdown';
 import BlogPostSettingsModal from './Modals/BlogPostSettingsModal';
-import EditPostComposer from 'flarum/forum/components/EditPostComposer';
 import extractText from 'flarum/common/utils/extractText';
 import ItemList from 'flarum/common/utils/ItemList';
 import RenameArticleModal from './Modals/RenameArticleModal';
@@ -85,8 +83,13 @@ export default class BlogPostController extends Component<BlogPostControllerAttr
           className: 'Button',
           disabled: !articlePost || !articlePost.canEdit(),
           onclick: () => {
-            app.composer.load(EditPostComposer, { post: articlePost });
-            app.composer.show();
+            // @TODO: Modify this to use lazy loading, checkout https://docs.flarum.org/2.x/extend/code-splitting#async-composers
+            app.composer
+              .load(() => import('flarum/forum/components/EditPostComposer'), { post: articlePost })
+              .then((EditPostComposer) => {
+                // @TODO: Move all direct access to the module object here. Including subsequent calls to app.composer.show(), checkout https://docs.flarum.org/2.x/extend/code-splitting#async-composers
+                app.composer.show();
+              });
           },
           icon: 'fas fa-edit',
         },
@@ -116,7 +119,7 @@ export default class BlogPostController extends Component<BlogPostControllerAttr
         Button.component(
           {
             className: 'Button',
-            onclick: () => app.modal.show(TagDiscussionModal, { discussion: article }),
+            onclick: () => app.modal.show(() => import('ext:flarum/tags/components/TagDiscussionModal'), { discussion: article }),
             icon: 'fas fa-tag',
           },
           app.translator.trans('fof-blog.forum.tools.update_category')

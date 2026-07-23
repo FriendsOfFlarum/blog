@@ -1,7 +1,6 @@
 import Page, { IPageAttrs } from 'flarum/common/components/Page';
 import IndexPage from 'flarum/forum/components/IndexPage';
 import CommentPost from 'flarum/forum/components/CommentPost';
-import PostStream from 'flarum/forum/components/PostStream';
 import PostStreamState from 'flarum/forum/states/PostStreamState';
 import BlogPostController from '../components/BlogPostController';
 import BlogItemSidebar from '../components/BlogItemSidebar/BlogItemSidebar';
