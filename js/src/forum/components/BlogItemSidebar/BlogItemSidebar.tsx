@@ -15,7 +15,7 @@ export interface BlogItemSidebarAttrs extends ComponentAttrs {
 export default class BlogItemSidebar extends Component<BlogItemSidebarAttrs> {
   view(vnode: Mithril.Vnode<BlogItemSidebarAttrs, this>) {
     return (
-      <div className={'FlarumBlog-Article-Sidebar'}>
+      <div className={'FoFBlog-Article-Sidebar'}>
         <ul>{listItems(this.items().toArray())}</ul>
       </div>
     );

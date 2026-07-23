@@ -29,38 +29,38 @@ export default class BlogAuthor extends Component<BlogAuthorAttrs> {
       : null;
 
     return (
-      <div className={'FlarumBlog-Article-Author'}>
+      <div className={'FoFBlog-Article-Author'}>
         <div
-          className={`FlarumBlog-Article-Author-background ${this.attrs.loading ? 'FlarumBlog-Author-Ghost' : ''}`}
+          className={`FoFBlog-Article-Author-background ${this.attrs.loading ? 'FoFBlog-Author-Ghost' : ''}`}
           style={{
             backgroundColor: author && author.color() ? author.color() : null,
           }}
         />
-        <div className={'FlarumBlog-Article-Author-Avatar'}>
+        <div className={'FoFBlog-Article-Author-Avatar'}>
           {author ? (
             <Link href={app.route('user', { username: author.username() })}>
               <Avatar user={author} />
             </Link>
           ) : (
-            <span className={'Avatar FlarumBlog-Author-Ghost'} />
+            <span className={'Avatar FoFBlog-Author-Ghost'} />
           )}
         </div>
         {author && (
-          <div className={'FlarumBlog-Article-Author-Info'}>
-            <Link href={app.route('user', { username: author.username() })} className={'FlarumBlog-Article-Author-Name'}>
+          <div className={'FoFBlog-Article-Author-Info'}>
+            <Link href={app.route('user', { username: author.username() })} className={'FoFBlog-Article-Author-Name'}>
               {author.displayName()}
             </Link>
-            <p className={'FlarumBlog-Article-Author-Bio'}>{author.bio && author.bio()}</p>
+            <p className={'FoFBlog-Article-Author-Bio'}>{author.bio && author.bio()}</p>
 
-            <ul className={'FlarumBlog-Article-Author-Extended'}>{listItems(this.items().toArray())}</ul>
+            <ul className={'FoFBlog-Article-Author-Extended'}>{listItems(this.items().toArray())}</ul>
           </div>
         )}
         {this.attrs.loading && (
           <div>
-            <span className={'FlarumBlog-Article-Author-Name FlarumBlog-Author-Ghost'}>&nbsp;</span>
-            <p className={'FlarumBlog-Article-Author-Bio FlarumBlog-Author-Ghost'}>&nbsp;</p>
-            <p className={'FlarumBlog-Article-Author-Bio FlarumBlog-Author-Ghost'}>&nbsp;</p>
-            <p className={'FlarumBlog-Article-Author-Bio FlarumBlog-Author-Ghost'}>&nbsp;</p>
+            <span className={'FoFBlog-Article-Author-Name FoFBlog-Author-Ghost'}>&nbsp;</span>
+            <p className={'FoFBlog-Article-Author-Bio FoFBlog-Author-Ghost'}>&nbsp;</p>
+            <p className={'FoFBlog-Article-Author-Bio FoFBlog-Author-Ghost'}>&nbsp;</p>
+            <p className={'FoFBlog-Article-Author-Bio FoFBlog-Author-Ghost'}>&nbsp;</p>
           </div>
         )}
       </div>

@@ -44,10 +44,12 @@ class Overview
             $filter['language'] = $document->language;
         }
 
-        // Preload blog posts
+        // Preload blog posts, mirroring the includes the frontend list requests
+        // (an explicit `include` replaces the endpoint defaults).
         $apiDocument = $this->getApiDocument($request, [
-            'filter' => $filter,
-            'sort'   => '-createdAt',
+            'filter'  => $filter,
+            'sort'    => '-createdAt',
+            'include' => 'user,tags,tags.parent,blogMeta',
         ]);
 
         $document->payload['apiDocument'] = $apiDocument;

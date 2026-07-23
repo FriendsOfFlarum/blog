@@ -90,10 +90,14 @@ return [
                 ->type('blogMeta')
                 ->includable(),
         ])
+        // Core's Show/Create endpoints already include `user` and `firstPost`
+        // by default, so only `blogMeta` is added — and NOT on Index: forum-wide
+        // discussion lists shouldn't pay for blog data. The blog overview
+        // requests its own includes explicitly (see BlogListState).
         ->endpoint(
-            [Endpoint\Index::class, Endpoint\Show::class, Endpoint\Create::class, Endpoint\Update::class],
-            fn (Endpoint\Index|Endpoint\Show|Endpoint\Create|Endpoint\Update $endpoint) => $endpoint
-                ->addDefaultInclude(['blogMeta', 'firstPost', 'user'])
+            [Endpoint\Show::class, Endpoint\Create::class, Endpoint\Update::class],
+            fn (Endpoint\Show|Endpoint\Create|Endpoint\Update $endpoint) => $endpoint
+                ->addDefaultInclude(['blogMeta'])
         ),
 
     (new Extend\Settings())

@@ -1,5 +1,6 @@
 import app from 'flarum/forum/app';
 import Page, { IPageAttrs } from 'flarum/common/components/Page';
+import Alert from 'flarum/common/components/Alert';
 import Button from 'flarum/common/components/Button';
 import Link from 'flarum/common/components/Link';
 import Discussion from 'flarum/common/models/Discussion';
@@ -8,12 +9,12 @@ import Model from 'flarum/common/Model';
 import ItemList from 'flarum/common/utils/ItemList';
 import Stream from 'flarum/common/utils/Stream';
 import extractText from 'flarum/common/utils/extractText';
-import type LanguageDropdownType from '@fof/discussion-language/forum/components/LanguageDropdown';
+import getLanguageDropdown from '../utils/getLanguageDropdown';
 import type Mithril from 'mithril';
 
 import BlogAuthor from '../components/BlogItemSidebar/BlogAuthor';
 import Composer from '../components/Composer/Composer';
-import BlogMeta from '../../common/Models/BlogMeta';
+import BlogMeta from '../../common/models/BlogMeta';
 
 /**
  * A `discussion-languages` record provided by the optional
@@ -34,7 +35,7 @@ export default class BlogComposer extends Page<IPageAttrs> {
   oninit(vnode: Mithril.Vnode<IPageAttrs, this>) {
     super.oninit(vnode);
 
-    app.setTitle(app.translator.trans('fof-blog.forum.blog') as string);
+    app.setTitle(extractText(app.translator.trans('fof-blog.forum.blog')));
 
     // User cannot write blogs
     if (!app.forum.attribute('canWriteBlogPosts')) {
@@ -84,8 +85,29 @@ export default class BlogComposer extends Page<IPageAttrs> {
 
     if (this.isSaving) return;
 
-    app.modal.show(() => import('ext:flarum/tags/forum/components/TagDiscussionModal'), {
+    const canBypassTagCounts = !!app.forum.attribute('canBypassTagCounts');
+
+    // `TagDiscussionModal` always offers the full tag list, so the reusable
+    // `TagSelectionModal` is used directly, restricted to blog categories.
+    app.modal.show(() => import('ext:flarum/tags/common/components/TagSelectionModal'), {
+      title: extractText(app.translator.trans('fof-blog.forum.composer.select_category')),
       selectedTags: this.tags,
+      requireParentTag: true,
+      allowResetting: canBypassTagCounts,
+      limits: {
+        allowBypassing: canBypassTagCounts,
+        max: {
+          primary: app.forum.attribute<number>('maxPrimaryTags'),
+          secondary: app.forum.attribute<number>('maxSecondaryTags'),
+        },
+        min: {
+          primary: app.forum.attribute<number>('minPrimaryTags'),
+          secondary: app.forum.attribute<number>('minSecondaryTags'),
+        },
+      },
+      // Only blog categories the author may start a discussion in.
+      selectableTags: (tags: Tag[]) => tags.filter((tag) => tag.isBlog() && tag.canStartDiscussion()),
+      canSelect: (tag: Tag) => tag.canStartDiscussion(),
       onsubmit: (tags: Tag[]) => {
         this.tags = tags;
       },
@@ -124,7 +146,7 @@ export default class BlogComposer extends Page<IPageAttrs> {
 
   view() {
     return (
-      <div className={'FlarumBlogItem'}>
+      <div className={'FoFBlogItem'}>
         <div className={'container'}>{this.pageItems().toArray()}</div>
       </div>
     );
@@ -135,7 +157,7 @@ export default class BlogComposer extends Page<IPageAttrs> {
 
     items.add(
       'toolButtons',
-      <div className="FlarumBlog-ToolButtons">
+      <div className="FoFBlog-ToolButtons">
         <Link href={app.route('blog')} className="Button" loading={this.isSaving} icon="fas fa-angle-left">
           <i class="icon fas fa-angle-left Button-icon" />
           <span class="Button-label">{app.translator.trans('fof-blog.forum.return_to_overview')}</span>
@@ -144,7 +166,7 @@ export default class BlogComposer extends Page<IPageAttrs> {
       100
     );
 
-    items.add('article', <div className={'FlarumBlog-Article'}>{this.articleWrapperItems().toArray()}</div>, 90);
+    items.add('article', <div className={'FoFBlog-Article'}>{this.articleWrapperItems().toArray()}</div>, 90);
 
     return items;
   }
@@ -152,11 +174,11 @@ export default class BlogComposer extends Page<IPageAttrs> {
   articleWrapperItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
-    items.add('container', <div className="FlarumBlog-Article-Container">{this.articleItems().toArray()}</div>, 100);
+    items.add('container', <div className="FoFBlog-Article-Container">{this.articleItems().toArray()}</div>, 100);
 
     items.add(
       'sidebar',
-      <div className="FlarumBlog-Article-Sidebar">
+      <div className="FoFBlog-Article-Sidebar">
         <BlogAuthor user={app.session.user} />
       </div>,
       90
@@ -172,17 +194,13 @@ export default class BlogComposer extends Page<IPageAttrs> {
 
     const blogImage = this.blogMeta && this.blogMeta.featuredImage() ? `url(${this.blogMeta.featuredImage()})` : defaultImage;
 
-    let LanguageDropdown: typeof LanguageDropdownType | undefined;
-    if ('fof-discussion-language' in flarum.extensions) {
-      const dl = flarum.extensions['fof-discussion-language'] as { components?: { LanguageDropdown: typeof LanguageDropdownType } };
-      LanguageDropdown = dl.components?.LanguageDropdown;
-    }
+    const LanguageDropdown = getLanguageDropdown();
 
     items.add(
       'content',
-      <div className="FlarumBlog-Article-Content">
+      <div className="FoFBlog-Article-Content">
         <div
-          className={`FlarumBlog-Article-Image FlarumBlog-default-image`}
+          className={`FoFBlog-Article-Image FoFBlog-default-image`}
           style={{
             backgroundImage: blogImage,
             cursor: 'pointer',
@@ -190,8 +208,8 @@ export default class BlogComposer extends Page<IPageAttrs> {
           onclick={(e: Event) => this.openBlogSettings(e)}
         />
 
-        <div className={'FlarumBlog-Article-Content-Edit-Button'}>
-          <div className={this.languages.length === 0 ? 'FlarumBlog-Article-Content-Edit-Dropdown' : 'FlarumBlog-Article-Content-EditButtons'}>
+        <div className={'FoFBlog-Article-Content-Edit-Button'}>
+          <div className={this.languages.length === 0 ? 'FoFBlog-Article-Content-Edit-Dropdown' : 'FoFBlog-Article-Content-EditButtons'}>
             {LanguageDropdown && this.languages !== null && this.languages.length >= 1 && (
               <LanguageDropdown
                 selected={this.articleLanguage()}
@@ -210,7 +228,7 @@ export default class BlogComposer extends Page<IPageAttrs> {
         </div>
 
         {/* Article Categories */}
-        <div className={'FlarumBlog-Article-Categories'}>
+        <div className={'FoFBlog-Article-Categories'}>
           {this.tags.map((tag) => (
             <button class="Button Button--text" onclick={(e: Event) => this.openTagsModal(e)}>
               {tag.name()}
@@ -225,9 +243,9 @@ export default class BlogComposer extends Page<IPageAttrs> {
           </button>
         </div>
 
-        <div className={'FlarumBlog-Article-Post'}>
+        <div className={'FoFBlog-Article-Post'}>
           {/* Article name */}
-          <h1 onclick={() => this.openNameArticleModal()} className="FlarumBlog-Article-Title" style={{ cursor: 'pointer' }}>
+          <h1 onclick={() => this.openNameArticleModal()} className="FoFBlog-Article-Title" style={{ cursor: 'pointer' }}>
             {this.article && this.article.title() && this.article.title() !== ''
               ? this.article.title()
               : app.translator.trans('fof-blog.forum.composer.no_title')}
@@ -254,7 +272,7 @@ export default class BlogComposer extends Page<IPageAttrs> {
 
     items.add(
       'commentsPlaceholder',
-      <div className="FlarumBlog-Article-Comments">
+      <div className="FoFBlog-Article-Comments">
         <h4>{app.translator.trans('fof-blog.forum.comment_section.comments')} (0)</h4>
         {/* Locked */}
 
@@ -294,13 +312,13 @@ export default class BlogComposer extends Page<IPageAttrs> {
 
     // No blog tags selected
     if (findblogTags.length === 0) {
-      alert(app.translator.trans('fof-blog.forum.composer.no_blog_tags_selected') as string);
+      app.alerts.show(Alert, { type: 'error' }, app.translator.trans('fof-blog.forum.composer.no_blog_tags_selected'));
       return;
     }
 
     if (
       (this.blogMeta === null || (!this.blogMeta.featuredImage() && !app.forum.attribute('blogDefaultImage')) || !this.blogMeta.summary()) &&
-      !confirm(app.translator.trans('fof-blog.forum.composer.post_without_blog_info') as string)
+      !confirm(extractText(app.translator.trans('fof-blog.forum.composer.post_without_blog_info')))
     ) {
       return;
     }

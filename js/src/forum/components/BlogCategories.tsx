@@ -52,12 +52,12 @@ export default class BlogCategories extends Component<BlogCategoriesAttrs> {
       <Link
         href={app.route('blogCategory', { slug: tag.slug() })}
         className={`BlogSideWidget-item BlogSideWidget-item-${tag.id()} ${
-          tag.isChild() && app.forum.attribute('blogCategoryHierarchy') == true ? 'BlogSideWidget-item-child' : ''
+          tag.isChild() && app.forum.attribute<boolean>('blogCategoryHierarchy') ? 'BlogSideWidget-item-child' : ''
         }`}
       >
         <span
-          className={tag.icon() === '' ? 'BlogSideWidget-item-colored' : ''}
-          style={{ backgroundColor: tag.icon() === '' ? tag.color() ?? undefined : undefined }}
+          className={!tag.icon() ? 'BlogSideWidget-item-colored' : ''}
+          style={{ backgroundColor: !tag.icon() ? tag.color() ?? undefined : undefined }}
         >
           <i className={tag.icon() ?? undefined} />
         </span>

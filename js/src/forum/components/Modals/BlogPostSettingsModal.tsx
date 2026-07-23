@@ -12,7 +12,7 @@ import type Discussion from 'flarum/common/models/Discussion';
 import type RequestError from 'flarum/common/utils/RequestError';
 
 /**
- * The `blogMeta` resource. The runtime model (`common/Models/BlogMeta`) is built
+ * The `blogMeta` resource. The runtime model (`common/models/BlogMeta`) is built
  * with `mixin()`, which is typed as returning a plain `object`, so its
  * attribute getters are not visible to TypeScript. This interface mirrors those
  * getters on top of the base `Model` so this component is fully typed.
@@ -121,11 +121,13 @@ export default class BlogPostSettingsModal extends FormModal<BlogPostSettingsMod
             ]);
 
             app.modal.show(
-              FileManagerModal,
+              // fof/upload's FileManagerModal typing extends `(Modal as any)`,
+              // which erases the Modal base class from its declaration file.
+              FileManagerModal as Parameters<typeof app.modal.show>[0],
               {
                 uploader: new Uploader(),
-                onSelect: (files: Array<string | number>) => {
-                  const file = app.store.getById<Model & { url: () => string }>('files', files[0] as string);
+                onSelect: (files: string[]) => {
+                  const file = app.store.getById<Model & { url: () => string }>('files', files[0]);
 
                   this.featuredImage(file!.url());
                 },
@@ -165,7 +167,7 @@ export default class BlogPostSettingsModal extends FormModal<BlogPostSettingsMod
       'sized',
       <div className="Form-group">
         <Switch
-          state={this.isSized() == true}
+          state={this.isSized()}
           onchange={(val: boolean) => {
             this.isSized(val);
           }}

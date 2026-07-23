@@ -2,7 +2,7 @@ import commonExtend from '../common/extend';
 import Extend from 'flarum/common/extenders';
 import BlogOverview from './pages/BlogOverview';
 import BlogItem from './pages/BlogItem';
-import BlogMeta from '../common/Models/BlogMeta';
+import BlogMeta from '../common/models/BlogMeta';
 import Discussion from 'flarum/common/models/Discussion';
 import Tag from 'ext:flarum/tags/common/models/Tag';
 
