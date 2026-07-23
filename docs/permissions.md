@@ -10,10 +10,15 @@ FoF Blog adds its own permission category (**Blog**) under
 | --- | --- | --- |
 | **Write articles** | `blog.writeArticles` | Create blog articles (create a discussion in a blog tag). Without it, creating a blog-tagged discussion is denied. |
 | **Auto-approve posts** | `blog.autoApprovePosts` | Bypass the review queue — articles by these users are published immediately even when review is required. |
-| **Approve posts** | `blog.canApprovePosts` | Approve articles that are pending review. |
+| **Approve posts** | `blog.canApprovePosts` | Approve articles that are pending review, and see pending articles. Does **not** require **write articles** — a reviewer-only group can publish pending articles but cannot edit their content. |
 
 These are surfaced to the frontend as the `canWriteBlogPosts` and
 `canApproveBlogPosts` forum attributes.
+
+Under the hood, authorization is expressed as abilities on the `BlogMeta` model
+(`FoF\Blog\Access\BlogMetaPolicy`): `update` (writers *or* approvers may hit the
+update endpoint), `edit` (changing an article's meta content is writer-only) and
+`approve` (publishing a pending article is approver-only).
 
 ## The review workflow
 

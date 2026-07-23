@@ -24,6 +24,8 @@ optional review/approval workflow, and SEO integration.
   forum home page.
 - **SEO** — when [`fof/seo`](https://github.com/FriendsOfFlarum/seo) is enabled,
   blog pages emit tailored meta tags and structured data.
+- **Audit log** — when [`flarum/audit`](https://github.com/flarum/audit) is
+  enabled, article creation, approval, (un)featuring and meta edits are recorded.
 
 ## Documentation
 
@@ -39,6 +41,8 @@ optional review/approval workflow, and SEO integration.
 
 ## Requirements
 
-- Flarum `^1.8`
-- PHP `^8.2`
+- Flarum `^2.0` (PHP requirements follow Flarum's)
 - [`flarum/tags`](https://github.com/flarum/tags)
+- [`flarum/lock`](https://github.com/flarum/lock)
+
+> For Flarum 1.x, use the [`1.x` branch](https://github.com/FriendsOfFlarum/blog/tree/1.x).
