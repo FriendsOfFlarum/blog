@@ -3,7 +3,7 @@ import Page, { IPageAttrs } from 'flarum/common/components/Page';
 import Button from 'flarum/common/components/Button';
 import Link from 'flarum/common/components/Link';
 import Discussion from 'flarum/common/models/Discussion';
-import Tag from 'flarum/tags/common/models/Tag';
+import Tag from 'ext:flarum/tags/common/models/Tag';
 import Model from 'flarum/common/Model';
 import ItemList from 'flarum/common/utils/ItemList';
 import Stream from 'flarum/common/utils/Stream';
@@ -12,9 +12,6 @@ import type LanguageDropdownType from '@fof/discussion-language/forum/components
 import type Mithril from 'mithril';
 
 import BlogAuthor from '../components/BlogItemSidebar/BlogAuthor';
-import RenameArticleModal from '../components/Modals/RenameArticleModal';
-import TagDiscussionModal from 'flarum/tags/components/TagDiscussionModal';
-import BlogPostSettingsModal from '../components/Modals/BlogPostSettingsModal';
 import Composer from '../components/Composer/Composer';
 import BlogMeta from '../../common/Models/BlogMeta';
 
@@ -87,7 +84,7 @@ export default class BlogComposer extends Page<IPageAttrs> {
 
     if (this.isSaving) return;
 
-    app.modal.show(TagDiscussionModal, {
+    app.modal.show(() => import('ext:flarum/tags/forum/components/TagDiscussionModal'), {
       selectedTags: this.tags,
       onsubmit: (tags: Tag[]) => {
         this.tags = tags;
@@ -102,7 +99,7 @@ export default class BlogComposer extends Page<IPageAttrs> {
 
     if (this.isSaving) return;
 
-    app.modal.show(RenameArticleModal, {
+    app.modal.show(() => import('../components/Modals/RenameArticleModal'), {
       article: this.article,
       onChange: (title: string) => {
         this.article.pushData({
@@ -119,7 +116,7 @@ export default class BlogComposer extends Page<IPageAttrs> {
 
     if (this.isSaving) return;
 
-    app.modal.show(BlogPostSettingsModal, {
+    app.modal.show(() => import('../components/Modals/BlogPostSettingsModal'), {
       meta: this.blogMeta,
       onsubmit: (meta: BlogMeta) => (this.blogMeta = meta),
     });
@@ -171,9 +168,7 @@ export default class BlogComposer extends Page<IPageAttrs> {
   articleItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
-    const defaultImage = app.forum.attribute('blogDefaultImageUrl')
-      ? `url(${app.forum.attribute<string>('blogDefaultImageUrl')})`
-      : null;
+    const defaultImage = app.forum.attribute('blogDefaultImageUrl') ? `url(${app.forum.attribute<string>('blogDefaultImageUrl')})` : null;
 
     const blogImage = this.blogMeta && this.blogMeta.featuredImage() ? `url(${this.blogMeta.featuredImage()})` : defaultImage;
 
@@ -323,7 +318,9 @@ export default class BlogComposer extends Page<IPageAttrs> {
       title: this.article.title(),
       content: app.composer.fields?.content(),
       relationships,
-      blogMeta:
+      // Write-only attribute consumed server-side on discussion create; the
+      // saved article carries a regular `blogMeta` relationship instead.
+      newBlogMeta:
         this.blogMeta !== null
           ? {
               featuredImage: this.blogMeta.featuredImage(),

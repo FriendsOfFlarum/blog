@@ -9,12 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace FoF\Blog\Controller;
+namespace FoF\Blog\Content;
 
 use Flarum\Frontend\Document;
 use Psr\Http\Message\ServerRequestInterface;
 
-class BlogComposerController
+class Compose
 {
     public function __invoke(Document $document, ServerRequestInterface $request): Document
     {

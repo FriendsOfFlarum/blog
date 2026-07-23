@@ -1,19 +1,20 @@
 import app from 'flarum/admin/app';
-import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
+import { IFormModalAttrs } from 'flarum/common/components/FormModal';
+import FormModal from 'flarum/common/components/FormModal';
 import Button from 'flarum/common/components/Button';
 import Alert from 'flarum/common/components/Alert';
 import saveSettings from 'flarum/admin/utils/saveSettings';
 import Switch from 'flarum/common/components/Switch';
-import Tag from 'flarum/tags/common/models/Tag';
+import Tag from 'ext:flarum/tags/common/models/Tag';
 import type Mithril from 'mithril';
 
-export default class SelectCategoriesModal extends Modal<IInternalModalAttrs> {
+export default class SelectCategoriesModal extends FormModal<IFormModalAttrs> {
   blogCategoriesOriginal!: string[];
   blogCategories!: string[];
   isSaving: boolean = false;
   hasChanges: boolean = false;
 
-  oninit(vnode: Mithril.Vnode<IInternalModalAttrs, this>) {
+  oninit(vnode: Mithril.Vnode<IFormModalAttrs, this>) {
     super.oninit(vnode);
 
     this.blogCategoriesOriginal = app.data.settings.blog_tags ? app.data.settings.blog_tags.split('|') : [];

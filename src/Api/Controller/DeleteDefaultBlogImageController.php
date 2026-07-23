@@ -16,32 +16,18 @@ use Flarum\Http\RequestUtil;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Contracts\Filesystem\Filesystem;
-use Laminas\Diactoros\Response\EmptyResponse;
-use Psr\Http\Message\ResponseInterface;
 use Psr\Http\Message\ServerRequestInterface;
 
 class DeleteDefaultBlogImageController extends AbstractDeleteController
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
+    protected Filesystem $uploadDir;
 
-    /**
-     * @var Filesystem
-     */
-    protected $uploadDir;
-
-    public function __construct(SettingsRepositoryInterface $settings, Factory $filesystemFactory)
+    public function __construct(protected SettingsRepositoryInterface $settings, Factory $filesystemFactory)
     {
-        $this->settings = $settings;
         $this->uploadDir = $filesystemFactory->disk('flarum-assets');
     }
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function delete(ServerRequestInterface $request): ResponseInterface
+    protected function delete(ServerRequestInterface $request): void
     {
         RequestUtil::getActor($request)->assertAdmin();
 
@@ -51,7 +37,5 @@ class DeleteDefaultBlogImageController extends AbstractDeleteController
         if ($path && $this->uploadDir->exists($path)) {
             $this->uploadDir->delete($path);
         }
-
-        return new EmptyResponse(204);
     }
 }

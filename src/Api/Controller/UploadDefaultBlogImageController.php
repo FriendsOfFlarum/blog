@@ -12,35 +12,14 @@
 namespace FoF\Blog\Api\Controller;
 
 use Flarum\Api\Controller\UploadImageController;
-use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Contracts\Filesystem\Factory;
-use Intervention\Image\Image;
-use Intervention\Image\ImageManager;
+use Intervention\Image\Interfaces\EncodedImageInterface;
 use Psr\Http\Message\UploadedFileInterface;
 
 class UploadDefaultBlogImageController extends UploadImageController
 {
-    /**
-     * {@inheritdoc}
-     */
-    protected $filePathSettingKey = 'blog_default_image_path';
-
-    /**
-     * {@inheritdoc}
-     */
-    protected $filenamePrefix = 'blog_default_image';
-
-    /**
-     * @var ImageManager
-     */
-    protected $imageManager;
-
-    public function __construct(SettingsRepositoryInterface $settings, Factory $filesystemFactory, ImageManager $imageManager)
-    {
-        parent::__construct($settings, $filesystemFactory);
-
-        $this->imageManager = $imageManager;
-    }
+    protected string $filePathSettingKey = 'blog_default_image_path';
+    protected string $filenamePrefix = 'blog_default_image';
+    protected string $fileExtension = 'png';
 
     /**
      * Maximum stored width, in pixels. The default image is used as a full-width
@@ -52,22 +31,14 @@ class UploadDefaultBlogImageController extends UploadImageController
 
     const MAX_HEIGHT = 1200;
 
-    /**
-     * {@inheritdoc}
-     */
-    protected function makeImage(UploadedFileInterface $file): Image
+    protected function makeImage(UploadedFileInterface $file): EncodedImageInterface
     {
-        $image = $this->imageManager->make($file->getStream()->getMetadata('uri'));
-
-        // Downscale oversized uploads to keep stored assets reasonable, while
-        // preserving aspect ratio and never upscaling smaller images.
-        if ($image->width() > self::MAX_WIDTH || $image->height() > self::MAX_HEIGHT) {
-            $image->resize(self::MAX_WIDTH, self::MAX_HEIGHT, function ($constraint) {
-                $constraint->aspectRatio();
-                $constraint->upsize();
-            });
-        }
-
-        return $image->encode('png');
+        // Downscale oversized uploads to keep stored assets reasonable:
+        // `scaleDown()` preserves the aspect ratio and never upscales
+        // smaller images.
+        return $this->imageManager
+            ->read($file->getStream()->getMetadata('uri'))
+            ->scaleDown(self::MAX_WIDTH, self::MAX_HEIGHT)
+            ->toPng();
     }
 }

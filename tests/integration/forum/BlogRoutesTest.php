@@ -12,8 +12,13 @@
 namespace FoF\Blog\Tests\integration\forum;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
+use Flarum\Tags\Tag;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Characterizes the server-rendered blog routes registered in extend.php:
@@ -34,16 +39,16 @@ class BlogRoutesTest extends TestCase
         $now = Carbon::parse('2025-01-01 00:00:00');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
-            'tags' => [
+            Tag::class => [
                 ['id' => 1, 'name' => 'Blog', 'slug' => 'blog', 'position' => 0, 'is_restricted' => false, 'is_hidden' => false],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'First Article', 'slug' => 'first-article', 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1, 'created_at' => $now, 'last_posted_at' => $now],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'number' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>Article body.</p></t>', 'created_at' => $now],
             ],
             'discussion_tag' => [
@@ -65,9 +70,7 @@ class BlogRoutesTest extends TestCase
         return (string) $response->getBody();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function blog_overview_renders_for_a_guest(): void
     {
         $html = $this->fetchHtml('/blog');
@@ -75,9 +78,7 @@ class BlogRoutesTest extends TestCase
         $this->assertNotEmpty($html);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function blog_overview_preloads_an_api_document(): void
     {
         $html = $this->fetchHtml('/blog');
@@ -86,9 +87,7 @@ class BlogRoutesTest extends TestCase
         $this->assertStringContainsString('apiDocument', $html);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function blog_category_route_renders_for_a_guest(): void
     {
         $html = $this->fetchHtml('/blog/category/blog');
@@ -96,9 +95,7 @@ class BlogRoutesTest extends TestCase
         $this->assertNotEmpty($html);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function blog_article_route_renders_for_a_guest(): void
     {
         $html = $this->fetchHtml('/blog/1-first-article');

@@ -12,8 +12,13 @@
 namespace FoF\Blog\Tests\integration\api;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
+use Flarum\Group\Group;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Blog articles pending review must only be visible to a user who can approve
@@ -30,9 +35,10 @@ class PendingReviewVisibilityTest extends TestCase
     const PENDING_BY_AUTHOR = 2;
 
     // User ids.
-    const APPROVER = 1;     // admin — has blog.canApprovePosts
-    const AUTHOR = 3;       // wrote the pending article
-    const OTHER_WRITER = 4; // can write articles, but is not the author / approver
+    const APPROVER = 1;      // admin — open-gated, kept for the bypass case
+    const AUTHOR = 3;        // wrote the pending article
+    const OTHER_WRITER = 4;  // can write articles, but is not the author / approver
+    const MODERATOR = 5;     // non-admin with blog.canApprovePosts
 
     public function setUp(): void
     {
@@ -43,27 +49,32 @@ class PendingReviewVisibilityTest extends TestCase
         $now = Carbon::parse('2025-01-01 00:00:00');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 ['id' => self::AUTHOR, 'username' => 'author', 'email' => 'author@machine.local', 'is_email_confirmed' => 1],
                 ['id' => self::OTHER_WRITER, 'username' => 'writer', 'email' => 'writer@machine.local', 'is_email_confirmed' => 1],
+                ['id' => self::MODERATOR, 'username' => 'moderator', 'email' => 'moderator@machine.local', 'is_email_confirmed' => 1],
             ],
-            'groups' => [
+            Group::class => [
                 ['id' => 100, 'name_singular' => 'Writer', 'name_plural' => 'Writers'],
+                ['id' => 101, 'name_singular' => 'Moderator', 'name_plural' => 'Moderators'],
             ],
             'group_user' => [
                 ['user_id' => self::AUTHOR, 'group_id' => 100],
                 ['user_id' => self::OTHER_WRITER, 'group_id' => 100],
+                ['user_id' => self::MODERATOR, 'group_id' => 101],
             ],
             'group_permission' => [
                 // Writers can write, but cannot approve.
                 ['group_id' => 100, 'permission' => 'blog.writeArticles'],
+                // Moderators can approve.
+                ['group_id' => 101, 'permission' => 'blog.canApprovePosts'],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => self::PUBLISHED, 'title' => 'Published', 'slug' => 'published', 'user_id' => self::AUTHOR, 'first_post_id' => 1, 'comment_count' => 1, 'created_at' => $now, 'last_posted_at' => $now, 'is_private' => 0],
                 ['id' => self::PENDING_BY_AUTHOR, 'title' => 'Pending', 'slug' => 'pending', 'user_id' => self::AUTHOR, 'first_post_id' => 2, 'comment_count' => 1, 'created_at' => $now, 'last_posted_at' => $now, 'is_private' => 0],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => self::PUBLISHED, 'number' => 1, 'user_id' => self::AUTHOR, 'type' => 'comment', 'content' => '<t><p>Published.</p></t>', 'created_at' => $now],
                 ['id' => 2, 'discussion_id' => self::PENDING_BY_AUTHOR, 'number' => 1, 'user_id' => self::AUTHOR, 'type' => 'comment', 'content' => '<t><p>Pending.</p></t>', 'created_at' => $now],
             ],
@@ -89,25 +100,26 @@ class PendingReviewVisibilityTest extends TestCase
         return array_map(fn ($d) => (int) $d['id'], $body['data'] ?? []);
     }
 
-    /**
-     * @test
-     */
-    public function approver_sees_pending_articles(): void
+    #[Test]
+    public function admin_sees_pending_articles(): void
     {
+        // Admins are open-gated; the real permission check is the moderator test.
         $this->assertContains(self::PENDING_BY_AUTHOR, $this->visibleIds(self::APPROVER));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
+    public function non_admin_with_approve_permission_sees_pending_articles(): void
+    {
+        $this->assertContains(self::PENDING_BY_AUTHOR, $this->visibleIds(self::MODERATOR));
+    }
+
+    #[Test]
     public function author_sees_their_own_pending_article(): void
     {
         $this->assertContains(self::PENDING_BY_AUTHOR, $this->visibleIds(self::AUTHOR));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function other_writer_does_not_see_someone_elses_pending_article(): void
     {
         $visible = $this->visibleIds(self::OTHER_WRITER);
@@ -116,9 +128,7 @@ class PendingReviewVisibilityTest extends TestCase
         $this->assertNotContains(self::PENDING_BY_AUTHOR, $visible);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function plain_member_does_not_see_pending_articles(): void
     {
         $visible = $this->visibleIds(2); // normalUser, no blog permissions
@@ -127,13 +137,36 @@ class PendingReviewVisibilityTest extends TestCase
         $this->assertNotContains(self::PENDING_BY_AUTHOR, $visible);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guest_does_not_see_pending_articles(): void
     {
         $visible = $this->visibleIds(null);
 
         $this->assertNotContains(self::PENDING_BY_AUTHOR, $visible);
+    }
+
+    protected function showStatus(?int $authenticatedAs): int
+    {
+        $options = $authenticatedAs !== null ? ['authenticatedAs' => $authenticatedAs] : [];
+
+        return $this->send(
+            $this->request('GET', '/api/discussions/'.self::PENDING_BY_AUTHOR, $options)
+        )->getStatusCode();
+    }
+
+    #[Test]
+    public function pending_article_is_not_fetchable_directly_by_others(): void
+    {
+        // The visibility scope must protect the show endpoint too, not just listings.
+        $this->assertEquals(404, $this->showStatus(2), 'plain member');
+        $this->assertEquals(404, $this->showStatus(self::OTHER_WRITER), 'other writer');
+        $this->assertEquals(404, $this->showStatus(null), 'guest');
+    }
+
+    #[Test]
+    public function pending_article_is_fetchable_by_author_and_approver(): void
+    {
+        $this->assertEquals(200, $this->showStatus(self::AUTHOR), 'author');
+        $this->assertEquals(200, $this->showStatus(self::MODERATOR), 'approver');
     }
 }

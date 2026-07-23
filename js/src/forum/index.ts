@@ -2,7 +2,7 @@ import app from 'flarum/forum/app';
 import redirector from './utils/redirector';
 import extendTagOverview from './utils/extendTagOverview';
 import discussionRouting from './utils/discussionRouting';
-import compat from './compat';
+import './forum';
 import addSidebarNav from './utils/addSidebarNav';
 
 export { default as extend } from './extend';
@@ -26,5 +26,3 @@ app.initializers.add(
   },
   -100000
 );
-
-compat();

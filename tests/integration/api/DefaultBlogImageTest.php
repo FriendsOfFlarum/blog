@@ -14,10 +14,12 @@ namespace FoF\Blog\Tests\integration\api;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
 use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
 use Intervention\Image\ImageManager;
 use Laminas\Diactoros\UploadedFile;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * Characterizes the admin default blog image upload/delete
@@ -38,7 +40,7 @@ class DefaultBlogImageTest extends TestCase
         $this->extension('fof-blog');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
         ]);
@@ -58,6 +60,15 @@ class DefaultBlogImageTest extends TestCase
     }
 
     /**
+     * Flarum binds ImageManager in the container, configured for either the GD
+     * or Imagick driver — resolve it rather than hard-coding a driver.
+     */
+    protected function imageManager(): ImageManager
+    {
+        return $this->app()->getContainer()->make(ImageManager::class);
+    }
+
+    /**
      * Generates a real PNG of the given dimensions in a temp file and wraps it
      * as an uploaded file, the way the controller expects to receive it.
      */
@@ -65,7 +76,7 @@ class DefaultBlogImageTest extends TestCase
     {
         $path = tempnam(sys_get_temp_dir(), 'blogimg').'.png';
 
-        (new ImageManager())->canvas($width, $height, '#3498db')->save($path);
+        $this->imageManager()->create($width, $height)->fill('#3498db')->save($path);
 
         return new UploadedFile($path, filesize($path), UPLOAD_ERR_OK, 'cover.png', 'image/png');
     }
@@ -78,9 +89,7 @@ class DefaultBlogImageTest extends TestCase
         return $this->send($request);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_can_upload_a_default_blog_image_to_the_assets_disk(): void
     {
         $response = $this->upload(1, $this->uploadedPng(800, 600));
@@ -93,9 +102,7 @@ class DefaultBlogImageTest extends TestCase
         $this->assertTrue($this->assetsDisk()->exists($path), 'Expected the image to exist on the flarum-assets disk');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function oversized_upload_is_downscaled_within_the_caps(): void
     {
         // Far larger than the 2000x1200 caps.
@@ -104,7 +111,7 @@ class DefaultBlogImageTest extends TestCase
         $path = $this->settings()->get('blog_default_image_path');
         $stored = $this->assetsDisk()->get($path);
 
-        $image = (new ImageManager())->make($stored);
+        $image = $this->imageManager()->read($stored);
 
         $this->assertLessThanOrEqual(2000, $image->width());
         $this->assertLessThanOrEqual(1200, $image->height());
@@ -113,23 +120,34 @@ class DefaultBlogImageTest extends TestCase
         $this->assertSame(1500, $image->width());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function smaller_image_is_not_upscaled(): void
     {
         $this->upload(1, $this->uploadedPng(640, 480));
 
         $path = $this->settings()->get('blog_default_image_path');
-        $image = (new ImageManager())->make($this->assetsDisk()->get($path));
+        $image = $this->imageManager()->read($this->assetsDisk()->get($path));
 
         $this->assertSame(640, $image->width());
         $this->assertSame(480, $image->height());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
+    public function replacing_the_image_removes_the_previous_file_from_disk(): void
+    {
+        $this->upload(1, $this->uploadedPng(800, 600));
+        $firstPath = $this->settings()->get('blog_default_image_path');
+        $this->assertTrue($this->assetsDisk()->exists($firstPath));
+
+        $this->upload(1, $this->uploadedPng(640, 480));
+        $secondPath = $this->settings()->get('blog_default_image_path');
+
+        $this->assertNotSame($firstPath, $secondPath);
+        $this->assertTrue($this->assetsDisk()->exists($secondPath), 'Expected the new image on disk');
+        $this->assertFalse($this->assetsDisk()->exists($firstPath), 'Expected the replaced image to be cleaned up');
+    }
+
+    #[Test]
     public function admin_can_delete_the_default_blog_image(): void
     {
         $this->upload(1, $this->uploadedPng(800, 600));
@@ -145,9 +163,7 @@ class DefaultBlogImageTest extends TestCase
         $this->assertFalse($this->assetsDisk()->exists($path), 'Expected the image to be removed from the disk');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function non_admin_cannot_upload_a_default_blog_image(): void
     {
         // normalUser() (id 2) is not an admin.

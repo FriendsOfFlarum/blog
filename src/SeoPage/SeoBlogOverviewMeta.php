@@ -13,6 +13,7 @@ namespace FoF\Blog\SeoPage;
 
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Http\UrlGenerator;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Tags\Tag;
 use Flarum\Tags\TagRepository;
 use FoF\Seo\Page\PageDriverInterface;
@@ -21,41 +22,17 @@ use FoF\Seo\SeoProperties;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SeoBlogOverviewMeta implements PageDriverInterface
 {
     use DispatchEventsTrait;
 
-    /**
-     * @var TagRepository
-     */
-    protected $tagRepository;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $urlGenerator;
-
-    /**
-     * @param TagRepository $tagRepository
-     * @param Dispatcher    $events
-     */
     public function __construct(
-        TagRepository $tagRepository,
-        Dispatcher $events,
-        TranslatorInterface $translator,
-        UrlGenerator $urlGenerator,
+        protected TagRepository $tagRepository,
+        protected Dispatcher $events,
+        protected TranslatorInterface $translator,
+        protected UrlGenerator $urlGenerator,
     ) {
-        $this->tagRepository = $tagRepository;
-        $this->events = $events;
-        $this->translator = $translator;
-        $this->urlGenerator = $urlGenerator;
     }
 
     public function extensionDependencies(): array

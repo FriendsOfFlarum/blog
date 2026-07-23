@@ -12,7 +12,9 @@
 namespace FoF\Blog\Tests\integration\forum;
 
 use Carbon\Carbon;
+use Flarum\Tags\Tag;
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * The blog overview SEO driver must set a canonical URL pointing at the blog,
@@ -30,7 +32,7 @@ class SeoOverviewCanonicalTest extends TestCase
         $now = Carbon::parse('2025-01-01 00:00:00');
 
         $this->prepareDatabase([
-            'tags' => [
+            Tag::class => [
                 ['id' => 1, 'name' => 'Blog', 'slug' => 'blog', 'position' => 0, 'is_restricted' => false, 'is_hidden' => false],
             ],
         ]);
@@ -47,9 +49,7 @@ class SeoOverviewCanonicalTest extends TestCase
         return null;
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function blog_overview_sets_a_canonical_pointing_at_the_blog(): void
     {
         $html = (string) $this->send($this->request('GET', '/blog'))->getBody();
@@ -57,9 +57,7 @@ class SeoOverviewCanonicalTest extends TestCase
         $this->assertSame('http://localhost/blog', $this->canonical($html));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function blog_category_sets_a_canonical_pointing_at_the_category(): void
     {
         $html = (string) $this->send($this->request('GET', '/blog/category/blog'))->getBody();

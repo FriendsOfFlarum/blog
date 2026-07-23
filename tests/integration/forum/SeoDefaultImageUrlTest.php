@@ -12,10 +12,14 @@
 namespace FoF\Blog\Tests\integration\forum;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
 use Flarum\Extend;
 use Flarum\Foundation\Paths;
 use Flarum\Http\UrlGenerator;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * The blog article SEO driver falls back to the configured default image when
@@ -52,13 +56,13 @@ class SeoDefaultImageUrlTest extends TestCase
         $now = Carbon::parse('2025-01-01 00:00:00');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 ['id' => 1, 'username' => 'admin', 'email' => 'admin@machine.local', 'is_email_confirmed' => 1],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'Article', 'slug' => 'article', 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1, 'created_at' => $now, 'last_posted_at' => $now],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'number' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>Body.</p></t>', 'created_at' => $now],
             ],
             'blog_meta' => [
@@ -79,9 +83,7 @@ class SeoDefaultImageUrlTest extends TestCase
         return null;
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function article_default_og_image_is_resolved_from_the_assets_disk(): void
     {
         $response = $this->send($this->request('GET', '/blog/1-article'));

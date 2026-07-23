@@ -9,13 +9,13 @@
  * file that was distributed with this source code.
  */
 
-namespace FoF\Blog\Listeners;
+namespace FoF\Blog\Listener;
 
 use Flarum\Discussion\Event\Saving;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Settings\SettingsRepositoryInterface;
 use Flarum\User\Exception\PermissionDeniedException;
-use FoF\Blog\BlogMeta\BlogMeta;
+use FoF\Blog\BlogMeta;
 use Illuminate\Contracts\Events\Dispatcher;
 use Illuminate\Support\Arr;
 
@@ -24,38 +24,22 @@ class CreateBlogMetaOnDiscussionCreate
     use DispatchEventsTrait;
 
     /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
      * @var string[]
      */
-    protected $blogTags;
+    protected array $blogTags;
 
-    /**
-     * CreateBlogMetaOnDiscussionCreate constructor.
-     *
-     * @param SettingsRepositoryInterface $settings
-     */
     public function __construct(
-        SettingsRepositoryInterface $settings,
-        Dispatcher $events
+        protected SettingsRepositoryInterface $settings,
+        protected Dispatcher $events
     ) {
-        // Get Flarum settings
-        $this->settings = $settings;
-        $this->events = $events;
-        $this->blogTags = explode('|', $this->settings->get('blog_tags', ''));
+        $this->blogTags = explode('|', (string) $this->settings->get('blog_tags', ''));
     }
 
-    /**
-     * @param $event
-     */
     public function handle(Saving $event): void
     {
         $discussion = $event->discussion;
 
-        // Only add blog meta data if the discussion does not exists yet
+        // Only add blog meta data if the discussion does not exist yet
         if ($discussion->exists) {
             return;
         }
@@ -64,7 +48,7 @@ class CreateBlogMetaOnDiscussionCreate
         $discussion->afterSave(function ($discussion) use ($event) {
             // Here it may happen that `$discussion->tags` gives an empty array because of a strange bug.
             // This can be reproduced when using the fof/discussion-language extension (v1.2.1)
-            // For this reason we need to explictly reloag the tags relationship before using it here.
+            // For this reason we need to explicitly reload the tags relationship before using it here.
             $discussion->load('tags');
 
             // Make sure it's a blog base discussion!
@@ -78,10 +62,10 @@ class CreateBlogMetaOnDiscussionCreate
 
                 $blogMeta = BlogMeta::build(
                     $discussion->id,
-                    Arr::get($event->data, 'attributes.blogMeta.featuredImage', null),
-                    Arr::get($event->data, 'attributes.blogMeta.summary', null),
-                    Arr::get($event->data, 'attributes.blogMeta.isFeatured', null),
-                    Arr::get($event->data, 'attributes.blogMeta.isSized', null),
+                    Arr::get($event->data, 'attributes.newBlogMeta.featuredImage', null),
+                    Arr::get($event->data, 'attributes.newBlogMeta.summary', null),
+                    Arr::get($event->data, 'attributes.newBlogMeta.isFeatured', null),
+                    Arr::get($event->data, 'attributes.newBlogMeta.isSized', null),
                     $isPendingReview
                 );
 

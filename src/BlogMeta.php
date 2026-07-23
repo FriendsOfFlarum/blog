@@ -9,23 +9,24 @@
  * file that was distributed with this source code.
  */
 
-namespace FoF\Blog\BlogMeta;
+namespace FoF\Blog;
 
 use Flarum\Database\AbstractModel;
 use Flarum\Database\ScopeVisibilityTrait;
 use Flarum\Discussion\Discussion;
 use Flarum\Foundation\EventGeneratorTrait;
 use FoF\Blog\Event\BlogMetaCreated;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 /**
- * @property int                                $id
- * @property int                                $discussion_id
- * @property string|null                        $featured_image
- * @property string|null                        $summary
- * @property bool|null                          $is_featured
- * @property bool|null                          $is_sized
- * @property bool|null                          $is_pending_review
- * @property \Flarum\Discussion\Discussion|null $discussion
+ * @property int             $id
+ * @property int             $discussion_id
+ * @property string|null     $featured_image
+ * @property string|null     $summary
+ * @property bool|null       $is_featured
+ * @property bool|null       $is_sized
+ * @property bool|null       $is_pending_review
+ * @property Discussion|null $discussion
  */
 class BlogMeta extends AbstractModel
 {
@@ -34,14 +35,13 @@ class BlogMeta extends AbstractModel
 
     protected $table = 'blog_meta';
 
-    /**
-     * Guard discussion.
-     */
-    protected $guarded = [
-        'discussion_id',
+    protected $casts = [
+        'is_featured'       => 'bool',
+        'is_sized'          => 'bool',
+        'is_pending_review' => 'bool',
     ];
 
-    public static function build(int $discussionId, ?string $featuredImage, ?string $summary, ?bool $isFeatured, ?bool $isSized, bool $isPendingReview): self
+    public static function build(int $discussionId, ?string $featuredImage, ?string $summary, ?bool $isFeatured, ?bool $isSized, bool $isPendingReview): static
     {
         $blogMeta = new static();
         $blogMeta->discussion_id = $discussionId;
@@ -54,11 +54,6 @@ class BlogMeta extends AbstractModel
         return $blogMeta;
     }
 
-    /**
-     * Boot the model.
-     *
-     * @return void
-     */
     public static function boot()
     {
         parent::boot();
@@ -68,10 +63,7 @@ class BlogMeta extends AbstractModel
         });
     }
 
-    /**
-     * @return \Illuminate\Database\Eloquent\Relations\BelongsTo
-     */
-    public function discussion()
+    public function discussion(): BelongsTo
     {
         return $this->belongsTo(Discussion::class);
     }

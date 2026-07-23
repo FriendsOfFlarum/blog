@@ -1,4 +1,4 @@
-import ComposerBody from 'flarum/forum/components/ComposerBody';
+import ComposerBody, { type IComposerBodyAttrs } from 'flarum/forum/components/ComposerBody';
 import Button from 'flarum/common/components/Button';
 import TextEditor from 'flarum/common/components/TextEditor';
 import type ComposerState from 'flarum/forum/states/ComposerState';
@@ -17,9 +17,11 @@ export interface ComposerAttrs extends ComponentAttrs {
 
 export default class Composer extends ComposerBody {
   /**
-   * Attributes passed into the composer body.
+   * Attributes passed into the composer body. The blog-specific attrs are
+   * intersected with the base attrs so the declaration stays compatible
+   * with `ComposerBody`.
    */
-  attrs!: ComposerAttrs;
+  attrs!: ComposerAttrs & IComposerBodyAttrs;
 
   /**
    * The composer's state, holding the editable fields.
@@ -34,9 +36,9 @@ export default class Composer extends ComposerBody {
   /**
    * Optional handler, provided by subclasses, to jump to the preview pane.
    */
-  jumpToPreview?: (e: Event) => void;
+  jumpToPreview?: () => void;
 
-  oninit(vnode: Mithril.Vnode<ComposerAttrs, this>) {
+  oninit(vnode: Mithril.Vnode<ComposerAttrs & IComposerBodyAttrs, this>) {
     super.oninit(vnode);
 
     this.previewContent = false;
@@ -68,16 +70,16 @@ export default class Composer extends ComposerBody {
             </div>
           )}
 
-          {TextEditor.component({
-            submitLabel: this.attrs.submitLabel || app.translator.trans('core.forum.composer_edit.submit_button'),
-            placeholder: this.attrs.placeholder,
-            disabled: loading,
-            composer: this.composer,
-            preview: this.jumpToPreview && this.jumpToPreview.bind(this),
-            onchange: content,
-            onsubmit: this.onsubmit.bind(this),
-            value: content(),
-          })}
+          <TextEditor
+            submitLabel={this.attrs.submitLabel || app.translator.trans('core.forum.composer_edit.submit_button')}
+            placeholder={this.attrs.placeholder}
+            disabled={loading}
+            composer={this.composer}
+            preview={this.jumpToPreview && this.jumpToPreview.bind(this)}
+            onchange={content}
+            onsubmit={this.onsubmit.bind(this)}
+            value={content()}
+          />
         </div>
       </div>
     );

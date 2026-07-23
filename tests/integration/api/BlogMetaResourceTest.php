@@ -12,16 +12,20 @@
 namespace FoF\Blog\Tests\integration\api;
 
 use Carbon\Carbon;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use Flarum\User\User;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
- * Characterizes {@see \FoF\Blog\Api\Serializer\BlogMetaSerializer}: the shape of
+ * Characterizes {@see \FoF\Blog\Api\Resource\BlogMetaResource}: the shape of
  * the `blogMeta` relationship serialized onto a discussion, and the boolean
  * casting of the nullable tinyint columns. The frontend BlogMeta model mirrors
  * these attribute names, so the contract must stay stable.
  */
-class BlogMetaSerializerTest extends TestCase
+class BlogMetaResourceTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 
@@ -34,13 +38,13 @@ class BlogMetaSerializerTest extends TestCase
         $now = Carbon::parse('2025-01-01 00:00:00');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => 1, 'title' => 'Article', 'slug' => 'article', 'user_id' => 1, 'first_post_id' => 1, 'comment_count' => 1, 'created_at' => $now, 'last_posted_at' => $now],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => 1, 'number' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>Body.</p></t>', 'created_at' => $now],
             ],
             'blog_meta' => [
@@ -72,9 +76,7 @@ class BlogMetaSerializerTest extends TestCase
         return null;
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function discussion_includes_a_blog_meta_resource(): void
     {
         $meta = $this->blogMetaFromDiscussion();
@@ -83,9 +85,7 @@ class BlogMetaSerializerTest extends TestCase
         $this->assertSame('blogMeta', $meta['type']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function blog_meta_exposes_expected_attributes(): void
     {
         $attributes = $this->blogMetaFromDiscussion()['attributes'];
@@ -94,9 +94,7 @@ class BlogMetaSerializerTest extends TestCase
         $this->assertSame('A short summary.', $attributes['summary']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function blog_meta_casts_flags_to_real_booleans(): void
     {
         $attributes = $this->blogMetaFromDiscussion()['attributes'];

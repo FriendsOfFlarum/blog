@@ -11,58 +11,52 @@
 
 namespace FoF\Blog;
 
-use Flarum\Api\Controller as FlarumController;
-use Flarum\Api\Serializer\BasicDiscussionSerializer;
-use Flarum\Api\Serializer\ForumSerializer;
+use Flarum\Api\Endpoint;
+use Flarum\Api\Resource;
+use Flarum\Api\Schema;
 use Flarum\Discussion\Discussion;
 use Flarum\Discussion\Event\Saving;
-use Flarum\Discussion\Filter\DiscussionFilterer;
 use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Http\Middleware\ResolveRoute;
-use Flarum\Tags\Api\Serializer\TagSerializer;
+use Flarum\Tags\Api\Resource\TagResource;
 use FoF\Blog\Access\ScopeDiscussionVisibility;
-use FoF\Blog\Api\AttachForumSerializerAttributes;
-use FoF\Blog\Api\AttatchTagSerializerAttributes;
-use FoF\Blog\Api\Controller\CreateBlogMetaController;
 use FoF\Blog\Api\Controller\DeleteDefaultBlogImageController;
-use FoF\Blog\Api\Controller\UpdateBlogMetaController;
 use FoF\Blog\Api\Controller\UploadDefaultBlogImageController;
-use FoF\Blog\Api\Serializer\BlogMetaSerializer;
-use FoF\Blog\BlogMeta\BlogMeta;
-use FoF\Blog\Controller\BlogComposerController;
-use FoF\Blog\Controller\BlogItemController;
-use FoF\Blog\Controller\BlogOverviewController;
-use FoF\Blog\Listeners\CreateBlogMetaOnDiscussionCreate;
+use FoF\Blog\Api\ForumResourceFields;
+use FoF\Blog\Api\Resource\BlogMetaResource;
+use FoF\Blog\Api\TagResourceFields;
+use FoF\Blog\Listener\CreateBlogMetaOnDiscussionCreate;
+use FoF\Blog\Listener\UpdateSeoMeta;
 use FoF\Blog\Middleware\RedirectTrailingSlash;
-use FoF\Blog\Query\BlogArticleFilterGambit;
-use FoF\Blog\Query\FilterDiscussionsForBlogPosts;
+use FoF\Blog\Search\Filter\BlogArticleFilter;
+use FoF\Blog\Search\HideBlogPostsFromAllDiscussionsPage;
 use FoF\Blog\SeoPage\SeoBlogArticleMeta;
 use FoF\Blog\SeoPage\SeoBlogOverviewMeta;
-use FoF\Blog\Subscribers\SeoBlogSubscriber;
 
 return [
-    // 1.x workaround for trailing slash. Not applicable to 2.x
+    // Core resolves trailing-slash URLs internally, but we still want a single
+    // canonical URL per blog page, so redirect `/blog/...` to its slash-less form.
     (new Extend\Middleware('forum'))
         ->insertBefore(ResolveRoute::class, RedirectTrailingSlash::class),
 
     (new Extend\Frontend('forum'))
         ->js(__DIR__.'/js/dist/forum.js')
+        ->jsDirectory(__DIR__.'/js/dist/forum')
         ->css(__DIR__.'/less/Forum.less')
-        ->route('/blog', 'blog.overview', BlogOverviewController::class)
-        ->route('/blog/compose', 'blog.compose', BlogComposerController::class)
-        ->route('/blog/category/{category}', 'blog.category', BlogOverviewController::class)
-        ->route('/blog/{id:[\d\S]+(?:-[^/]*)?}', 'blog.post', BlogItemController::class)
+        ->route('/blog', 'blog.overview', Content\Overview::class)
+        ->route('/blog/compose', 'blog.compose', Content\Compose::class)
+        ->route('/blog/category/{category}', 'blog.category', Content\Overview::class)
+        ->route('/blog/{id:[\d\S]+(?:-[^/]*)?}', 'blog.post', Content\Item::class)
     // Shall we add RSS?
     // ->get('/blog/rss.xml', 'blog.rss.xml', RSS::class)
     ,
     (new Extend\Frontend('admin'))
         ->js(__DIR__.'/js/dist/admin.js')
+        ->jsDirectory(__DIR__.'/js/dist/admin')
         ->css(__DIR__.'/less/Admin.less'),
 
     (new Extend\Routes('api'))
-        ->post('/blogMeta', 'blog.meta', CreateBlogMetaController::class)
-        ->patch('/blogMeta/{id}', 'blog.meta.edit', UpdateBlogMetaController::class)
         ->post('/blog_default_image', 'blog.default_image.upload', UploadDefaultBlogImageController::class)
         ->delete('/blog_default_image', 'blog.default_image.delete', DeleteDefaultBlogImageController::class),
 
@@ -74,32 +68,61 @@ return [
     (new Extend\ModelVisibility(Discussion::class))
         ->scope(ScopeDiscussionVisibility::class),
 
-    (new Extend\ApiController(FlarumController\CreateDiscussionController::class))
-        ->addInclude(['blogMeta', 'firstPost', 'user']),
+    (new Extend\Policy())
+        ->modelPolicy(BlogMeta::class, Access\BlogMetaPolicy::class),
 
-    (new Extend\ApiController(FlarumController\ListDiscussionsController::class))
-        ->addInclude(['blogMeta', 'firstPost', 'user']),
+    new Extend\ApiResource(BlogMetaResource::class),
 
-    (new Extend\ApiController(FlarumController\ShowDiscussionController::class))
-        ->addInclude(['blogMeta', 'firstPost', 'user']),
+    (new Extend\ApiResource(Resource\DiscussionResource::class))
+        ->fields(fn () => [
+            // Write-only input sent by the blog composer when creating an
+            // article. The value is consumed from the discussion `Saving`
+            // event's raw data by `CreateBlogMetaOnDiscussionCreate` — this
+            // field only exists so the payload passes field validation. It is
+            // never serialized; responses carry the `blogMeta` relationship
+            // below (fields are keyed by name, so the attribute cannot share it).
+            Schema\Arr::make('newBlogMeta')
+                ->writableOnCreate()
+                ->nullable()
+                ->visible(false)
+                ->set(fn () => null),
+            Schema\Relationship\ToOne::make('blogMeta')
+                ->type('blogMeta')
+                ->includable(),
+        ])
+        ->endpoint(
+            [Endpoint\Index::class, Endpoint\Show::class, Endpoint\Create::class, Endpoint\Update::class],
+            fn (Endpoint\Index|Endpoint\Show|Endpoint\Create|Endpoint\Update $endpoint) => $endpoint
+                ->addDefaultInclude(['blogMeta', 'firstPost', 'user'])
+        ),
 
-    (new Extend\ApiController(FlarumController\UpdateDiscussionController::class))
-        ->addInclude(['blogMeta', 'firstPost', 'user']),
+    (new Extend\Settings())
+        ->default('blog_tags', '')
+        ->default('blog_redirects_enabled', 'both')
+        ->default('blog_allow_comments', true)
+        ->default('blog_hide_tags', true)
+        ->default('blog_category_hierarchy', true)
+        ->default('blog_add_sidebar_nav', true)
+        ->default('blog_featured_count', 3)
+        ->default('blog_add_hero', true)
+        ->default('blog_requires_review', false)
+        ->default('blog_filter_discussion_list', false)
+        ->serializeToForum('blogTags', 'blog_tags', fn ($value) => explode('|', (string) $value))
+        ->serializeToForum('blogRedirectsEnabled', 'blog_redirects_enabled', 'strval')
+        ->serializeToForum('blogCommentsEnabled', 'blog_allow_comments', 'boolval')
+        ->serializeToForum('blogHideTags', 'blog_hide_tags', 'boolval')
+        ->serializeToForum('blogDefaultImage', 'blog_default_image_path')
+        ->serializeToForum('blogCategoryHierarchy', 'blog_category_hierarchy', 'boolval')
+        ->serializeToForum('blogAddSidebarNav', 'blog_add_sidebar_nav', 'boolval')
+        ->serializeToForum('blogFeaturedCount', 'blog_featured_count', 'intval')
+        ->serializeToForum('blogAddHero', 'blog_add_hero', 'boolval'),
 
-    (new Extend\ApiSerializer(BasicDiscussionSerializer::class))
-        ->hasOne('blogMeta', BlogMetaSerializer::class),
+    // Computed forum attributes that cannot be plain setting serializations.
+    (new Extend\ApiResource(Resource\ForumResource::class))
+        ->fields(ForumResourceFields::class),
 
-    (new Extend\ApiSerializer(ForumSerializer::class))
-        ->attributes(AttachForumSerializerAttributes::class),
-
-    (new Extend\ApiSerializer(TagSerializer::class))
-        ->attributes(AttatchTagSerializerAttributes::class),
-
-    (new Extend\Filter(DiscussionFilterer::class))
-        ->addFilterMutator(FilterDiscussionsForBlogPosts::class),
-
-    (new Extend\SimpleFlarumSearch(DiscussionSearcher::class))
-        ->addGambit(BlogArticleFilterGambit::class),
+    (new Extend\ApiResource(TagResource::class))
+        ->fields(TagResourceFields::class),
 
     (new Extend\Event())
         ->listen(Saving::class, CreateBlogMetaOnDiscussionCreate::class),
@@ -111,6 +134,10 @@ return [
                 ->addExtender('blog_article', SeoBlogArticleMeta::class),
 
             (new Extend\Event())
-                ->subscribe(SeoBlogSubscriber::class),
+                ->subscribe(UpdateSeoMeta::class),
         ]),
+
+    (new Extend\SearchDriver(\Flarum\Search\Database\DatabaseSearchDriver::class))
+        ->addFilter(DiscussionSearcher::class, BlogArticleFilter::class)
+        ->addMutator(DiscussionSearcher::class, HideBlogPostsFromAllDiscussionsPage::class),
 ];

@@ -1,7 +1,7 @@
 import Page, { IPageAttrs } from 'flarum/common/components/Page';
 import IndexPage from 'flarum/forum/components/IndexPage';
 import CommentPost from 'flarum/forum/components/CommentPost';
-import PostStream from 'flarum/forum/components/PostStream';
+import type PostStreamType from 'flarum/forum/components/PostStream';
 import PostStreamState from 'flarum/forum/states/PostStreamState';
 import BlogPostController from '../components/BlogPostController';
 import BlogItemSidebar from '../components/BlogItemSidebar/BlogItemSidebar';
@@ -11,7 +11,7 @@ import fullTime from 'flarum/common/helpers/fullTime';
 import ArticleSubscription from '../components/ArticleSubscription';
 import classList from 'flarum/common/utils/classList';
 import ItemList from 'flarum/common/utils/ItemList';
-import icon from 'flarum/common/helpers/icon';
+import Icon from 'flarum/common/components/Icon';
 import app from 'flarum/forum/app';
 import Discussion from 'flarum/common/models/Discussion';
 import Post from 'flarum/common/models/Post';
@@ -31,6 +31,12 @@ export default class BlogItem extends Page {
   protected article!: Article | null;
   protected stream?: PostStreamState;
 
+  /**
+   * Core's `PostStream` lives in a lazy chunk, so it is imported on demand
+   * rather than statically.
+   */
+  protected PostStream?: typeof PostStreamType;
+
   oninit(vnode: Mithril.Vnode<IPageAttrs, this>) {
     super.oninit(vnode);
 
@@ -46,6 +52,11 @@ export default class BlogItem extends Page {
     this.loading = true;
     this.found = false;
     this.article = null;
+
+    import('flarum/forum/components/PostStream').then(({ default: PostStream }) => {
+      this.PostStream = PostStream;
+      m.redraw();
+    });
 
     this.loadBlogItem();
   }
@@ -175,7 +186,7 @@ export default class BlogItem extends Page {
           <div className={'Post-body'}>
             <blockquote class="uncited" style={{ fontSize: '16px' }}>
               <div>
-                {icon('far fa-clock', { style: { marginRight: '5px' } })} {app.translator.trans('fof-blog.forum.review_article.pending_review')}
+                <Icon name="far fa-clock" style={{ marginRight: '5px' }} /> {app.translator.trans('fof-blog.forum.review_article.pending_review')}
               </div>
             </blockquote>
           </div>,
@@ -263,13 +274,9 @@ export default class BlogItem extends Page {
             </div>
           )}
 
-          {!this.loading &&
-            this.article &&
-            PostStream.component({
-              discussion: this.article,
-              stream: this.stream,
-              onPositionChange: this.positionChanged.bind(this),
-            })}
+          {!this.loading && this.article && this.PostStream && (
+            <this.PostStream discussion={this.article} stream={this.stream} onPositionChange={this.positionChanged.bind(this)} />
+          )}
         </div>,
         75
       );

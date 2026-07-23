@@ -14,8 +14,9 @@ namespace FoF\Blog\SeoPage;
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Http\UrlGenerator;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
-use FoF\Blog\BlogMeta\BlogMeta;
+use FoF\Blog\BlogMeta;
 use FoF\Seo\Page\PageDriverInterface;
 use FoF\Seo\SeoMeta\SeoMeta;
 use FoF\Seo\SeoProperties;
@@ -24,55 +25,24 @@ use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SeoBlogArticleMeta implements PageDriverInterface
 {
     use DispatchEventsTrait;
 
     /**
-     * @var DiscussionRepository
-     */
-    protected $discussionRepository;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $urlGenerator;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
      * @var Cloud
      */
     protected $assetsDir;
 
-    /**
-     * @param DiscussionRepository $discussionRepository
-     * @param TranslatorInterface  $translator
-     */
     public function __construct(
-        DiscussionRepository $discussionRepository,
-        UrlGenerator $urlGenerator,
-        Dispatcher $events,
-        TranslatorInterface $translator,
-        SettingsRepositoryInterface $settings,
+        protected DiscussionRepository $discussionRepository,
+        protected UrlGenerator $urlGenerator,
+        protected Dispatcher $events,
+        protected TranslatorInterface $translator,
+        protected SettingsRepositoryInterface $settings,
         Factory $filesystemFactory
     ) {
-        $this->discussionRepository = $discussionRepository;
-        $this->urlGenerator = $urlGenerator;
-        $this->events = $events;
-        $this->translator = $translator;
-        $this->settings = $settings;
-
         /** @var Cloud $assetsDir */
         $assetsDir = $filesystemFactory->disk('flarum-assets');
         $this->assetsDir = $assetsDir;
@@ -96,8 +66,9 @@ class SeoBlogArticleMeta implements PageDriverInterface
         ServerRequestInterface $request,
         SeoProperties $properties
     ): void {
-        // Get discussion ID from params
-        $discussionId = Arr::get($request->getQueryParams(), 'id');
+        // Get discussion ID from params. The route param is `<id>-<slug>`, so
+        // cast to int to extract the leading ID (as Content\Item does).
+        $discussionId = (int) Arr::get($request->getQueryParams(), 'id');
 
         try {
             // Find discussion

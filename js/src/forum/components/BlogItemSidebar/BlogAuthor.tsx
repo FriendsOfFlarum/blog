@@ -2,7 +2,7 @@ import app from 'flarum/forum/app';
 import Component from 'flarum/common/Component';
 import ItemList from 'flarum/common/utils/ItemList';
 import listItems from 'flarum/common/helpers/listItems';
-import avatar from 'flarum/common/helpers/avatar';
+import Avatar from 'flarum/common/components/Avatar';
 import Link from 'flarum/common/components/Link';
 import Discussion from 'flarum/common/models/Discussion';
 import User from 'flarum/common/models/User';
@@ -36,15 +36,15 @@ export default class BlogAuthor extends Component<BlogAuthorAttrs> {
             backgroundColor: author && author.color() ? author.color() : null,
           }}
         />
-
         <div className={'FlarumBlog-Article-Author-Avatar'}>
           {author ? (
-            <Link href={app.route('user', { username: author.username() })}>{avatar(author)}</Link>
+            <Link href={app.route('user', { username: author.username() })}>
+              <Avatar user={author} />
+            </Link>
           ) : (
             <span className={'Avatar FlarumBlog-Author-Ghost'} />
           )}
         </div>
-
         {author && (
           <div className={'FlarumBlog-Article-Author-Info'}>
             <Link href={app.route('user', { username: author.username() })} className={'FlarumBlog-Article-Author-Name'}>
@@ -55,7 +55,6 @@ export default class BlogAuthor extends Component<BlogAuthorAttrs> {
             <ul className={'FlarumBlog-Article-Author-Extended'}>{listItems(this.items().toArray())}</ul>
           </div>
         )}
-
         {this.attrs.loading && (
           <div>
             <span className={'FlarumBlog-Article-Author-Name FlarumBlog-Author-Ghost'}>&nbsp;</span>

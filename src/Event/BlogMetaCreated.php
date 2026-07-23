@@ -11,17 +11,11 @@
 
 namespace FoF\Blog\Event;
 
-use FoF\Blog\BlogMeta\BlogMeta;
+use FoF\Blog\BlogMeta;
 
 class BlogMetaCreated
 {
-    /**
-     * @var BlogMeta
-     */
-    public $blogMeta;
-
-    public function __construct(BlogMeta $blogMeta)
+    public function __construct(public BlogMeta $blogMeta)
     {
-        $this->blogMeta = $blogMeta;
     }
 }

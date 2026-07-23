@@ -9,11 +9,11 @@
  * file that was distributed with this source code.
  */
 
-namespace FoF\Blog\Subscribers;
+namespace FoF\Blog\Listener;
 
 use Flarum\Discussion\Event as DiscussionEvent;
 use Flarum\Post\CommentPost;
-use FoF\Blog\BlogMeta\BlogMeta;
+use FoF\Blog\BlogMeta;
 use FoF\Blog\Event\BlogMetaCreated;
 use FoF\Blog\Event\BlogMetaSaving;
 use FoF\Seo\SeoMeta\Event\Created;
@@ -22,9 +22,10 @@ use FoF\Seo\SeoProperties;
 use Illuminate\Contracts\Events\Dispatcher;
 
 /**
- * Subscribe to discussion creation, update or deleted.
+ * Keeps the fof/seo meta record for a blog article in sync with the article's
+ * discussion and blog meta.
  */
-class SeoBlogSubscriber
+class UpdateSeoMeta
 {
     /**
      * Identifier stamped on SeoMeta records whose Open Graph image this
@@ -42,11 +43,6 @@ class SeoBlogSubscriber
     {
     }
 
-    /**
-     * Subscribe to events.
-     *
-     * @param Dispatcher $events
-     */
     public function subscribe(Dispatcher $events): void
     {
         $events->listen(DiscussionEvent\Deleting::class, [$this, 'onDiscussionUpdate']);
@@ -57,8 +53,6 @@ class SeoBlogSubscriber
     }
 
     /**
-     * Handle model event.
-     *
      * @param DiscussionEvent\Deleting|DiscussionEvent\Renamed $event
      */
     public function onDiscussionUpdate($event): void
@@ -90,13 +84,10 @@ class SeoBlogSubscriber
 
         $this->updateMeta($meta, $blogMeta);
 
-        // Update
         $meta->save();
     }
 
     /**
-     * Handle Blog meta update.
-     *
      * @param BlogMetaSaving|BlogMetaCreated $event
      */
     public function onBlogMetaUpdate($event): void
@@ -106,20 +97,13 @@ class SeoBlogSubscriber
             return;
         }
 
-        // Find meta
         $meta = SeoMeta::findByObjectType('blogs', $event->blogMeta->id);
 
         $this->updateMeta($meta, $event->blogMeta);
 
-        // Update
         $meta->save();
     }
 
-    /**
-     * Handle SEO-meta created event for blogs.
-     *
-     * @param Created $event
-     */
     public function onMetaCreated(Created $event): void
     {
         // Only update meta data if object type matches
@@ -127,7 +111,6 @@ class SeoBlogSubscriber
             return;
         }
 
-        // Find blogMeta
         $blogMeta = BlogMeta::find($event->objectId);
 
         $this->updateMeta($event->seoMeta, $blogMeta);
@@ -135,9 +118,6 @@ class SeoBlogSubscriber
         $event->seoMeta->save();
     }
 
-    /**
-     * Public function to update seoMeta.
-     */
     public function updateMeta(SeoMeta $seoMeta, BlogMeta $blogMeta): void
     {
         $seoMeta->title = $blogMeta->discussion->title;
@@ -146,7 +126,7 @@ class SeoBlogSubscriber
 
         $firstPost = $blogMeta->discussion->firstPost;
 
-        // If a discussion has a first post, use edited_at time if intial post was more recent edited than the last post was posted
+        // If a discussion has a first post, use edited_at time if the initial post was more recently edited than the last post was posted
         if ($firstPost instanceof CommentPost) {
             $seoMeta->updated_at = $firstPost->edited_at > $blogMeta->discussion->last_posted_at ? $firstPost->edited_at : $blogMeta->discussion->last_posted_at;
 
@@ -162,9 +142,6 @@ class SeoBlogSubscriber
         } else {
             $seoMeta->updated_at = $blogMeta->discussion->last_posted_at;
         }
-
-        // Set description
-        $seoMeta->description = $blogMeta->summary;
 
         // Set description
         $seoMeta->description = $blogMeta->summary;

@@ -12,6 +12,7 @@
 namespace FoF\Blog\Tests\integration\forum;
 
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * A trailing slash on a blog URL (e.g. `/blog/`) does not match the registered
@@ -27,9 +28,7 @@ class TrailingSlashRedirectTest extends TestCase
         $this->extension('flarum-tags', 'fof-blog');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function blog_overview_with_trailing_slash_redirects_to_canonical(): void
     {
         $response = $this->send($this->request('GET', '/blog/'));
@@ -38,9 +37,7 @@ class TrailingSlashRedirectTest extends TestCase
         $this->assertSame('/blog', $this->redirectPath($response));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function blog_overview_without_trailing_slash_is_served_normally(): void
     {
         $response = $this->send($this->request('GET', '/blog'));
@@ -49,9 +46,7 @@ class TrailingSlashRedirectTest extends TestCase
         $this->assertStringContainsString('text/html', $response->getHeaderLine('Content-Type'));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function nested_blog_path_with_trailing_slash_redirects(): void
     {
         $response = $this->send($this->request('GET', '/blog/compose/'));
@@ -60,9 +55,7 @@ class TrailingSlashRedirectTest extends TestCase
         $this->assertSame('/blog/compose', $this->redirectPath($response));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function the_forum_root_is_not_affected(): void
     {
         $response = $this->send($this->request('GET', '/'));
