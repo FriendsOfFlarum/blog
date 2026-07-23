@@ -17,8 +17,8 @@ use PHPUnit\Framework\Attributes\Test;
 use Flarum\User\User;
 
 /**
- * Characterizes the blog attributes injected onto the Forum serializer payload
- * by {@see \FoF\Blog\Api\AttachForumSerializerAttributes}. These attributes are
+ * Characterizes the blog attributes injected onto the forum API payload
+ * by {@see \FoF\Blog\Api\ForumResourceFields}. These attributes are
  * read by the frontend to drive routing, redirects and permission-gated UI, so
  * their names, defaults and types are part of the extension's public contract.
  */

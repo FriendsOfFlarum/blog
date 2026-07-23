@@ -29,11 +29,10 @@ class SeoBlogOverviewMeta implements PageDriverInterface
 
     public function __construct(
         protected TagRepository $tagRepository,
-        Dispatcher $events,
+        protected Dispatcher $events,
         protected TranslatorInterface $translator,
         protected UrlGenerator $urlGenerator,
     ) {
-        $this->events = $events;
     }
 
     public function extensionDependencies(): array

@@ -26,5 +26,3 @@ app.initializers.add(
   },
   -100000
 );
-
-compat();

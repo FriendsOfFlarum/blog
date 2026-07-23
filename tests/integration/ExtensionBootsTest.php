@@ -11,6 +11,8 @@
 
 namespace FoF\Blog\Tests\integration;
 
+use PHPUnit\Framework\Attributes\Test;
+
 /**
  * Smoke test: the extension enables and the forum still serves a 200.
  * A real coverage suite is added incrementally as part of the FoF migration.

@@ -12,8 +12,7 @@ import type LanguageDropdownType from '@fof/discussion-language/forum/components
 import type Mithril from 'mithril';
 
 import BlogAuthor from '../components/BlogItemSidebar/BlogAuthor';
-import RenameArticleModal from '../components/Modals/RenameArticleModal';
-import BlogPostSettingsModal from '../components/Modals/BlogPostSettingsModal';
+import Composer from '../components/Composer/Composer';
 import BlogMeta from '../../common/Models/BlogMeta';
 
 /**
@@ -85,7 +84,7 @@ export default class BlogComposer extends Page<IPageAttrs> {
 
     if (this.isSaving) return;
 
-    app.modal.show(() => import('ext:flarum/tags/components/TagDiscussionModal'), {
+    app.modal.show(() => import('ext:flarum/tags/forum/components/TagDiscussionModal'), {
       selectedTags: this.tags,
       onsubmit: (tags: Tag[]) => {
         this.tags = tags;
@@ -100,7 +99,7 @@ export default class BlogComposer extends Page<IPageAttrs> {
 
     if (this.isSaving) return;
 
-    app.modal.show(RenameArticleModal, {
+    app.modal.show(() => import('../components/Modals/RenameArticleModal'), {
       article: this.article,
       onChange: (title: string) => {
         this.article.pushData({
@@ -117,7 +116,7 @@ export default class BlogComposer extends Page<IPageAttrs> {
 
     if (this.isSaving) return;
 
-    app.modal.show(BlogPostSettingsModal, {
+    app.modal.show(() => import('../components/Modals/BlogPostSettingsModal'), {
       meta: this.blogMeta,
       onsubmit: (meta: BlogMeta) => (this.blogMeta = meta),
     });

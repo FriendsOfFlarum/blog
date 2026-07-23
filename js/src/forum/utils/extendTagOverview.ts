@@ -3,7 +3,7 @@ import Mithril from 'mithril';
 import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
 import IndexPage from 'flarum/forum/components/IndexPage';
-import TagsPage from 'ext:flarum/tags/components/TagsPage';
+import TagsPage from 'ext:flarum/tags/forum/components/TagsPage';
 import ItemList from 'flarum/common/utils/ItemList';
 import Tag from 'ext:flarum/tags/common/models/Tag';
 
@@ -15,8 +15,12 @@ type VnodeWithClassName = Mithril.Vnode<{ className?: string }, unknown>;
 
 export default function extendTagOverview(): void {
   extend(TagsPage.prototype, 'view', function (this: TagsPage, markup: JSX.Element): JSX.Element {
+    // `tags` and `loading` are private on TagsPage in 2.x, so reach them
+    // through a structural cast.
+    const page = this as unknown as { tags?: Tag[]; loading?: boolean };
+
     // Pending xhr to load all tags, throw back loading indicator.
-    if (this.loading) {
+    if (page.loading) {
       return markup;
     }
 
@@ -30,7 +34,7 @@ export default function extendTagOverview(): void {
 
     if (!tag_tiles_parent || !tag_tiles) return markup;
 
-    const tags = this.tags ?? [];
+    const tags = page.tags ?? [];
 
     // Map through the tiles and remove tiles that are part of the blog
     tag_tiles.children = getChildren(tag_tiles).map((tile, i) => {
@@ -40,7 +44,7 @@ export default function extendTagOverview(): void {
     return markup;
   });
 
-  extend(IndexSidebar.prototype, 'navItems', function (this: IndexPage, items: ItemList<Mithril.Children>): void {
+  extend(IndexSidebar.prototype, 'navItems', function (this: IndexSidebar, items: ItemList<Mithril.Children>): void {
     if (app.forum.attribute<boolean>('blogHideTags') == false) return;
 
     const blogTags = app.forum.attribute<string[]>('blogTags') || [];

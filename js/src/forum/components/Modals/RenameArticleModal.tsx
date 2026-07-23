@@ -60,14 +60,9 @@ export default class RenameArticleModal extends FormModal<IRenameArticleModalAtt
     items.add(
       'submit',
       <div className="Form-group">
-        {Button.component(
-          {
-            type: 'submit',
-            className: 'Button Button--primary SupportModal-save',
-            loading: this.loading,
-          },
-          app.translator.trans('core.forum.composer_edit.submit_button')
-        )}
+        <Button type="submit" className="Button Button--primary SupportModal-save" loading={this.loading}>
+          {app.translator.trans('core.forum.composer_edit.submit_button')}
+        </Button>
       </div>,
       -10
     );

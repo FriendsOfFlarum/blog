@@ -60,6 +60,15 @@ class DefaultBlogImageTest extends TestCase
     }
 
     /**
+     * Flarum binds ImageManager in the container, configured for either the GD
+     * or Imagick driver — resolve it rather than hard-coding a driver.
+     */
+    protected function imageManager(): ImageManager
+    {
+        return $this->app()->getContainer()->make(ImageManager::class);
+    }
+
+    /**
      * Generates a real PNG of the given dimensions in a temp file and wraps it
      * as an uploaded file, the way the controller expects to receive it.
      */
@@ -67,7 +76,7 @@ class DefaultBlogImageTest extends TestCase
     {
         $path = tempnam(sys_get_temp_dir(), 'blogimg').'.png';
 
-        (new ImageManager())->canvas($width, $height, '#3498db')->save($path);
+        $this->imageManager()->create($width, $height)->fill('#3498db')->save($path);
 
         return new UploadedFile($path, filesize($path), UPLOAD_ERR_OK, 'cover.png', 'image/png');
     }
@@ -102,7 +111,7 @@ class DefaultBlogImageTest extends TestCase
         $path = $this->settings()->get('blog_default_image_path');
         $stored = $this->assetsDisk()->get($path);
 
-        $image = (new ImageManager())->make($stored);
+        $image = $this->imageManager()->read($stored);
 
         $this->assertLessThanOrEqual(2000, $image->width());
         $this->assertLessThanOrEqual(1200, $image->height());
@@ -117,7 +126,7 @@ class DefaultBlogImageTest extends TestCase
         $this->upload(1, $this->uploadedPng(640, 480));
 
         $path = $this->settings()->get('blog_default_image_path');
-        $image = (new ImageManager())->make($this->assetsDisk()->get($path));
+        $image = $this->imageManager()->read($this->assetsDisk()->get($path));
 
         $this->assertSame(640, $image->width());
         $this->assertSame(480, $image->height());

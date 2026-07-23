@@ -26,18 +26,17 @@
         }
     },
     "require": {
-        "php": "^8.2",
-        "flarum/core": "^2.0.0-beta",
-        "flarum/tags": "*",
-        "flarum/lock": "*",
+        "flarum/core": "^2.0.0",
+        "flarum/tags": "^2.0.0",
+        "flarum/lock": "^2.0.0",
         "ext-json": "*"
     },
     "require-dev": {
-        "flarum/phpstan": "^2.0.0-beta",
-        "flarum/testing": "^2.0.0-beta",
-        "fof/discussion-language": "*",
-        "fof/rich-text": "^1.0",
-        "fof/seo": "^3"
+        "flarum/phpstan": "^2.0.0",
+        "flarum/testing": "^2.0.0",
+        "fof/rich-text": "^2.0",
+        "fof/seo": "^4",
+        "fof/upload": "*"
     },
     "replace": {
         "v17development/flarum-blog": "*"
@@ -63,7 +62,7 @@
             ]
         },
         "branch-alias": {
-            "dev-1.x": "1.x-dev"
+            "dev-2.x": "2.x-dev"
         }
     },
     "scripts": {
@@ -83,5 +82,7 @@
         "test:unit": "Runs all unit tests.",
         "test:integration": "Runs all integration tests.",
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
-    }
+    },
+    "minimum-stability": "beta",
+    "prefer-stable": true
 }

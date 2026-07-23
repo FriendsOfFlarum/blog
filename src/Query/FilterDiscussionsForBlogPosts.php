@@ -11,8 +11,8 @@
 
 namespace FoF\Blog\Query;
 
-use Flarum\Discussion\Search\Gambit\FulltextGambit;
-use Flarum\Search\SearchState;
+use Flarum\Discussion\Search\FulltextFilter;
+use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\SearchCriteria;
 use Flarum\Settings\SettingsRepositoryInterface;
 
@@ -20,32 +20,27 @@ class FilterDiscussionsForBlogPosts
 {
     /**
      * FilterDiscussionsForBlogPosts constructor.
-     *
-    
+     */
     public function __construct(protected SettingsRepositoryInterface $settings)
     {
     }
 
-    /**
-     * @param FilterState   $filter
-     * @param QueryCriteria $queryCriteria
-     */
-    public function __invoke(SearchState $filter, SearchCriteria $queryCriteria): void
+    public function __invoke(DatabaseSearchState $filter, SearchCriteria $queryCriteria): void
     {
         // Do we need to filter?
         if (filter_var($this->settings->get('blog_filter_discussion_list'), FILTER_VALIDATE_BOOLEAN) === false) {
             return;
         }
 
-        $activeGambits = $filter->getActiveFilters();
+        $activeFilters = $filter->getActiveFilters();
         $hideBlogPosts = true;
 
-        // Loop through the active gambits
-        foreach ($activeGambits as $gambit) {
-            if (get_class($gambit) === BlogArticleFilterGambit::class) {
+        // Loop through the active filters
+        foreach ($activeFilters as $activeFilter) {
+            if ($activeFilter instanceof BlogArticleFilter) {
                 $hideBlogPosts = false;
             }
-            if (get_class($gambit) === FulltextGambit::class) {
+            if ($activeFilter instanceof FulltextFilter) {
                 $hideBlogPosts = false;
             }
         }

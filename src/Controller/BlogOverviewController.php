@@ -28,21 +28,25 @@ class BlogOverviewController
     {
         $queryParams = $request->getQueryParams();
 
-        $q = '';
+        // 2.x has no server-side gambit parsing, so use structured filters
+        // rather than an `is:blog tag:...` query string.
+        $filter = [
+            'blog' => true,
+        ];
+
+        if ($category = Arr::get($queryParams, 'category')) {
+            $filter['tag'] = $category;
+        }
 
         // Add language support
         if ($this->extensionManager->isEnabled('fof-discussion-language')) {
-            $q = "language:{$document->language} ";
+            $filter['language'] = $document->language;
         }
-
-        $q .= 'is:blog'.(Arr::get($queryParams, 'category') ? ' tag:'.Arr::get($queryParams, 'category') : '');
 
         // Preload blog posts
         $apiDocument = $this->getApiDocument($request, [
-            'filter' => [
-                'q' => $q,
-            ],
-            'sort' => '-createdAt',
+            'filter' => $filter,
+            'sort'   => '-createdAt',
         ]);
 
         // Set payload

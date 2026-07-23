@@ -38,13 +38,11 @@ class SeoBlogArticleMeta implements PageDriverInterface
     public function __construct(
         protected DiscussionRepository $discussionRepository,
         protected UrlGenerator $urlGenerator,
-        Dispatcher $events,
+        protected Dispatcher $events,
         protected TranslatorInterface $translator,
         protected SettingsRepositoryInterface $settings,
         Factory $filesystemFactory
     ) {
-        $this->events = $events;
-
         /** @var Cloud $assetsDir */
         $assetsDir = $filesystemFactory->disk('flarum-assets');
         $this->assetsDir = $assetsDir;
@@ -68,8 +66,9 @@ class SeoBlogArticleMeta implements PageDriverInterface
         ServerRequestInterface $request,
         SeoProperties $properties
     ): void {
-        // Get discussion ID from params
-        $discussionId = Arr::get($request->getQueryParams(), 'id');
+        // Get discussion ID from params. The route param is `<id>-<slug>`, so
+        // cast to int to extract the leading ID (as BlogItemController does).
+        $discussionId = (int) Arr::get($request->getQueryParams(), 'id');
 
         try {
             // Find discussion

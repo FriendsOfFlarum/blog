@@ -11,8 +11,6 @@ import type Mithril from 'mithril';
 import type Discussion from 'flarum/common/models/Discussion';
 import type RequestError from 'flarum/common/utils/RequestError';
 
-declare const require: (id: string) => any;
-
 /**
  * The `blogMeta` resource. The runtime model (`common/Models/BlogMeta`) is built
  * with `mixin()`, which is typed as returning a plain `object`, so its
@@ -111,20 +109,21 @@ export default class BlogPostSettingsModal extends FormModal<BlogPostSettingsMod
     let fofUploadButton: Mithril.Children = null;
 
     if ('fof-upload' in flarum.extensions && app.forum.attribute('fof-upload.canUpload')) {
-      const {
-        components: { Uploader, FileManagerModal },
-      } = require('@fof-upload'); // @TODO: import from `ext:vendor/extension/module-path` format.
-
-      const uploader = new Uploader();
-
       fofUploadButton = (
         <Button
           class="Button Button--icon"
           onclick={async () => {
+            // fof/upload is an optional integration, so its modules are lazily
+            // resolved from the extension registry.
+            const [{ default: FileManagerModal }, { default: Uploader }] = await Promise.all([
+              import('ext:fof/upload/forum/components/FileManagerModal'),
+              import('ext:fof/upload/forum/handler/Uploader'),
+            ]);
+
             app.modal.show(
               FileManagerModal,
               {
-                uploader: uploader,
+                uploader: new Uploader(),
                 onSelect: (files: Array<string | number>) => {
                   const file = app.store.getById<Model & { url: () => string }>('files', files[0] as string);
 
@@ -165,20 +164,17 @@ export default class BlogPostSettingsModal extends FormModal<BlogPostSettingsMod
     items.add(
       'sized',
       <div className="Form-group">
-        {Switch.component(
-          {
-            state: this.isSized() == true,
-            onchange: (val: boolean) => {
-              this.isSized(val);
-            },
-          },
-          [
-            <b>{app.translator.trans('fof-blog.forum.article_settings.fields.highlight.title')}</b>,
-            <div className="helpText" style={{ fontWeight: 500 }}>
-              {app.translator.trans('fof-blog.forum.article_settings.fields.highlight.helper_text')}
-            </div>,
-          ]
-        )}
+        <Switch
+          state={this.isSized() == true}
+          onchange={(val: boolean) => {
+            this.isSized(val);
+          }}
+        >
+          <b>{app.translator.trans('fof-blog.forum.article_settings.fields.highlight.title')}</b>
+          <div className="helpText" style={{ fontWeight: 500 }}>
+            {app.translator.trans('fof-blog.forum.article_settings.fields.highlight.helper_text')}
+          </div>
+        </Switch>
       </div>,
       -10
     );
@@ -186,14 +182,9 @@ export default class BlogPostSettingsModal extends FormModal<BlogPostSettingsMod
     items.add(
       'submit',
       <div className="Form-group">
-        {Button.component(
-          {
-            type: 'submit',
-            className: 'Button Button--primary SupportModal-save',
-            loading: this.loading,
-          },
-          app.translator.trans('core.forum.composer_edit.submit_button')
-        )}
+        <Button type="submit" className="Button Button--primary SupportModal-save" loading={this.loading}>
+          {app.translator.trans('core.forum.composer_edit.submit_button')}
+        </Button>
       </div>,
       -10
     );

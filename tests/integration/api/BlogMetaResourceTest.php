@@ -20,12 +20,12 @@ use Flarum\Discussion\Discussion;
 use Flarum\Post\Post;
 
 /**
- * Characterizes {@see \FoF\Blog\Api\Serializer\BlogMetaSerializer}: the shape of
+ * Characterizes {@see \FoF\Blog\Api\Resource\BlogMetaResource}: the shape of
  * the `blogMeta` relationship serialized onto a discussion, and the boolean
  * casting of the nullable tinyint columns. The frontend BlogMeta model mirrors
  * these attribute names, so the contract must stay stable.
  */
-class BlogMetaSerializerTest extends TestCase
+class BlogMetaResourceTest extends TestCase
 {
     use RetrievesAuthorizedUsers;
 

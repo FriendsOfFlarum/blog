@@ -1,6 +1,7 @@
 import Page, { IPageAttrs } from 'flarum/common/components/Page';
 import IndexPage from 'flarum/forum/components/IndexPage';
 import CommentPost from 'flarum/forum/components/CommentPost';
+import type PostStreamType from 'flarum/forum/components/PostStream';
 import PostStreamState from 'flarum/forum/states/PostStreamState';
 import BlogPostController from '../components/BlogPostController';
 import BlogItemSidebar from '../components/BlogItemSidebar/BlogItemSidebar';
@@ -30,6 +31,12 @@ export default class BlogItem extends Page {
   protected article!: Article | null;
   protected stream?: PostStreamState;
 
+  /**
+   * Core's `PostStream` lives in a lazy chunk, so it is imported on demand
+   * rather than statically.
+   */
+  protected PostStream?: typeof PostStreamType;
+
   oninit(vnode: Mithril.Vnode<IPageAttrs, this>) {
     super.oninit(vnode);
 
@@ -45,6 +52,11 @@ export default class BlogItem extends Page {
     this.loading = true;
     this.found = false;
     this.article = null;
+
+    import('flarum/forum/components/PostStream').then(({ default: PostStream }) => {
+      this.PostStream = PostStream;
+      m.redraw();
+    });
 
     this.loadBlogItem();
   }
@@ -262,13 +274,9 @@ export default class BlogItem extends Page {
             </div>
           )}
 
-          {!this.loading &&
-            this.article &&
-            PostStream.component({
-              discussion: this.article,
-              stream: this.stream,
-              onPositionChange: this.positionChanged.bind(this),
-            })}
+          {!this.loading && this.article && this.PostStream && (
+            <this.PostStream discussion={this.article} stream={this.stream} onPositionChange={this.positionChanged.bind(this)} />
+          )}
         </div>,
         75
       );

@@ -30,13 +30,11 @@ class CreateBlogMetaOnDiscussionCreate
 
     /**
      * CreateBlogMetaOnDiscussionCreate constructor.
-     *
-    
+     */
     public function __construct(
         protected SettingsRepositoryInterface $settings,
-        Dispatcher $events
+        protected Dispatcher $events
     ) {
-        $this->events = $events;
         $this->blogTags = explode('|', $this->settings->get('blog_tags', ''));
     }
 

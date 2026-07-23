@@ -11,11 +11,16 @@
 
 namespace FoF\Blog\Query;
 
+use Flarum\Search\Database\DatabaseSearchState;
+use Flarum\Search\Filter\FilterInterface;
 use Flarum\Search\SearchState;
 use Flarum\Settings\SettingsRepositoryInterface;
-use Illuminate\Database\Query\Builder;
-use Flarum\Search\Filter\FilterInterface;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Query\Builder as QueryBuilder;
 
+/**
+ * @implements FilterInterface<DatabaseSearchState>
+ */
 class BlogArticleFilter implements FilterInterface
 {
     public function __construct(protected SettingsRepositoryInterface $settings)
@@ -28,7 +33,7 @@ class BlogArticleFilter implements FilterInterface
 
         $state->getQuery()->where(function (Builder $query) use ($tagsArray, $negate) {
             foreach ($tagsArray as $tagId) {
-                $subquery = function (Builder $query) use ($tagId) {
+                $subquery = function (QueryBuilder $query) use ($tagId) {
                     $query->select('discussion_id')
                         ->from('discussion_tag')
                         ->where('tag_id', $tagId);
