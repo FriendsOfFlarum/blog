@@ -18,7 +18,7 @@ use Flarum\User\User;
 use PHPUnit\Framework\Attributes\Test;
 
 /**
- * Characterizes {@see \FoF\Blog\Listeners\CreateBlogMetaOnDiscussionCreate}:
+ * Characterizes {@see \FoF\Blog\Listener\CreateBlogMetaOnDiscussionCreate}:
  * when a discussion is created with a configured blog tag, a blog_meta row is
  * created automatically, gated on the `blog.writeArticles` permission. A
  * discussion without a blog tag gets no blog_meta.

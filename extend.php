@@ -20,23 +20,21 @@ use Flarum\Discussion\Search\DiscussionSearcher;
 use Flarum\Extend;
 use Flarum\Http\Middleware\ResolveRoute;
 use Flarum\Tags\Api\Resource\TagResource;
+use FoF\Blog\Access;
 use FoF\Blog\Access\ScopeDiscussionVisibility;
 use FoF\Blog\Api\Controller\DeleteDefaultBlogImageController;
 use FoF\Blog\Api\Controller\UploadDefaultBlogImageController;
 use FoF\Blog\Api\ForumResourceFields;
 use FoF\Blog\Api\Resource\BlogMetaResource;
 use FoF\Blog\Api\TagResourceFields;
-use FoF\Blog\BlogMeta\BlogMeta;
-use FoF\Blog\Controller\BlogComposerController;
-use FoF\Blog\Controller\BlogItemController;
-use FoF\Blog\Controller\BlogOverviewController;
-use FoF\Blog\Listeners\CreateBlogMetaOnDiscussionCreate;
+use FoF\Blog\Content;
+use FoF\Blog\Listener\CreateBlogMetaOnDiscussionCreate;
+use FoF\Blog\Listener\UpdateSeoMeta;
 use FoF\Blog\Middleware\RedirectTrailingSlash;
-use FoF\Blog\Query\BlogArticleFilter;
-use FoF\Blog\Query\FilterDiscussionsForBlogPosts;
+use FoF\Blog\Search\Filter\BlogArticleFilter;
+use FoF\Blog\Search\HideBlogPostsFromAllDiscussionsPage;
 use FoF\Blog\SeoPage\SeoBlogArticleMeta;
 use FoF\Blog\SeoPage\SeoBlogOverviewMeta;
-use FoF\Blog\Subscribers\SeoBlogSubscriber;
 
 return [
     // Core resolves trailing-slash URLs internally, but we still want a single
@@ -48,10 +46,10 @@ return [
         ->js(__DIR__.'/js/dist/forum.js')
         ->jsDirectory(__DIR__.'/js/dist/forum')
         ->css(__DIR__.'/less/Forum.less')
-        ->route('/blog', 'blog.overview', BlogOverviewController::class)
-        ->route('/blog/compose', 'blog.compose', BlogComposerController::class)
-        ->route('/blog/category/{category}', 'blog.category', BlogOverviewController::class)
-        ->route('/blog/{id:[\d\S]+(?:-[^/]*)?}', 'blog.post', BlogItemController::class)
+        ->route('/blog', 'blog.overview', Content\Overview::class)
+        ->route('/blog/compose', 'blog.compose', Content\Compose::class)
+        ->route('/blog/category/{category}', 'blog.category', Content\Overview::class)
+        ->route('/blog/{id:[\d\S]+(?:-[^/]*)?}', 'blog.post', Content\Item::class)
     // Shall we add RSS?
     // ->get('/blog/rss.xml', 'blog.rss.xml', RSS::class)
     ,
@@ -71,6 +69,9 @@ return [
 
     (new Extend\ModelVisibility(Discussion::class))
         ->scope(ScopeDiscussionVisibility::class),
+
+    (new Extend\Policy())
+        ->modelPolicy(BlogMeta::class, Access\BlogMetaPolicy::class),
 
     new Extend\ApiResource(BlogMetaResource::class),
 
@@ -97,6 +98,28 @@ return [
                 ->addDefaultInclude(['blogMeta', 'firstPost', 'user'])
         ),
 
+    (new Extend\Settings())
+        ->default('blog_tags', '')
+        ->default('blog_redirects_enabled', 'both')
+        ->default('blog_allow_comments', true)
+        ->default('blog_hide_tags', true)
+        ->default('blog_category_hierarchy', true)
+        ->default('blog_add_sidebar_nav', true)
+        ->default('blog_featured_count', 3)
+        ->default('blog_add_hero', true)
+        ->default('blog_requires_review', false)
+        ->default('blog_filter_discussion_list', false)
+        ->serializeToForum('blogTags', 'blog_tags', fn ($value) => explode('|', (string) $value))
+        ->serializeToForum('blogRedirectsEnabled', 'blog_redirects_enabled', 'strval')
+        ->serializeToForum('blogCommentsEnabled', 'blog_allow_comments', 'boolval')
+        ->serializeToForum('blogHideTags', 'blog_hide_tags', 'boolval')
+        ->serializeToForum('blogDefaultImage', 'blog_default_image_path')
+        ->serializeToForum('blogCategoryHierarchy', 'blog_category_hierarchy', 'boolval')
+        ->serializeToForum('blogAddSidebarNav', 'blog_add_sidebar_nav', 'boolval')
+        ->serializeToForum('blogFeaturedCount', 'blog_featured_count', 'intval')
+        ->serializeToForum('blogAddHero', 'blog_add_hero', 'boolval'),
+
+    // Computed forum attributes that cannot be plain setting serializations.
     (new Extend\ApiResource(Resource\ForumResource::class))
         ->fields(ForumResourceFields::class),
 
@@ -113,10 +136,10 @@ return [
                 ->addExtender('blog_article', SeoBlogArticleMeta::class),
 
             (new Extend\Event())
-                ->subscribe(SeoBlogSubscriber::class),
+                ->subscribe(UpdateSeoMeta::class),
         ]),
 
     (new Extend\SearchDriver(\Flarum\Search\Database\DatabaseSearchDriver::class))
         ->addFilter(DiscussionSearcher::class, BlogArticleFilter::class)
-        ->addMutator(DiscussionSearcher::class, FilterDiscussionsForBlogPosts::class),
+        ->addMutator(DiscussionSearcher::class, HideBlogPostsFromAllDiscussionsPage::class),
 ];

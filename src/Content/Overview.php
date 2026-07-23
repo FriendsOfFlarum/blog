@@ -9,19 +9,20 @@
  * file that was distributed with this source code.
  */
 
-namespace FoF\Blog\Controller;
+namespace FoF\Blog\Content;
 
 use Flarum\Api\Client;
 use Flarum\Extension\ExtensionManager;
 use Flarum\Frontend\Document;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
-class BlogOverviewController
+class Overview
 {
-    public function __construct(protected Client $api, protected TranslatorInterface $translator, protected ExtensionManager $extensionManager)
-    {
+    public function __construct(
+        protected Client $api,
+        protected ExtensionManager $extensionManager
+    ) {
     }
 
     public function __invoke(Document $document, ServerRequestInterface $request): Document
@@ -49,7 +50,6 @@ class BlogOverviewController
             'sort'   => '-createdAt',
         ]);
 
-        // Set payload
         $document->payload['apiDocument'] = $apiDocument;
 
         return $document;
@@ -58,12 +58,9 @@ class BlogOverviewController
     /**
      * Preload blog posts.
      *
-     * @param ServerRequestInterface $request
-     * @param array                  $params
-     *
-     * @return object
+     * @param array<string, mixed> $params
      */
-    private function getApiDocument(ServerRequestInterface $request, array $params)
+    private function getApiDocument(ServerRequestInterface $request, array $params): object
     {
         return json_decode($this->api->withParentRequest($request)->withQueryParams($params)->get('/discussions')->getBody());
     }

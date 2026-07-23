@@ -11,7 +11,7 @@
 
 namespace FoF\Blog\Event;
 
-use FoF\Blog\BlogMeta\BlogMeta;
+use FoF\Blog\BlogMeta;
 
 class BlogMetaCreated
 {

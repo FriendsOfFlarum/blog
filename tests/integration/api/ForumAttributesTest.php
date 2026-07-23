@@ -64,12 +64,12 @@ class ForumAttributesTest extends TestCase
         $this->assertSame([''], $attributes['blogTags']);
         $this->assertSame('both', $attributes['blogRedirectsEnabled']);
         $this->assertNull($attributes['blogDefaultImage']);
-        $this->assertArrayHasKey('blogCommentsEnabled', $attributes);
-        $this->assertArrayHasKey('blogHideTags', $attributes);
-        $this->assertArrayHasKey('blogCategoryHierarchy', $attributes);
-        $this->assertArrayHasKey('blogAddSidebarNav', $attributes);
-        $this->assertArrayHasKey('blogFeaturedCount', $attributes);
-        $this->assertArrayHasKey('blogAddHero', $attributes);
+        $this->assertTrue($attributes['blogCommentsEnabled']);
+        $this->assertTrue($attributes['blogHideTags']);
+        $this->assertTrue($attributes['blogCategoryHierarchy']);
+        $this->assertTrue($attributes['blogAddSidebarNav']);
+        $this->assertSame(3, $attributes['blogFeaturedCount']);
+        $this->assertTrue($attributes['blogAddHero']);
     }
 
     #[Test]

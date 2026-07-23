@@ -12,7 +12,7 @@
 namespace FoF\Blog\Event;
 
 use Flarum\User\User;
-use FoF\Blog\BlogMeta\BlogMeta;
+use FoF\Blog\BlogMeta;
 
 class BlogMetaSaving
 {

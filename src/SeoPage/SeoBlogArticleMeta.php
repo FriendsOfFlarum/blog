@@ -14,8 +14,9 @@ namespace FoF\Blog\SeoPage;
 use Flarum\Discussion\DiscussionRepository;
 use Flarum\Foundation\DispatchEventsTrait;
 use Flarum\Http\UrlGenerator;
+use Flarum\Locale\TranslatorInterface;
 use Flarum\Settings\SettingsRepositoryInterface;
-use FoF\Blog\BlogMeta\BlogMeta;
+use FoF\Blog\BlogMeta;
 use FoF\Seo\Page\PageDriverInterface;
 use FoF\Seo\SeoMeta\SeoMeta;
 use FoF\Seo\SeoProperties;
@@ -24,7 +25,6 @@ use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
 class SeoBlogArticleMeta implements PageDriverInterface
 {
@@ -67,7 +67,7 @@ class SeoBlogArticleMeta implements PageDriverInterface
         SeoProperties $properties
     ): void {
         // Get discussion ID from params. The route param is `<id>-<slug>`, so
-        // cast to int to extract the leading ID (as BlogItemController does).
+        // cast to int to extract the leading ID (as Content\Item does).
         $discussionId = (int) Arr::get($request->getQueryParams(), 'id');
 
         try {

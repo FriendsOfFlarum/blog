@@ -9,21 +9,17 @@
  * file that was distributed with this source code.
  */
 
-namespace FoF\Blog\Controller;
+namespace FoF\Blog\Content;
 
 use Flarum\Api\Client;
 use Flarum\Frontend\Document;
 use Flarum\Http\Exception\RouteNotFoundException;
-use Flarum\Http\UrlGenerator;
-use Flarum\Settings\SettingsRepositoryInterface;
-use Flarum\Tags\TagRepository;
 use Illuminate\Support\Arr;
 use Psr\Http\Message\ServerRequestInterface;
-use Symfony\Contracts\Translation\TranslatorInterface;
 
-class BlogItemController
+class Item
 {
-    public function __construct(protected Client $api, protected UrlGenerator $url, protected SettingsRepositoryInterface $settings, protected TagRepository $tagRepository, protected TranslatorInterface $translator)
+    public function __construct(protected Client $api)
     {
     }
 
@@ -39,21 +35,15 @@ class BlogItemController
             return $document;
         }
 
-        // Set payload
         $document->payload['apiDocument'] = $apiDocument;
 
         return $document;
     }
 
     /**
-     * Preload blog posts.
-     *
-     * @param ServerRequestInterface $request
-     * @param int                    $id
-     *
-     * @return mixed
+     * Preload the blog article.
      */
-    private function getApiDocument(ServerRequestInterface $request, int $id)
+    private function getApiDocument(ServerRequestInterface $request, int $id): mixed
     {
         $response = $this->api->withParentRequest($request)->get("/discussions/{$id}");
 

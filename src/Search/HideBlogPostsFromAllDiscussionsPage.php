@@ -9,18 +9,16 @@
  * file that was distributed with this source code.
  */
 
-namespace FoF\Blog\Query;
+namespace FoF\Blog\Search;
 
 use Flarum\Discussion\Search\FulltextFilter;
 use Flarum\Search\Database\DatabaseSearchState;
 use Flarum\Search\SearchCriteria;
 use Flarum\Settings\SettingsRepositoryInterface;
+use FoF\Blog\Search\Filter\BlogArticleFilter;
 
-class FilterDiscussionsForBlogPosts
+class HideBlogPostsFromAllDiscussionsPage
 {
-    /**
-     * FilterDiscussionsForBlogPosts constructor.
-     */
     public function __construct(protected SettingsRepositoryInterface $settings)
     {
     }

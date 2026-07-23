@@ -9,15 +9,12 @@
  * file that was distributed with this source code.
  */
 
-namespace FoF\Blog\BlogMeta;
+namespace FoF\Blog;
 
 use Flarum\Foundation\AbstractValidator;
 
 class BlogMetaValidator extends AbstractValidator
 {
-    /**
-     * {@inheritdoc}
-     */
     protected array $rules = [
         'featured_image'    => ['string', 'nullable'],
         'summary'           => ['string', 'nullable'],

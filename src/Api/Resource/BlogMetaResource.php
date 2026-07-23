@@ -17,8 +17,8 @@ use Flarum\Api\Endpoint;
 use Flarum\Api\Resource;
 use Flarum\Api\Schema;
 use Flarum\Settings\SettingsRepositoryInterface;
-use FoF\Blog\BlogMeta\BlogMeta;
-use FoF\Blog\BlogMeta\BlogMetaValidator;
+use FoF\Blog\BlogMeta;
+use FoF\Blog\BlogMetaValidator;
 use FoF\Blog\Event\BlogMetaSaving;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
@@ -55,6 +55,8 @@ class BlogMetaResource extends Resource\AbstractDatabaseResource
         // A discussion only ever has one meta record: "creating" meta for a
         // discussion that already has one updates the existing record instead.
         if ($context->creating(self::class) && ($discussionId = Arr::get($context->body(), 'data.relationships.discussion.data.id'))) {
+            BlogMeta::unguard();
+
             return BlogMeta::firstOrNew(['discussion_id' => (int) $discussionId]);
         }
 
@@ -97,8 +99,8 @@ class BlogMetaResource extends Resource\AbstractDatabaseResource
                 ->set(function (BlogMeta $meta, ?bool $value, Context $context) {
                     if (
                         $context->updating()
-                        && (bool) $meta->is_pending_review
-                        && $context->getActor()->can('blog.canApprovePosts')
+                        && $meta->is_pending_review
+                        && $context->getActor()->can('approve', $meta)
                     ) {
                         $meta->is_pending_review = (bool) $value;
                     }

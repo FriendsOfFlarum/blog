@@ -12,10 +12,10 @@
 namespace FoF\Blog\Tests\unit;
 
 use Flarum\Testing\unit\TestCase;
-use FoF\Blog\Subscribers\SeoBlogSubscriber;
+use FoF\Blog\Listener\UpdateSeoMeta;
 use PHPUnit\Framework\Attributes\Test;
 
-class SeoBlogSubscriberTest extends TestCase
+class UpdateSeoMetaTest extends TestCase
 {
     /**
      * New writes must stamp the migrated `fof-blog` Open Graph image source.
@@ -23,7 +23,7 @@ class SeoBlogSubscriberTest extends TestCase
     #[Test]
     public function og_image_source_is_the_migrated_identifier(): void
     {
-        $this->assertSame('fof-blog', SeoBlogSubscriber::OG_IMAGE_SOURCE);
+        $this->assertSame('fof-blog', UpdateSeoMeta::OG_IMAGE_SOURCE);
     }
 
     /**
@@ -33,6 +33,6 @@ class SeoBlogSubscriberTest extends TestCase
     #[Test]
     public function legacy_og_image_source_is_preserved_for_back_compat(): void
     {
-        $this->assertSame('v17development-flarum-blog', SeoBlogSubscriber::LEGACY_OG_IMAGE_SOURCE);
+        $this->assertSame('v17development-flarum-blog', UpdateSeoMeta::LEGACY_OG_IMAGE_SOURCE);
     }
 }
