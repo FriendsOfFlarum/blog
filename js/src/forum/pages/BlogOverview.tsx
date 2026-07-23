@@ -151,9 +151,7 @@ export default class BlogOverview extends Page {
   }
 
   view() {
-    const defaultImage = app.forum.attribute('blogDefaultImageUrl')
-      ? `url(${app.forum.attribute('blogDefaultImageUrl')})`
-      : null;
+    const defaultImage = app.forum.attribute('blogDefaultImageUrl') ? `url(${app.forum.attribute('blogDefaultImageUrl')})` : null;
 
     let LanguageDropdown: typeof LanguageDropdownType | undefined;
     if ('fof-discussion-language' in flarum.extensions) {

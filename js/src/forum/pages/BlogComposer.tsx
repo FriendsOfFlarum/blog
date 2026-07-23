@@ -171,9 +171,7 @@ export default class BlogComposer extends Page<IPageAttrs> {
   articleItems(): ItemList<Mithril.Children> {
     const items = new ItemList<Mithril.Children>();
 
-    const defaultImage = app.forum.attribute('blogDefaultImageUrl')
-      ? `url(${app.forum.attribute<string>('blogDefaultImageUrl')})`
-      : null;
+    const defaultImage = app.forum.attribute('blogDefaultImageUrl') ? `url(${app.forum.attribute<string>('blogDefaultImageUrl')})` : null;
 
     const blogImage = this.blogMeta && this.blogMeta.featuredImage() ? `url(${this.blogMeta.featuredImage()})` : defaultImage;
 
