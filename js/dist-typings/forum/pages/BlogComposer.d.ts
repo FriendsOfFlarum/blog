@@ -1,6 +1,6 @@
 import Page, { IPageAttrs } from 'flarum/common/components/Page';
 import Discussion from 'flarum/common/models/Discussion';
-import Tag from 'flarum/tags/common/models/Tag';
+import Tag from 'ext:flarum/tags/common/models/Tag';
 import Model from 'flarum/common/Model';
 import ItemList from 'flarum/common/utils/ItemList';
 import Stream from 'flarum/common/utils/Stream';

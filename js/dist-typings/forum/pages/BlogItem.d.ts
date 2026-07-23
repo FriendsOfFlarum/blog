@@ -1,4 +1,5 @@
 import Page, { IPageAttrs } from 'flarum/common/components/Page';
+import type PostStreamType from 'flarum/forum/components/PostStream';
 import PostStreamState from 'flarum/forum/states/PostStreamState';
 import ItemList from 'flarum/common/utils/ItemList';
 import Discussion from 'flarum/common/models/Discussion';
@@ -11,6 +12,11 @@ export default class BlogItem extends Page {
     protected found: boolean;
     protected article: Article | null;
     protected stream?: PostStreamState;
+    /**
+     * Core's `PostStream` lives in a lazy chunk, so it is imported on demand
+     * rather than statically.
+     */
+    protected PostStream?: typeof PostStreamType;
     oninit(vnode: Mithril.Vnode<IPageAttrs, this>): void;
     loadBlogItem(): void;
     show(article: Article): void;

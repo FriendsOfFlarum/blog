@@ -1,5 +1,5 @@
-/// <reference types="flarum/@types/translator-icu-rich" />
-import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
+import { IFormModalAttrs } from 'flarum/common/components/FormModal';
+import FormModal from 'flarum/common/components/FormModal';
 import ItemList from 'flarum/common/utils/ItemList';
 import Stream from 'flarum/common/utils/Stream';
 import Model, { type SaveAttributes } from 'flarum/common/Model';
@@ -19,13 +19,13 @@ export interface BlogMeta extends Model {
     isSized: () => boolean;
     isPendingReview: () => boolean;
 }
-export interface BlogPostSettingsModalAttrs extends IInternalModalAttrs {
+export interface BlogPostSettingsModalAttrs extends IFormModalAttrs {
     article?: Discussion;
     meta?: BlogMeta;
     isComposer?: boolean;
     onsubmit?: (meta: BlogMeta) => void;
 }
-export default class BlogPostSettingsModal extends Modal<BlogPostSettingsModalAttrs> {
+export default class BlogPostSettingsModal extends FormModal<BlogPostSettingsModalAttrs> {
     meta: BlogMeta;
     isNew: boolean;
     summary: Stream<string>;
@@ -35,7 +35,7 @@ export default class BlogPostSettingsModal extends Modal<BlogPostSettingsModalAt
     isPendingReview: Stream<boolean>;
     oninit(vnode: Mithril.Vnode<BlogPostSettingsModalAttrs, this>): void;
     className(): string;
-    title(): import("@askvortsov/rich-icu-message-formatter").NestedStringArray;
+    title(): string | any[];
     content(): JSX.Element;
     fields(): ItemList<Mithril.Children>;
     submitData(): SaveAttributes;

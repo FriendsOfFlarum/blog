@@ -1,4 +1,4 @@
-import ComposerBody from 'flarum/forum/components/ComposerBody';
+import ComposerBody, { type IComposerBodyAttrs } from 'flarum/forum/components/ComposerBody';
 import type ComposerState from 'flarum/forum/states/ComposerState';
 import type { ComponentAttrs } from 'flarum/common/Component';
 import type Mithril from 'mithril';
@@ -10,9 +10,11 @@ export interface ComposerAttrs extends ComponentAttrs {
 }
 export default class Composer extends ComposerBody {
     /**
-     * Attributes passed into the composer body.
+     * Attributes passed into the composer body. The blog-specific attrs are
+     * intersected with the base attrs so the declaration stays compatible
+     * with `ComposerBody`.
      */
-    attrs: ComposerAttrs;
+    attrs: ComposerAttrs & IComposerBodyAttrs;
     /**
      * The composer's state, holding the editable fields.
      */
@@ -24,8 +26,8 @@ export default class Composer extends ComposerBody {
     /**
      * Optional handler, provided by subclasses, to jump to the preview pane.
      */
-    jumpToPreview?: (e: Event) => void;
-    oninit(vnode: Mithril.Vnode<ComposerAttrs, this>): void;
+    jumpToPreview?: () => void;
+    oninit(vnode: Mithril.Vnode<ComposerAttrs & IComposerBodyAttrs, this>): void;
     view(): JSX.Element;
     onsubmit(): void;
 }
