@@ -144,4 +144,29 @@ class PendingReviewVisibilityTest extends TestCase
 
         $this->assertNotContains(self::PENDING_BY_AUTHOR, $visible);
     }
+
+    protected function showStatus(?int $authenticatedAs): int
+    {
+        $options = $authenticatedAs !== null ? ['authenticatedAs' => $authenticatedAs] : [];
+
+        return $this->send(
+            $this->request('GET', '/api/discussions/'.self::PENDING_BY_AUTHOR, $options)
+        )->getStatusCode();
+    }
+
+    #[Test]
+    public function pending_article_is_not_fetchable_directly_by_others(): void
+    {
+        // The visibility scope must protect the show endpoint too, not just listings.
+        $this->assertEquals(404, $this->showStatus(2), 'plain member');
+        $this->assertEquals(404, $this->showStatus(self::OTHER_WRITER), 'other writer');
+        $this->assertEquals(404, $this->showStatus(null), 'guest');
+    }
+
+    #[Test]
+    public function pending_article_is_fetchable_by_author_and_approver(): void
+    {
+        $this->assertEquals(200, $this->showStatus(self::AUTHOR), 'author');
+        $this->assertEquals(200, $this->showStatus(self::MODERATOR), 'approver');
+    }
 }

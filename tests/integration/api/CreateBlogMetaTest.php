@@ -15,6 +15,7 @@ use Carbon\Carbon;
 use Flarum\Discussion\Discussion;
 use Flarum\Group\Group;
 use Flarum\Post\Post;
+use Flarum\Tags\Tag;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
 use Flarum\User\User;
@@ -36,6 +37,7 @@ class CreateBlogMetaTest extends TestCase
     const OLD_DISCUSSION = 1;   // created long ago -> conversion, auto-approved
     const FRESH_DISCUSSION = 2; // created just now -> subject to review
     const DISCUSSION_WITH_META = 3;
+    const RESTRICTED_DISCUSSION = 4; // in a restricted tag the writer cannot see
 
     public function setUp(): void
     {
@@ -60,15 +62,24 @@ class CreateBlogMetaTest extends TestCase
             'group_permission' => [
                 ['group_id' => 100, 'permission' => 'blog.writeArticles'],
             ],
+            Tag::class => [
+                // A restricted tag nobody has been granted access to.
+                ['id' => 9, 'name' => 'Staff', 'slug' => 'staff', 'position' => 0, 'is_restricted' => true, 'is_hidden' => false],
+            ],
             Discussion::class => [
                 ['id' => self::OLD_DISCUSSION, 'title' => 'Old discussion', 'slug' => 'old-discussion', 'user_id' => self::WRITER, 'first_post_id' => 1, 'comment_count' => 1, 'created_at' => $old, 'last_posted_at' => $old],
                 ['id' => self::FRESH_DISCUSSION, 'title' => 'Fresh discussion', 'slug' => 'fresh-discussion', 'user_id' => self::WRITER, 'first_post_id' => 2, 'comment_count' => 1, 'created_at' => $now, 'last_posted_at' => $now],
                 ['id' => self::DISCUSSION_WITH_META, 'title' => 'Existing article', 'slug' => 'existing-article', 'user_id' => self::WRITER, 'first_post_id' => 3, 'comment_count' => 1, 'created_at' => $old, 'last_posted_at' => $old],
+                ['id' => self::RESTRICTED_DISCUSSION, 'title' => 'Staff only', 'slug' => 'staff-only', 'user_id' => 1, 'first_post_id' => 4, 'comment_count' => 1, 'created_at' => $old, 'last_posted_at' => $old],
             ],
             Post::class => [
                 ['id' => 1, 'discussion_id' => self::OLD_DISCUSSION, 'number' => 1, 'user_id' => self::WRITER, 'type' => 'comment', 'content' => '<t><p>Old.</p></t>', 'created_at' => $old],
                 ['id' => 2, 'discussion_id' => self::FRESH_DISCUSSION, 'number' => 1, 'user_id' => self::WRITER, 'type' => 'comment', 'content' => '<t><p>Fresh.</p></t>', 'created_at' => $now],
                 ['id' => 3, 'discussion_id' => self::DISCUSSION_WITH_META, 'number' => 1, 'user_id' => self::WRITER, 'type' => 'comment', 'content' => '<t><p>Existing.</p></t>', 'created_at' => $old],
+                ['id' => 4, 'discussion_id' => self::RESTRICTED_DISCUSSION, 'number' => 1, 'user_id' => 1, 'type' => 'comment', 'content' => '<t><p>Secret.</p></t>', 'created_at' => $old],
+            ],
+            'discussion_tag' => [
+                ['discussion_id' => self::RESTRICTED_DISCUSSION, 'tag_id' => 9],
             ],
             'blog_meta' => [
                 ['id' => 1, 'discussion_id' => self::DISCUSSION_WITH_META, 'summary' => 'Original summary.', 'is_featured' => 0, 'is_sized' => 0, 'is_pending_review' => 0],
@@ -155,5 +166,36 @@ class CreateBlogMetaTest extends TestCase
 
         $this->assertEquals(403, $response->getStatusCode());
         $this->assertNull($this->database()->table('blog_meta')->where('discussion_id', self::OLD_DISCUSSION)->first());
+    }
+
+    #[Test]
+    public function the_discussion_relationship_is_required(): void
+    {
+        $response = $this->send(
+            $this->request('POST', '/api/blogMeta', [
+                'authenticatedAs' => self::WRITER,
+                'json'            => [
+                    'data' => [
+                        'type'       => 'blogMeta',
+                        'attributes' => ['summary' => 'Orphan meta.'],
+                    ],
+                ],
+            ])
+        );
+
+        $this->assertEquals(422, $response->getStatusCode());
+        // Only the fixture row for DISCUSSION_WITH_META exists — no orphan was created.
+        $this->assertEquals(1, $this->database()->table('blog_meta')->count());
+    }
+
+    #[Test]
+    public function writer_cannot_attach_meta_to_a_discussion_they_cannot_see(): void
+    {
+        $response = $this->postMeta(self::WRITER, self::RESTRICTED_DISCUSSION, ['summary' => 'Sneaky.']);
+
+        // Relationship resolution goes through the discussion resource's
+        // visibility scope, so an invisible discussion must not resolve.
+        $this->assertGreaterThanOrEqual(400, $response->getStatusCode());
+        $this->assertNull($this->database()->table('blog_meta')->where('discussion_id', self::RESTRICTED_DISCUSSION)->first());
     }
 }

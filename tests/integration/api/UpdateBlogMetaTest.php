@@ -162,6 +162,21 @@ class UpdateBlogMetaTest extends TestCase
     }
 
     #[Test]
+    public function a_published_article_cannot_be_requeued_for_review(): void
+    {
+        // Publish first...
+        $this->patchMeta(self::MODERATOR, ['isPendingReview' => false]);
+        $this->assertFalse($this->isPendingReview());
+
+        // ...then attempt to un-publish: the flag is only writable while the
+        // article is pending, so this is silently ignored.
+        $response = $this->patchMeta(self::MODERATOR, ['isPendingReview' => true]);
+
+        $this->assertEquals(200, $response->getStatusCode());
+        $this->assertFalse($this->isPendingReview());
+    }
+
+    #[Test]
     public function writer_can_update_article_meta(): void
     {
         $response = $this->patchMeta(self::AUTHOR, ['summary' => 'Updated summary.']);

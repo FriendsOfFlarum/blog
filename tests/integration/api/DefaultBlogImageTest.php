@@ -133,6 +133,21 @@ class DefaultBlogImageTest extends TestCase
     }
 
     #[Test]
+    public function replacing_the_image_removes_the_previous_file_from_disk(): void
+    {
+        $this->upload(1, $this->uploadedPng(800, 600));
+        $firstPath = $this->settings()->get('blog_default_image_path');
+        $this->assertTrue($this->assetsDisk()->exists($firstPath));
+
+        $this->upload(1, $this->uploadedPng(640, 480));
+        $secondPath = $this->settings()->get('blog_default_image_path');
+
+        $this->assertNotSame($firstPath, $secondPath);
+        $this->assertTrue($this->assetsDisk()->exists($secondPath), 'Expected the new image on disk');
+        $this->assertFalse($this->assetsDisk()->exists($firstPath), 'Expected the replaced image to be cleaned up');
+    }
+
+    #[Test]
     public function admin_can_delete_the_default_blog_image(): void
     {
         $this->upload(1, $this->uploadedPng(800, 600));
