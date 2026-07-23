@@ -186,6 +186,47 @@ class UpdateBlogMetaTest extends TestCase
     }
 
     #[Test]
+    public function the_settings_modal_edit_payload_round_trips(): void
+    {
+        // Mirrors exactly what BlogPostSettingsModal::submitData() sends when
+        // editing an existing article: all five attributes together, and no
+        // relationships key.
+        $response = $this->patchMeta(self::AUTHOR, [
+            'summary'         => 'Updated summary.',
+            'featuredImage'   => 'https://example.com/cover.jpg',
+            'isFeatured'      => true,
+            'isSized'         => true,
+            'isPendingReview' => false,
+        ]);
+
+        $this->assertEquals(200, $response->getStatusCode());
+
+        $meta = $this->database()->table('blog_meta')->where('id', 1)->first();
+
+        $this->assertSame('Updated summary.', $meta->summary);
+        $this->assertSame('https://example.com/cover.jpg', $meta->featured_image);
+        $this->assertEquals(1, $meta->is_featured);
+        $this->assertEquals(1, $meta->is_sized);
+        // The author cannot approve, so the flag is silently ignored.
+        $this->assertEquals(1, $meta->is_pending_review);
+    }
+
+    #[Test]
+    public function a_stray_relationships_key_inside_attributes_is_rejected(): void
+    {
+        // Documents why the frontend must omit a null `relationships` key from
+        // `Model.save()` attributes: it would be serialized INTO the attributes
+        // hash and rejected as an unknown field (it is not writable data).
+        $response = $this->patchMeta(self::AUTHOR, [
+            'summary'       => 'Updated summary.',
+            'relationships' => null,
+        ]);
+
+        $this->assertEquals(400, $response->getStatusCode());
+        $this->assertSame('Original summary.', $this->database()->table('blog_meta')->where('id', 1)->value('summary'));
+    }
+
+    #[Test]
     public function plain_member_cannot_update_article_meta(): void
     {
         $response = $this->patchMeta(2, ['summary' => 'Hijacked.']);
