@@ -139,6 +139,27 @@ return [
 
             (new Extend\Event())
                 ->subscribe(UpdateSeoMeta::class),
+        ])
+        ->whenExtensionEnabled('flarum-audit', fn () => [
+            (new \Flarum\Audit\Extend\Audit())
+                ->group('fof-blog')
+                ->listen(Event\BlogMetaCreated::class, 'article.created', fn (Event\BlogMetaCreated $event) => [
+                    'discussion_id'  => $event->blogMeta->discussion_id,
+                    'pending_review' => (bool) $event->blogMeta->is_pending_review,
+                ])
+                ->listen(Event\ArticleApproved::class, 'article.approved', fn (Event\ArticleApproved $event) => [
+                    'discussion_id' => $event->blogMeta->discussion_id,
+                ])
+                ->listen(Event\ArticleFeatured::class, 'article.featured', fn (Event\ArticleFeatured $event) => [
+                    'discussion_id' => $event->blogMeta->discussion_id,
+                ])
+                ->listen(Event\ArticleUnfeatured::class, 'article.unfeatured', fn (Event\ArticleUnfeatured $event) => [
+                    'discussion_id' => $event->blogMeta->discussion_id,
+                ])
+                ->listen(Event\BlogMetaUpdated::class, 'article.updated', fn (Event\BlogMetaUpdated $event) => [
+                    'discussion_id' => $event->blogMeta->discussion_id,
+                    'changed'       => $event->changed,
+                ]),
         ]),
 
     (new Extend\SearchDriver(\Flarum\Search\Database\DatabaseSearchDriver::class))
