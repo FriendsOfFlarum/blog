@@ -195,18 +195,25 @@ export default class BlogPostSettingsModal extends FormModal<BlogPostSettingsMod
   }
 
   submitData(): SaveAttributes {
-    return {
+    const data: SaveAttributes = {
       summary: this.summary(),
       featuredImage: this.featuredImage(),
       isFeatured: this.isFeatured(),
       isSized: this.isSized(),
       isPendingReview: this.isPendingReview(),
-      relationships: (this.isNew && !this.attrs.isComposer
-        ? {
-            discussion: this.attrs.article,
-          }
-        : null) as unknown as SaveAttributes['relationships'],
     };
+
+    // Only include the key when there is an actual relationship to send:
+    // `Model.save()` only extracts a truthy `relationships` value — a null one
+    // would be left inside `attributes` and rejected by the API as an unknown
+    // field.
+    if (this.isNew && !this.attrs.isComposer) {
+      data.relationships = {
+        discussion: this.attrs.article,
+      } as unknown as SaveAttributes['relationships'];
+    }
+
+    return data;
   }
 
   onsubmit(e: SubmitEvent) {
