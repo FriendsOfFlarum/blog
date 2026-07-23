@@ -11,8 +11,10 @@ composer require fof/blog
 Then enable **FoF Blog** from the *Administration → Extensions* page (or with
 `php flarum extension:enable fof-blog`).
 
-[`flarum/tags`](https://github.com/flarum/tags) is required and must be enabled —
-blog articles are discussions in designated tags.
+[`flarum/tags`](https://github.com/flarum/tags) and
+[`flarum/lock`](https://github.com/flarum/lock) are required and must be enabled —
+blog articles are discussions in designated tags, and locking powers per-article
+comment control.
 
 ## First-time setup
 
@@ -54,3 +56,4 @@ the `V17Development\FlarumBlog` PHP namespace to `FoF\Blog`, and from the
 | [`fof/rich-text`](https://github.com/FriendsOfFlarum/rich-text) | Rich-text editing in the composer |
 | [`fof/discussion-language`](https://github.com/FriendsOfFlarum/discussion-language) | Per-language blog overviews |
 | [`flarum/sticky`](https://github.com/flarum/sticky) | Sticky indicator on articles |
+| [`flarum/audit`](https://github.com/flarum/audit) | Audit log entries for article creation, approval, (un)featuring and meta edits |

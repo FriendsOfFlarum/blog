@@ -1,23 +1,25 @@
 # FoF Blog
 
-[![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/FriendsOfFlarum/blog/blob/1.x/LICENSE.md) [![Latest Stable Version](https://img.shields.io/packagist/v/fof/blog.svg)](https://packagist.org/packages/fof/blog) [![Total Downloads](https://img.shields.io/packagist/dt/fof/blog.svg)](https://packagist.org/packages/fof/blog)
+[![MIT license](https://img.shields.io/badge/license-MIT-blue.svg)](https://github.com/FriendsOfFlarum/blog/blob/2.x/LICENSE.md) [![Latest Stable Version](https://img.shields.io/packagist/v/fof/blog.svg)](https://packagist.org/packages/fof/blog) [![Total Downloads](https://img.shields.io/packagist/dt/fof/blog.svg)](https://packagist.org/packages/fof/blog)
 
 A [Flarum](https://flarum.org) extension that adds a blog section to your forum — a dedicated blog overview, article pages, and an article composer, built on top of your existing discussions and tags.
 
 ## Documentation
 
-Full documentation lives in the [`docs/`](https://github.com/FriendsOfFlarum/blog/blob/1.x/docs/README.md) folder:
+Full documentation lives in the [`docs/`](https://github.com/FriendsOfFlarum/blog/blob/2.x/docs/README.md) folder:
 
-- [Installation](https://github.com/FriendsOfFlarum/blog/blob/1.x/docs/installation.md)
-- [Features & configuration](https://github.com/FriendsOfFlarum/blog/blob/1.x/docs/features.md)
-- [Permissions & the review workflow](https://github.com/FriendsOfFlarum/blog/blob/1.x/docs/permissions.md)
-- [Developer reference](https://github.com/FriendsOfFlarum/blog/blob/1.x/docs/developers.md)
+- [Installation](https://github.com/FriendsOfFlarum/blog/blob/2.x/docs/installation.md)
+- [Features & configuration](https://github.com/FriendsOfFlarum/blog/blob/2.x/docs/features.md)
+- [Permissions & the review workflow](https://github.com/FriendsOfFlarum/blog/blob/2.x/docs/permissions.md)
+- [Developer reference](https://github.com/FriendsOfFlarum/blog/blob/2.x/docs/developers.md)
 
 ## Requirements
 
-- PHP 8.2 or above
-- Flarum 1.8 or above
-- [`flarum/tags`](https://github.com/flarum/tags)
+- Flarum 2.0 or above (PHP requirements follow Flarum's)
+- [`flarum/tags`](https://github.com/flarum/tags) — articles are tag-based
+- [`flarum/lock`](https://github.com/flarum/lock) — powers per-article comment locking
+
+> Looking for the Flarum 1.x compatible version? Use the [`1.x` branch](https://github.com/FriendsOfFlarum/blog/tree/1.x) / `fof/blog` `^1.0`.
 
 ## Installation
 
@@ -29,6 +31,7 @@ composer require fof/blog:"*"
 
 ```sh
 composer update fof/blog
+php flarum migrate
 php flarum cache:clear
 ```
 
@@ -52,6 +55,16 @@ Third-party extension authors should update any references from the `V17Developm
 
 > **Note:** SEO integration now targets [`fof/seo`](https://github.com/FriendsOfFlarum/seo) (`FoF\Seo`). If you relied on SEO tags for your blog, ensure `fof/seo` is installed and enabled.
 
+## Upgrading from 1.x
+
+Version 2.0 targets Flarum 2.0 and modernises the extension throughout. Notable changes for integrators and theme authors:
+
+- **CSS classes** were consolidated onto the `FoFBlog-` prefix (previously a mix of `FlarumBlog-`, `Flarum-Blog-` and `V17Blog-`). Custom themes targeting the old classes need updating.
+- **API**: the discussion *index* no longer includes `blogMeta`/`firstPost` by default — request `?include=blogMeta` explicitly. Single-discussion responses still include `blogMeta`. When creating an article via `POST /api/discussions`, the blog metadata travels as the write-only `newBlogMeta` attribute (previously `blogMeta`).
+- **PHP**: several classes moved to conventional namespaces (e.g. the model is now `FoF\Blog\BlogMeta`). See the [developer reference](https://github.com/FriendsOfFlarum/blog/blob/2.x/docs/developers.md).
+- **New domain events** (`ArticleApproved`, `ArticleFeatured`, `ArticleUnfeatured`, `BlogMetaUpdated`) and an optional [flarum/audit](https://github.com/flarum/audit) integration.
+- Users with **approve posts** can now publish pending articles without also holding **write articles**.
+
 ## Features
 
 - Adds a **Blog overview** page and **article detail** pages to your forum
@@ -71,8 +84,8 @@ Third-party extension authors should update any references from the `V17Developm
 
 Compatible — but not required — alongside:
 
-- [flarum/tags](https://github.com/flarum/tags) — required; articles are tag-based
 - [flarum/sticky](https://github.com/flarum/sticky) — sticky indicator on articles
+- [flarum/audit](https://github.com/flarum/audit) — audit log entries for article creation, approval, (un)featuring and meta edits
 - [fof/seo](https://github.com/FriendsOfFlarum/seo) — SEO meta & structured data for blog pages
 - [fof/upload](https://github.com/FriendsOfFlarum/upload) — pick a featured image from your uploaded files
 - [fof/rich-text](https://github.com/FriendsOfFlarum/rich-text) — rich-text editing in the composer
@@ -82,23 +95,23 @@ Compatible — but not required — alongside:
 
 ### Blog overview page
 
-![Blog overview](https://raw.githubusercontent.com/FriendsOfFlarum/blog/1.x/docs/images/blog-overview.gif)
+![Blog overview](https://raw.githubusercontent.com/FriendsOfFlarum/blog/2.x/docs/images/blog-overview.gif)
 
 ### Blog article
 
-![Blog article](https://raw.githubusercontent.com/FriendsOfFlarum/blog/1.x/docs/images/blog-article.gif)
+![Blog article](https://raw.githubusercontent.com/FriendsOfFlarum/blog/2.x/docs/images/blog-article.gif)
 
 ### Blog tools
 
-![Blog tools](https://raw.githubusercontent.com/FriendsOfFlarum/blog/1.x/docs/images/blog-tools.png)
+![Blog tools](https://raw.githubusercontent.com/FriendsOfFlarum/blog/2.x/docs/images/blog-tools.png)
 
 ### Blog settings
 
-![Blog settings](https://raw.githubusercontent.com/FriendsOfFlarum/blog/1.x/docs/images/blog-settings.png)
+![Blog settings](https://raw.githubusercontent.com/FriendsOfFlarum/blog/2.x/docs/images/blog-settings.png)
 
 ### Admin settings
 
-![Admin settings](https://raw.githubusercontent.com/FriendsOfFlarum/blog/1.x/docs/images/admin-settings.png)
+![Admin settings](https://raw.githubusercontent.com/FriendsOfFlarum/blog/2.x/docs/images/admin-settings.png)
 
 ## Credits
 
@@ -115,4 +128,4 @@ Sponsored by [Glowing Blue](https://glowingblue.com/).
 
 ## License
 
-This extension is licensed under the MIT License. See the [LICENSE.md](https://github.com/FriendsOfFlarum/blog/blob/1.x/LICENSE.md) file for details.
+This extension is licensed under the MIT License. See the [LICENSE.md](https://github.com/FriendsOfFlarum/blog/blob/2.x/LICENSE.md) file for details.

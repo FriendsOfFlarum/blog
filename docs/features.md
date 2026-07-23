@@ -60,3 +60,11 @@ enabled**, blog overview and article pages emit tailored SEO metadata
 (title, description from the article summary, the featured or default image, and
 `BlogPosting` structured data). The integration is registered conditionally, so
 the blog works fine without SEO installed.
+
+## Audit log
+
+When [`flarum/audit`](https://github.com/flarum/audit) is installed **and
+enabled**, the blog records who did what: article creation, approval,
+featuring/unfeaturing, and meta edits (with the changed fields) all appear in
+the audit log, attributed to the acting user. Like SEO, the integration is
+conditional — nothing is loaded without the audit extension.
