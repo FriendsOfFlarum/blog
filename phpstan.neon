@@ -11,5 +11,4 @@ parameters:
     analyse:
       - *.blade.php
       - vendor/flarum/tags/extend.php
-  checkMissingIterableValueType: false
   databaseMigrationsPath: ['migrations']
