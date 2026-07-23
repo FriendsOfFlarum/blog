@@ -77,6 +77,16 @@ class AuditTest extends TestCase
         ]);
 
         $this->setting('blog_tags', '1');
+
+        // Seed the tag-count settings explicitly: in the very first test
+        // process of a fresh suite, tags' migrations insert these AFTER the
+        // settings cache is warmed, so `validateTagCount()` would read null
+        // and build an invalid `size:` rule (500). This test class sorts first
+        // in the suite, so it is the one exposed.
+        $this->setting('flarum-tags.min_primary_tags', '1');
+        $this->setting('flarum-tags.max_primary_tags', '1');
+        $this->setting('flarum-tags.min_secondary_tags', '0');
+        $this->setting('flarum-tags.max_secondary_tags', '3');
     }
 
     /**
@@ -145,9 +155,11 @@ class AuditTest extends TestCase
             ])
         );
 
-        $this->assertEquals(201, $response->getStatusCode());
+        $body = (string) $response->getBody();
 
-        $id = (int) json_decode($response->getBody()->getContents(), true)['data']['id'];
+        $this->assertEquals(201, $response->getStatusCode(), substr($body, 0, 2000));
+
+        $id = (int) json_decode($body, true)['data']['id'];
 
         $this->assertLogExists('article.created', ['discussion_id' => $id], self::WRITER);
     }
