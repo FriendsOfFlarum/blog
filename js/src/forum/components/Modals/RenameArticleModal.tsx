@@ -1,4 +1,6 @@
-import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
+import Form from 'flarum/common/components/Form';
+import { IFormModalAttrs } from 'flarum/common/components/FormModal';
+import FormModal from 'flarum/common/components/FormModal';
 import Button from 'flarum/common/components/Button';
 import ItemList from 'flarum/common/utils/ItemList';
 import Stream from 'flarum/common/utils/Stream';
@@ -6,13 +8,13 @@ import app from 'flarum/forum/app';
 import type Discussion from 'flarum/common/models/Discussion';
 import type Mithril from 'mithril';
 
-export interface IRenameArticleModalAttrs extends IInternalModalAttrs {
+export interface IRenameArticleModalAttrs extends IFormModalAttrs {
   article: Discussion;
   redirect?: boolean;
   onChange?: (title: string) => void;
 }
 
-export default class RenameArticleModal extends Modal<IRenameArticleModalAttrs> {
+export default class RenameArticleModal extends FormModal<IRenameArticleModalAttrs> {
   protected article!: Discussion;
   protected name!: Stream<string>;
   protected redirect?: boolean;
@@ -38,7 +40,7 @@ export default class RenameArticleModal extends Modal<IRenameArticleModalAttrs> 
   content() {
     return (
       <div className="Modal-body">
-        <div className="Form">{this.fields().toArray()}</div>
+        <Form>{this.fields().toArray()}</Form>
       </div>
     );
   }

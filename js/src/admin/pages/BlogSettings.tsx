@@ -6,7 +6,7 @@ import Alert from 'flarum/common/components/Alert';
 import Button from 'flarum/common/components/Button';
 import FieldSet from 'flarum/common/components/FieldSet';
 import Switch from 'flarum/common/components/Switch';
-import UploadImageButton from 'flarum/admin/components/UploadImageButton';
+import UploadImageButton from 'flarum/common/components/UploadImageButton';
 import type Mithril from 'mithril';
 
 import SelectCategoriesModal from '../components/Modals/SelectCategoriesModal';
@@ -262,6 +262,9 @@ export default class BlogSettings extends ExtensionPage {
               <div className="helpText">{app.translator.trans('fof-blog.admin.settings.default_article_image_text')}</div>,
               UploadImageButton.component({
                 name: 'blog_default_image',
+                routePath: 'blog_default_image',
+                value: app.data.settings['blog_default_image_path'],
+                url: app.forum.attribute('blog_default_imageUrl'),
               }),
             ]
           )}

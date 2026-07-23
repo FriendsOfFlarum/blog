@@ -2,7 +2,7 @@ import Component from 'flarum/common/Component';
 import Link from 'flarum/common/components/Link';
 import Tooltip from 'flarum/common/components/Tooltip';
 import humanTime from 'flarum/common/helpers/humanTime';
-import icon from 'flarum/common/helpers/icon';
+import Icon from 'flarum/common/components/Icon';
 import Discussion from 'flarum/common/models/Discussion';
 import classList from 'flarum/common/utils/classList';
 import ItemList from 'flarum/common/utils/ItemList';
@@ -24,14 +24,14 @@ export default class BlogOverviewItem extends Component<Attrs> {
     items.add('title', <>{article.title()}</>, 100);
 
     if ((blogMeta && blogMeta.isPendingReview()) || article.isHidden()) {
-      items.add('hidden', icon('fas fa-eye-slash', { class: 'BlogList-item-hidden' }), 80);
+      items.add('hidden', <Icon name="fas fa-eye-slash" class="BlogList-item-hidden" />, 80);
     }
 
     if (blogMeta && blogMeta.isPendingReview()) {
       items.add(
         'pendingReview',
         <Tooltip text={app.translator.trans('fof-blog.forum.review_article.pending_review')}>
-          {icon('far fa-clock', { class: 'BlogList-item-pendingReview' })}
+          <Icon name="far fa-clock" class="BlogList-item-pendingReview" />
         </Tooltip>,
         40
       );
@@ -50,7 +50,7 @@ export default class BlogOverviewItem extends Component<Attrs> {
     items.add(
       'createdAt',
       <span class="BlogList-item-details-createdAt">
-        {icon('far fa-clock')} {createdAt ? humanTime(createdAt) : ''}
+        <Icon name="far fa-clock" /> {createdAt ? humanTime(createdAt) : ''}
       </span>,
       100
     );
@@ -58,7 +58,7 @@ export default class BlogOverviewItem extends Component<Attrs> {
     items.add(
       'author',
       <span class="BlogList-item-details-author">
-        {icon('far fa-user')} {(user && user.displayName()) || app.translator.trans('core.lib.username.deleted_text')}
+        <Icon name="far fa-user" /> {(user && user.displayName()) || app.translator.trans('core.lib.username.deleted_text')}
       </span>,
       80
     );
@@ -66,7 +66,7 @@ export default class BlogOverviewItem extends Component<Attrs> {
     items.add(
       'replies',
       <span class="BlogList-item-details-replies">
-        {icon('far fa-comment')} {(article.commentCount() || 1) - 1}
+        <Icon name="far fa-comment" /> {(article.commentCount() || 1) - 1}
       </span>,
       60
     );

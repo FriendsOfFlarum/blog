@@ -1,3 +1,4 @@
+import IndexSidebar from 'flarum/forum/components/IndexSidebar';
 import Mithril from 'mithril';
 import app from 'flarum/forum/app';
 import { extend } from 'flarum/common/extend';
@@ -39,7 +40,7 @@ export default function extendTagOverview(): void {
     return markup;
   });
 
-  extend(IndexPage.prototype, 'navItems', function (this: IndexPage, items: ItemList<Mithril.Children>): void {
+  extend(IndexSidebar.prototype, 'navItems', function (this: IndexPage, items: ItemList<Mithril.Children>): void {
     if (app.forum.attribute<boolean>('blogHideTags') == false) return;
 
     const blogTags = app.forum.attribute<string[]>('blogTags') || [];

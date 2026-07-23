@@ -1,3 +1,4 @@
+import IndexSidebar from 'flarum/forum/components/IndexSidebar';
 import app from 'flarum/forum/app';
 import Component, { ComponentAttrs } from 'flarum/common/Component';
 import IndexPage from 'flarum/forum/components/IndexPage';
@@ -22,6 +23,6 @@ export default class ForumNav extends Component<ForumNavAttrs> {
   }
 
   navItems(): ItemList<Mithril.Children> {
-    return IndexPage.prototype.navItems();
+    return IndexSidebar.prototype.navItems();
   }
 }

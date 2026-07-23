@@ -9,7 +9,7 @@ export { default as extend } from './extend';
 
 app.initializers.add('fof-blog', () => {
   // Register extension settings page
-  app.extensionData.for('fof-blog').registerPage(BlogSettings);
+  app.registry.for('fof-blog').registerPage(BlogSettings);
 
   app.extensionData
     .for('fof-blog')
@@ -56,7 +56,7 @@ app.initializers.add('fof-blog', () => {
     );
   });
 
-  extend(BasicsPage.prototype, 'homePageItems', (items) => {
+  extend(BasicsPage, 'homePageItems', (items) => {
     items.add('blog', {
       path: '/blog',
       label: app.translator.trans('fof-blog.admin.blog'),

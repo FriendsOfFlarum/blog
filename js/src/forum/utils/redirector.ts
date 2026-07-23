@@ -8,7 +8,7 @@ import type Tag from 'flarum/tags/common/models/Tag';
 export default function (): void {
   // Redirect tag to blog category
   extend(IndexPage.prototype, 'oncreate', function (this: IndexPage & { currentTag?: () => Tag | undefined }) {
-    const tag = this.currentTag?.();
+    const tag = app.currentTag?.();
     const tagRedirectEnabled = app.forum.attribute('blogRedirectsEnabled') === 'both' || app.forum.attribute('blogRedirectsEnabled') === 'tags_only';
 
     // Only trigger when it's a tag page and the redirects are enabled

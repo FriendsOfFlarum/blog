@@ -1,5 +1,7 @@
+import Form from 'flarum/common/components/Form';
 import app from 'flarum/forum/app';
-import Modal, { IInternalModalAttrs } from 'flarum/common/components/Modal';
+import { IFormModalAttrs } from 'flarum/common/components/FormModal';
+import FormModal from 'flarum/common/components/FormModal';
 import Button from 'flarum/common/components/Button';
 import ItemList from 'flarum/common/utils/ItemList';
 import Stream from 'flarum/common/utils/Stream';
@@ -26,14 +28,14 @@ export interface BlogMeta extends Model {
   isPendingReview: () => boolean;
 }
 
-export interface BlogPostSettingsModalAttrs extends IInternalModalAttrs {
+export interface BlogPostSettingsModalAttrs extends IFormModalAttrs {
   article?: Discussion;
   meta?: BlogMeta;
   isComposer?: boolean;
   onsubmit?: (meta: BlogMeta) => void;
 }
 
-export default class BlogPostSettingsModal extends Modal<BlogPostSettingsModalAttrs> {
+export default class BlogPostSettingsModal extends FormModal<BlogPostSettingsModalAttrs> {
   meta!: BlogMeta;
   isNew!: boolean;
 
@@ -77,7 +79,7 @@ export default class BlogPostSettingsModal extends Modal<BlogPostSettingsModalAt
   content() {
     return (
       <div className="Modal-body">
-        <div className="Form">{this.fields().toArray()}</div>
+        <Form>{this.fields().toArray()}</Form>
       </div>
     );
   }
