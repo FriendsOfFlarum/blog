@@ -23,25 +23,19 @@ use Psr\Http\Message\ServerRequestInterface;
 class DeleteDefaultBlogImageController extends AbstractDeleteController
 {
     /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
      * @var Filesystem
      */
     protected $uploadDir;
 
-    public function __construct(SettingsRepositoryInterface $settings, Factory $filesystemFactory)
+    public function __construct(protected SettingsRepositoryInterface $settings, Factory $filesystemFactory)
     {
-        $this->settings = $settings;
         $this->uploadDir = $filesystemFactory->disk('flarum-assets');
     }
 
     /**
      * {@inheritdoc}
      */
-    protected function delete(ServerRequestInterface $request): ResponseInterface
+    protected function delete(ServerRequestInterface $request): void
     {
         RequestUtil::getActor($request)->assertAdmin();
 

@@ -20,26 +20,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class BlogOverviewController
 {
-    /**
-     * @var Client
-     */
-    protected $api;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @var ExtensionManager
-     */
-    protected $extensionManager;
-
-    public function __construct(Client $api, TranslatorInterface $translator, ExtensionManager $extensionManager)
+    public function __construct(protected Client $api, protected TranslatorInterface $translator, protected ExtensionManager $extensionManager)
     {
-        $this->api = $api;
-        $this->translator = $translator;
-        $this->extensionManager = $extensionManager;
     }
 
     public function __invoke(Document $document, ServerRequestInterface $request): Document

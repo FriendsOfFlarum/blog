@@ -23,38 +23,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class BlogItemController
 {
-    /**
-     * @var Client
-     */
-    protected $api;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @var TagRepository
-     */
-    protected $tagRepository;
-
-    public function __construct(Client $api, UrlGenerator $url, SettingsRepositoryInterface $settings, TagRepository $tagRepository, TranslatorInterface $translator)
+    public function __construct(protected Client $api, protected UrlGenerator $url, protected SettingsRepositoryInterface $settings, protected TagRepository $tagRepository, protected TranslatorInterface $translator)
     {
-        $this->api = $api;
-        $this->url = $url;
-        $this->settings = $settings;
-        $this->translator = $translator;
-        $this->tagRepository = $tagRepository;
     }
 
     public function __invoke(Document $document, ServerRequestInterface $request): Document

@@ -19,19 +19,12 @@ use Illuminate\Contracts\Filesystem\Factory;
 class AttachForumSerializerAttributes
 {
     /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
      * @var Cloud
      */
     protected $assetsDir;
 
-    public function __construct(SettingsRepositoryInterface $settings, Factory $filesystemFactory)
+    public function __construct(protected SettingsRepositoryInterface $settings, Factory $filesystemFactory)
     {
-        $this->settings = $settings;
-
         /** @var Cloud $assetsDir */
         $assetsDir = $filesystemFactory->disk('flarum-assets');
         $this->assetsDir = $assetsDir;

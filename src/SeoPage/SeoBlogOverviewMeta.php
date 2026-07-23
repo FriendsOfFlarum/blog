@@ -27,35 +27,13 @@ class SeoBlogOverviewMeta implements PageDriverInterface
 {
     use DispatchEventsTrait;
 
-    /**
-     * @var TagRepository
-     */
-    protected $tagRepository;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $urlGenerator;
-
-    /**
-     * @param TagRepository $tagRepository
-     * @param Dispatcher    $events
-     */
     public function __construct(
-        TagRepository $tagRepository,
+        protected TagRepository $tagRepository,
         Dispatcher $events,
-        TranslatorInterface $translator,
-        UrlGenerator $urlGenerator,
+        protected TranslatorInterface $translator,
+        protected UrlGenerator $urlGenerator,
     ) {
-        $this->tagRepository = $tagRepository;
         $this->events = $events;
-        $this->translator = $translator;
-        $this->urlGenerator = $urlGenerator;
     }
 
     public function extensionDependencies(): array

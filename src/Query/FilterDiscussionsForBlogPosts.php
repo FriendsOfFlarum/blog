@@ -19,19 +19,11 @@ use Flarum\Settings\SettingsRepositoryInterface;
 class FilterDiscussionsForBlogPosts
 {
     /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
      * FilterDiscussionsForBlogPosts constructor.
      *
-     * @param SettingsRepositoryInterface $settings
-     */
-    public function __construct(SettingsRepositoryInterface $settings)
+    
+    public function __construct(protected SettingsRepositoryInterface $settings)
     {
-        // Get forum settings
-        $this->settings = $settings;
     }
 
     /**

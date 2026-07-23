@@ -30,17 +30,8 @@ class ListBlogPostsController extends AbstractListController
 
     public $sortFields = ['id'];
 
-    /**
-     * @var UrlGenerator
-     */
-    protected $url;
-
-    /**
-     * @param UrlGenerator $url
-     */
-    public function __construct(UrlGenerator $url)
+    public function __construct(protected UrlGenerator $url)
     {
-        $this->url = $url;
     }
 
     /**

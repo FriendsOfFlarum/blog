@@ -17,18 +17,8 @@ use Flarum\Tags\Tag;
 
 class AttatchTagSerializerAttributes
 {
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @param SettingsRepositoryInterface $settings
-     */
-    public function __construct(SettingsRepositoryInterface $settings)
+    public function __construct(protected SettingsRepositoryInterface $settings)
     {
-        // Get Flarum settings
-        $this->settings = $settings;
     }
 
     /**

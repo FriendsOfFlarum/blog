@@ -18,7 +18,7 @@ class BlogMetaValidator extends AbstractValidator
     /**
      * {@inheritdoc}
      */
-    protected $rules = [
+    protected array $rules = [
         'featured_image'    => ['string', 'nullable'],
         'summary'           => ['string', 'nullable'],
         'is_featured'       => ['boolean'],

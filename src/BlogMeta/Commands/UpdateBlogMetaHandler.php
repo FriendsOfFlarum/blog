@@ -23,38 +23,8 @@ use Symfony\Contracts\Translation\TranslatorInterface;
 
 class UpdateBlogMetaHandler
 {
-    /**
-     * @var DiscussionRepository
-     */
-    protected $discussion;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var BlogMetaValidator
-     */
-    protected $validator;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $dispatcher;
-
-    public function __construct(DiscussionRepository $discussion, TranslatorInterface $translator, SettingsRepositoryInterface $settings, BlogMetaValidator $validator, Dispatcher $dispatcher)
+    public function __construct(protected DiscussionRepository $discussion, protected TranslatorInterface $translator, protected SettingsRepositoryInterface $settings, protected BlogMetaValidator $validator, protected Dispatcher $dispatcher)
     {
-        $this->discussion = $discussion;
-        $this->translator = $translator;
-        $this->settings = $settings;
-        $this->validator = $validator;
-        $this->dispatcher = $dispatcher;
     }
 
     /**

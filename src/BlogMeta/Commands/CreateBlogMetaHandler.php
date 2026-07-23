@@ -25,43 +25,8 @@ class CreateBlogMetaHandler
 {
     use DispatchEventsTrait;
 
-    /**
-     * @var DiscussionRepository
-     */
-    protected $discussion;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
-     * @var BlogMetaValidator
-     */
-    protected $validator;
-
-    /**
-     * @var Dispatcher
-     */
-    protected $events;
-
-    public function __construct(
-        DiscussionRepository $discussion,
-        TranslatorInterface $translator,
-        SettingsRepositoryInterface $settings,
-        BlogMetaValidator $validator,
-        Dispatcher $events
-    ) {
-        $this->discussion = $discussion;
-        $this->translator = $translator;
-        $this->settings = $settings;
-        $this->validator = $validator;
-        $this->events = $events;
+    public function __construct(protected DiscussionRepository $discussion, protected TranslatorInterface $translator, protected SettingsRepositoryInterface $settings, protected BlogMetaValidator $validator, protected Dispatcher $events)
+    {
     }
 
     /**
@@ -94,7 +59,7 @@ class CreateBlogMetaHandler
         $blogMeta->is_sized = Arr::get($data, 'attributes.isSized', false);
 
         // Auto approve if an article already existed or it does not require a review
-        if ($discussion->created_at->diffInSeconds(\Carbon\Carbon::now()) > 30 || $this->settings->get('blog_requires_review', false) == false) {
+        if ($discussion->created_at->diffInSeconds(\Carbon\Carbon::now(), true) > 30 || $this->settings->get('blog_requires_review', false) == false) {
             $blogMeta->is_pending_review = false;
         } else {
             $blogMeta->is_pending_review = !$actor->can('blog.autoApprovePosts');

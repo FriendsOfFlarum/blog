@@ -15,19 +15,7 @@ use Flarum\User\User;
 
 class CreateBlogMeta
 {
-    /**
-     * @var User
-     */
-    public $actor;
-
-    /**
-     * @var array<string, mixed>
-     */
-    public $data;
-
-    public function __construct(User $actor, array $data)
+    public function __construct(public User $actor, public array $data)
     {
-        $this->actor = $actor;
-        $this->data = $data;
     }
 }

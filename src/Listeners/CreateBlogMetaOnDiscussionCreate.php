@@ -24,11 +24,6 @@ class CreateBlogMetaOnDiscussionCreate
     use DispatchEventsTrait;
 
     /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
      * @var string[]
      */
     protected $blogTags;
@@ -36,14 +31,11 @@ class CreateBlogMetaOnDiscussionCreate
     /**
      * CreateBlogMetaOnDiscussionCreate constructor.
      *
-     * @param SettingsRepositoryInterface $settings
-     */
+    
     public function __construct(
-        SettingsRepositoryInterface $settings,
+        protected SettingsRepositoryInterface $settings,
         Dispatcher $events
     ) {
-        // Get Flarum settings
-        $this->settings = $settings;
         $this->events = $events;
         $this->blogTags = explode('|', $this->settings->get('blog_tags', ''));
     }

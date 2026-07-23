@@ -31,47 +31,19 @@ class SeoBlogArticleMeta implements PageDriverInterface
     use DispatchEventsTrait;
 
     /**
-     * @var DiscussionRepository
-     */
-    protected $discussionRepository;
-
-    /**
-     * @var UrlGenerator
-     */
-    protected $urlGenerator;
-
-    /**
-     * @var TranslatorInterface
-     */
-    protected $translator;
-
-    /**
-     * @var SettingsRepositoryInterface
-     */
-    protected $settings;
-
-    /**
      * @var Cloud
      */
     protected $assetsDir;
 
-    /**
-     * @param DiscussionRepository $discussionRepository
-     * @param TranslatorInterface  $translator
-     */
     public function __construct(
-        DiscussionRepository $discussionRepository,
-        UrlGenerator $urlGenerator,
+        protected DiscussionRepository $discussionRepository,
+        protected UrlGenerator $urlGenerator,
         Dispatcher $events,
-        TranslatorInterface $translator,
-        SettingsRepositoryInterface $settings,
+        protected TranslatorInterface $translator,
+        protected SettingsRepositoryInterface $settings,
         Factory $filesystemFactory
     ) {
-        $this->discussionRepository = $discussionRepository;
-        $this->urlGenerator = $urlGenerator;
         $this->events = $events;
-        $this->translator = $translator;
-        $this->settings = $settings;
 
         /** @var Cloud $assetsDir */
         $assetsDir = $filesystemFactory->disk('flarum-assets');

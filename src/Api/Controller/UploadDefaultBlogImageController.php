@@ -30,16 +30,9 @@ class UploadDefaultBlogImageController extends UploadImageController
      */
     protected $filenamePrefix = 'blog_default_image';
 
-    /**
-     * @var ImageManager
-     */
-    protected $imageManager;
-
-    public function __construct(SettingsRepositoryInterface $settings, Factory $filesystemFactory, ImageManager $imageManager)
+    public function __construct(SettingsRepositoryInterface $settings, Factory $filesystemFactory, protected ImageManager $imageManager)
     {
         parent::__construct($settings, $filesystemFactory);
-
-        $this->imageManager = $imageManager;
     }
 
     /**
