@@ -17,9 +17,7 @@ namespace FoF\Blog\Tests\integration;
  */
 class ExtensionBootsTest extends ForumTestCase
 {
-    /**
-     * @test
-     */
+    #[Test]
     public function forum_loads_with_extension_enabled(): void
     {
         $response = $this->send($this->request('GET', '/'));

@@ -12,6 +12,7 @@
 namespace FoF\Blog\Tests\integration\forum;
 
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
 
 /**
  * The blog SEO page drivers must use the migrated `fof-blog.*` translation keys.
@@ -37,9 +38,7 @@ class SeoBlogTitleTest extends TestCase
         return (string) $response->getBody();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function blog_overview_title_does_not_leak_the_raw_translation_key(): void
     {
         $html = $this->fetchHtml('/blog');
@@ -52,8 +51,8 @@ class SeoBlogTitleTest extends TestCase
      * rendered verbatim. We assert the title references the migrated `fof-blog`
      * key rather than the dead `v17development-flarum-blog` one.
      *
-     * @test
      */
+    #[Test]
     public function blog_overview_title_uses_the_migrated_translation_key(): void
     {
         $html = $this->fetchHtml('/blog');

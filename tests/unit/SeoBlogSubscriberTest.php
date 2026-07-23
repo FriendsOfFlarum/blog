@@ -13,14 +13,15 @@ namespace FoF\Blog\Tests\unit;
 
 use Flarum\Testing\unit\TestCase;
 use FoF\Blog\Subscribers\SeoBlogSubscriber;
+use PHPUnit\Framework\Attributes\Test;
 
 class SeoBlogSubscriberTest extends TestCase
 {
     /**
      * New writes must stamp the migrated `fof-blog` Open Graph image source.
      *
-     * @test
      */
+    #[Test]
     public function og_image_source_is_the_migrated_identifier(): void
     {
         $this->assertSame('fof-blog', SeoBlogSubscriber::OG_IMAGE_SOURCE);
@@ -30,8 +31,8 @@ class SeoBlogSubscriberTest extends TestCase
      * The pre-migration identifier must stay recognised so images stored by
      * v17development/flarum-blog remain owned by this extension.
      *
-     * @test
      */
+    #[Test]
     public function legacy_og_image_source_is_preserved_for_back_compat(): void
     {
         $this->assertSame('v17development-flarum-blog', SeoBlogSubscriber::LEGACY_OG_IMAGE_SOURCE);

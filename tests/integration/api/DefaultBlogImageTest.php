@@ -18,6 +18,8 @@ use Illuminate\Contracts\Filesystem\Cloud;
 use Illuminate\Contracts\Filesystem\Factory;
 use Intervention\Image\ImageManager;
 use Laminas\Diactoros\UploadedFile;
+use PHPUnit\Framework\Attributes\Test;
+use Flarum\User\User;
 
 /**
  * Characterizes the admin default blog image upload/delete
@@ -38,7 +40,7 @@ class DefaultBlogImageTest extends TestCase
         $this->extension('fof-blog');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
         ]);
@@ -78,9 +80,7 @@ class DefaultBlogImageTest extends TestCase
         return $this->send($request);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_can_upload_a_default_blog_image_to_the_assets_disk(): void
     {
         $response = $this->upload(1, $this->uploadedPng(800, 600));
@@ -93,9 +93,7 @@ class DefaultBlogImageTest extends TestCase
         $this->assertTrue($this->assetsDisk()->exists($path), 'Expected the image to exist on the flarum-assets disk');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function oversized_upload_is_downscaled_within_the_caps(): void
     {
         // Far larger than the 2000x1200 caps.
@@ -113,9 +111,7 @@ class DefaultBlogImageTest extends TestCase
         $this->assertSame(1500, $image->width());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function smaller_image_is_not_upscaled(): void
     {
         $this->upload(1, $this->uploadedPng(640, 480));
@@ -127,9 +123,7 @@ class DefaultBlogImageTest extends TestCase
         $this->assertSame(480, $image->height());
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_can_delete_the_default_blog_image(): void
     {
         $this->upload(1, $this->uploadedPng(800, 600));
@@ -145,9 +139,7 @@ class DefaultBlogImageTest extends TestCase
         $this->assertFalse($this->assetsDisk()->exists($path), 'Expected the image to be removed from the disk');
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function non_admin_cannot_upload_a_default_blog_image(): void
     {
         // normalUser() (id 2) is not an admin.

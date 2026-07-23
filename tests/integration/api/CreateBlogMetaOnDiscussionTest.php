@@ -13,6 +13,9 @@ namespace FoF\Blog\Tests\integration\api;
 
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
+use Flarum\User\User;
+use Flarum\Tags\Tag;
 
 /**
  * Characterizes {@see \FoF\Blog\Listeners\CreateBlogMetaOnDiscussionCreate}:
@@ -31,10 +34,10 @@ class CreateBlogMetaOnDiscussionTest extends TestCase
         $this->extension('flarum-tags', 'fof-blog');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
-            'tags' => [
+            Tag::class => [
                 ['id' => 1, 'name' => 'Blog', 'slug' => 'blog', 'position' => 0, 'is_restricted' => false, 'is_hidden' => false],
                 ['id' => 2, 'name' => 'General', 'slug' => 'general', 'position' => 1, 'is_restricted' => false, 'is_hidden' => false],
             ],
@@ -74,9 +77,7 @@ class CreateBlogMetaOnDiscussionTest extends TestCase
         return $this->database()->table('blog_meta')->where('discussion_id', $discussionId)->count();
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_creating_a_discussion_with_the_blog_tag_creates_blog_meta(): void
     {
         $response = $this->createDiscussion(1, [1]);
@@ -88,9 +89,7 @@ class CreateBlogMetaOnDiscussionTest extends TestCase
         $this->assertSame(1, $this->blogMetaCount((int) $id));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function discussion_without_the_blog_tag_does_not_create_blog_meta(): void
     {
         $response = $this->createDiscussion(1, [2]);
@@ -102,9 +101,7 @@ class CreateBlogMetaOnDiscussionTest extends TestCase
         $this->assertSame(0, $this->blogMetaCount((int) $id));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function user_without_write_permission_cannot_create_a_blog_article(): void
     {
         // normalUser() (id 2) is not a moderator, so lacks blog.writeArticles.

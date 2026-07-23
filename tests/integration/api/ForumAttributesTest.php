@@ -13,6 +13,8 @@ namespace FoF\Blog\Tests\integration\api;
 
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
+use Flarum\User\User;
 
 /**
  * Characterizes the blog attributes injected onto the Forum serializer payload
@@ -31,7 +33,7 @@ class ForumAttributesTest extends TestCase
         $this->extension('fof-blog');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
             ],
         ]);
@@ -53,9 +55,7 @@ class ForumAttributesTest extends TestCase
         return $body['data']['attributes'];
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function forum_payload_exposes_blog_default_attributes_for_a_guest(): void
     {
         $attributes = $this->forumAttributes();
@@ -72,9 +72,7 @@ class ForumAttributesTest extends TestCase
         $this->assertArrayHasKey('blogAddHero', $attributes);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function blog_tags_setting_is_split_on_pipe(): void
     {
         $this->setting('blog_tags', '1|2|3');
@@ -84,9 +82,7 @@ class ForumAttributesTest extends TestCase
         $this->assertSame(['1', '2', '3'], $attributes['blogTags']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guest_cannot_write_or_approve_blog_posts(): void
     {
         $attributes = $this->forumAttributes();
@@ -95,9 +91,7 @@ class ForumAttributesTest extends TestCase
         $this->assertFalse($attributes['canApproveBlogPosts']);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function admin_can_write_and_approve_blog_posts(): void
     {
         $attributes = $this->forumAttributes(1);

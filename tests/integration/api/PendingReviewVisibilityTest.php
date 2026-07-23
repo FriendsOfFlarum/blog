@@ -14,6 +14,11 @@ namespace FoF\Blog\Tests\integration\api;
 use Carbon\Carbon;
 use Flarum\Testing\integration\RetrievesAuthorizedUsers;
 use Flarum\Testing\integration\TestCase;
+use PHPUnit\Framework\Attributes\Test;
+use Flarum\User\User;
+use Flarum\Group\Group;
+use Flarum\Discussion\Discussion;
+use Flarum\Post\Post;
 
 /**
  * Blog articles pending review must only be visible to a user who can approve
@@ -43,12 +48,12 @@ class PendingReviewVisibilityTest extends TestCase
         $now = Carbon::parse('2025-01-01 00:00:00');
 
         $this->prepareDatabase([
-            'users' => [
+            User::class => [
                 $this->normalUser(),
                 ['id' => self::AUTHOR, 'username' => 'author', 'email' => 'author@machine.local', 'is_email_confirmed' => 1],
                 ['id' => self::OTHER_WRITER, 'username' => 'writer', 'email' => 'writer@machine.local', 'is_email_confirmed' => 1],
             ],
-            'groups' => [
+            Group::class => [
                 ['id' => 100, 'name_singular' => 'Writer', 'name_plural' => 'Writers'],
             ],
             'group_user' => [
@@ -59,11 +64,11 @@ class PendingReviewVisibilityTest extends TestCase
                 // Writers can write, but cannot approve.
                 ['group_id' => 100, 'permission' => 'blog.writeArticles'],
             ],
-            'discussions' => [
+            Discussion::class => [
                 ['id' => self::PUBLISHED, 'title' => 'Published', 'slug' => 'published', 'user_id' => self::AUTHOR, 'first_post_id' => 1, 'comment_count' => 1, 'created_at' => $now, 'last_posted_at' => $now, 'is_private' => 0],
                 ['id' => self::PENDING_BY_AUTHOR, 'title' => 'Pending', 'slug' => 'pending', 'user_id' => self::AUTHOR, 'first_post_id' => 2, 'comment_count' => 1, 'created_at' => $now, 'last_posted_at' => $now, 'is_private' => 0],
             ],
-            'posts' => [
+            Post::class => [
                 ['id' => 1, 'discussion_id' => self::PUBLISHED, 'number' => 1, 'user_id' => self::AUTHOR, 'type' => 'comment', 'content' => '<t><p>Published.</p></t>', 'created_at' => $now],
                 ['id' => 2, 'discussion_id' => self::PENDING_BY_AUTHOR, 'number' => 1, 'user_id' => self::AUTHOR, 'type' => 'comment', 'content' => '<t><p>Pending.</p></t>', 'created_at' => $now],
             ],
@@ -89,25 +94,19 @@ class PendingReviewVisibilityTest extends TestCase
         return array_map(fn ($d) => (int) $d['id'], $body['data'] ?? []);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function approver_sees_pending_articles(): void
     {
         $this->assertContains(self::PENDING_BY_AUTHOR, $this->visibleIds(self::APPROVER));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function author_sees_their_own_pending_article(): void
     {
         $this->assertContains(self::PENDING_BY_AUTHOR, $this->visibleIds(self::AUTHOR));
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function other_writer_does_not_see_someone_elses_pending_article(): void
     {
         $visible = $this->visibleIds(self::OTHER_WRITER);
@@ -116,9 +115,7 @@ class PendingReviewVisibilityTest extends TestCase
         $this->assertNotContains(self::PENDING_BY_AUTHOR, $visible);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function plain_member_does_not_see_pending_articles(): void
     {
         $visible = $this->visibleIds(2); // normalUser, no blog permissions
@@ -127,9 +124,7 @@ class PendingReviewVisibilityTest extends TestCase
         $this->assertNotContains(self::PENDING_BY_AUTHOR, $visible);
     }
 
-    /**
-     * @test
-     */
+    #[Test]
     public function guest_does_not_see_pending_articles(): void
     {
         $visible = $this->visibleIds(null);
