@@ -24,7 +24,7 @@ export default function (): void {
   });
 
   // Redirect discussion to blog article
-  override(DiscussionPage.prototype, 'show', function (this: DiscussionPage, original, discussion: Discussion) {
+  override(DiscussionPage.prototype, 'show', function (this: DiscussionPage, original, discussion: Discussion, ...rest: unknown[]) {
     const discussionRedirectEnabled =
       app.forum.attribute('blogRedirectsEnabled') === 'both' || app.forum.attribute('blogRedirectsEnabled') === 'discussions_only';
 
@@ -51,6 +51,10 @@ export default function (): void {
       }
     }
 
-    return original(discussion as unknown as Parameters<typeof original>[0]);
+    // Forward every argument: show() also receives the page of posts that
+    // core preloaded (embedded in the server-rendered document, or fetched in
+    // parallel with the discussion). Dropping it makes the post stream
+    // re-request posts core had already loaded.
+    return original(...([discussion, ...rest] as Parameters<typeof original>));
   });
 }
