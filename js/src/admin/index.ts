@@ -12,13 +12,16 @@ app.initializers.add('fof-blog', () => {
 
   // Add the blog's custom permission category to the permission grid
   extend(PermissionGrid.prototype, 'permissionItems', function (items) {
+    // The admin search calls permissionItems() on the prototype, where there are no attrs.
+    const extensionId = (this.attrs as { extensionId?: string } | undefined)?.extensionId;
+
     // Add blog permissions
     items.add(
       'blog',
       {
         label: app.translator.trans('fof-blog.admin.blog'),
-        children: this.attrs.extensionId
-          ? app.registry.getExtensionPermissions(this.attrs.extensionId!, BLOG_PERMISSION_CATEGORY).toArray()
+        children: extensionId
+          ? app.registry.getExtensionPermissions(extensionId, BLOG_PERMISSION_CATEGORY).toArray()
           : app.registry.getAllPermissions(BLOG_PERMISSION_CATEGORY).toArray(),
       },
       80
