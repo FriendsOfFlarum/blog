@@ -15,6 +15,16 @@ interface Attrs {
 }
 
 export default class FeaturedBlogItem extends Component<Attrs> {
+  titleItems(): ItemList<Mithril.Children> {
+    const { article } = this.attrs;
+
+    const items = new ItemList<Mithril.Children>();
+
+    items.add('title', <>{article.title()}</>, 100);
+
+    return items;
+  }
+
   topItems(): ItemList<Mithril.Children> {
     const { article } = this.attrs;
     const blogMeta = article.blogMeta();
@@ -127,7 +137,7 @@ export default class FeaturedBlogItem extends Component<Attrs> {
         <div class="BlogFeatured-list-item-top">{this.topItems().toArray()}</div>
 
         <div className={'BlogFeatured-list-item-details'}>
-          <h4>{article.title()}</h4>
+          <h4>{this.titleItems().toArray()}</h4>
 
           <div className={'data'}>{this.dataItems().toArray()}</div>
         </div>
