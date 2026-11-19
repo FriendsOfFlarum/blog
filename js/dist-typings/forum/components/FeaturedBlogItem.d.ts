@@ -7,6 +7,7 @@ interface Attrs {
     defaultImage: string;
 }
 export default class FeaturedBlogItem extends Component<Attrs> {
+    detailItems(): ItemList<Mithril.Children>;
     topItems(): ItemList<Mithril.Children>;
     dataItems(): ItemList<Mithril.Children>;
     view(vnode: Mithril.Vnode<Attrs, this>): JSX.Element;
