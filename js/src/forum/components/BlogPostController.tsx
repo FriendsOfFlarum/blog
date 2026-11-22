@@ -252,7 +252,7 @@ export default class BlogPostController extends Component<BlogPostControllerAttr
         <div className={'FoFBlog-Article-Content-Edit-Dropdown'}>
           <Dropdown
             icon="fas fa-cog"
-            label="Manage"
+            label={app.translator.trans('fof-blog.forum.tools.manage')}
             buttonClassName="Button"
             menuClassName="Dropdown-menu--right"
             onshow={() => {

@@ -78,6 +78,7 @@ fof-blog:
       approve_article_approved: "The article has been approved and published"
 
     tools:
+      manage: "Manage"
       rename_article: "Rename article"
       edit_article: "Edit article"
       update_category: "Update categories"
