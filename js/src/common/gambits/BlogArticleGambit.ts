@@ -6,6 +6,10 @@ export default class BlogArticleGambit extends BooleanGambit {
     return app.translator.trans('fof-blog.lib.gambits.blog.key', {}, true);
   }
 
+  canonicalKey(): string {
+    return 'blog';
+  }
+
   filterKey(): string {
     return 'blog';
   }
