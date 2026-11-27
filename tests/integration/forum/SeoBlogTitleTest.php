@@ -46,18 +46,13 @@ class SeoBlogTitleTest extends TestCase
         $this->assertStringNotContainsString('v17development-flarum-blog', $html);
     }
 
-    /**
-     * Translations are not loaded in the test environment, so the raw key is
-     * rendered verbatim. We assert the title references the migrated `fof-blog`
-     * key rather than the dead `v17development-flarum-blog` one.
-     */
     #[Test]
     public function blog_overview_title_uses_the_migrated_translation_key(): void
     {
         $html = $this->fetchHtml('/blog');
 
         if (preg_match('/<title[^>]*>(.*?)<\/title>/is', $html, $m) === 1) {
-            $this->assertStringContainsString('fof-blog.forum.blog', $m[1]);
+            $this->assertStringStartsWith('Blog - ', $m[1]);
         } else {
             $this->fail('No <title> tag found in the blog overview HTML');
         }

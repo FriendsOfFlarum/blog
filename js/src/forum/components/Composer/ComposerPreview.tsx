@@ -13,6 +13,6 @@ export default class ComposerPreview extends Component<ComposerPreviewAttrs> {
   oncreate(vnode: Mithril.VnodeDOM<ComposerPreviewAttrs, this>) {
     super.oncreate(vnode);
 
-    s9e.TextFormatter.preview(this.attrs.content || '', vnode.dom);
+    s9e.TextFormatter.preview(this.attrs.content || '', vnode.dom as HTMLElement);
   }
 }

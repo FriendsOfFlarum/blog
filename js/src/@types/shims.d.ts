@@ -1,18 +1,5 @@
 import type BlogMeta from '../common/models/BlogMeta';
 
-declare global {
-  /**
-   * The s9e TextFormatter bundle exposed globally by Flarum core's
-   * formatting layer. Only the `preview` helper is typed here, as that's
-   * all this extension consumes.
-   */
-  const s9e: {
-    TextFormatter: {
-      preview(text: string, element: Element): void;
-    };
-  };
-}
-
 declare module 'flarum/common/models/Discussion' {
   export default interface Discussion {
     blogMeta: () => false | BlogMeta;
