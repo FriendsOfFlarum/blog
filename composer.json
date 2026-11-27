@@ -26,7 +26,7 @@
         }
     },
     "require": {
-        "flarum/core": "2.x-dev",
+        "flarum/core": "^2.1.0-beta.1",
         "flarum/tags": "^2.1.0-beta.1",
         "flarum/lock": "^2.1.0-beta.1",
         "ext-json": "*"
@@ -85,6 +85,6 @@
         "test:integration": "Runs all integration tests.",
         "test:setup": "Sets up a database for use with integration tests. Execute this only once."
     },
-    "minimum-stability": "dev",
+    "minimum-stability": "beta",
     "prefer-stable": true
 }
